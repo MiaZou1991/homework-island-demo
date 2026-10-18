@@ -12,8 +12,22 @@ const DemoCore=(()=>{
  classes:[{id:'demo_swim',name:'游泳课',emoji:'🏊',days:[new Date().getDay()],start:'17:30',end:'18:30',place:'区游泳馆',bring:['泳衣','泳镜','毛巾'],wear:'出门前换好泳衣',points:10,active:true}],
  events:[{id:'demo_event',owner:'child',title:'睡前看绘本',emoji:'📚',date:day,start:'20:30',end:'20:50',checklist:[{name:'选一本喜欢的绘本',done:false}],note:'留一点时间给自己',done:false,createdAt:now}],
  rewardItems:d.rewardItems.concat([{id:'demo_movie',type:'prize',emoji:'🎬',name:'家庭电影夜',points:80,desc:'和家人一起选一部电影',repeatable:true,active:true}])};}
- function ensure(d){if(!d.demoGrowth){d.demoGrowth={version:1,construction:10,buildings:[],room:{},receipts:{},archives:[],pointDebt:0,reviewDefault:false};for(const h of d.homework||[])if(h.done)d.demoGrowth.receipts['homework|'+h.id]={historical:true,points:h.earnedPoints??h.points??0,drops:[],construction:0};}const g=d.demoGrowth;g.receipts ||= {};g.room ||= {};g.buildings ||= [];g.archives ||= [];g.pointDebt ||=0;return d;}
+ function ensure(d){d.journalEntries ||= [];if(!d.demoGrowth){d.demoGrowth={version:1,construction:10,buildings:[],room:{},receipts:{},archives:[],pointDebt:0,reviewDefault:false};for(const h of d.homework||[])if(h.done)d.demoGrowth.receipts['homework|'+h.id]={historical:true,points:h.earnedPoints??h.points??0,drops:[],construction:0};}const g=d.demoGrowth;g.receipts ||= {};g.room ||= {};g.buildings ||= [];g.archives ||= [];g.pointDebt ||=0;return d;}
  function init(){let d;try{d=JSON.parse(localStorage.getItem(DEMO_KEY)||'null');}catch{}if(!d||!Array.isArray(d.homework))d=seed();ensure(d);localStorage.setItem(DEMO_KEY,JSON.stringify(d));}
+ const journalMoods=[{id:'happy',emoji:'😊',name:'开心'},{id:'calm',emoji:'😌',name:'平静'},{id:'excited',emoji:'🤩',name:'期待'},{id:'tired',emoji:'😴',name:'有点累'},{id:'sad',emoji:'🌧️',name:'有点难过'},{id:'angry',emoji:'😤',name:'有点生气'}];
+ function saveJournal(d,{day=date(0),mood='',text=''}){
+  ensure(d);
+  const parsed=new Date(day+'T12:00:00');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||!Number.isFinite(parsed.getTime())||dateStr(parsed)!==day)throw Error('记录日期不正确');
+  if(mood&&!journalMoods.some(m=>m.id===mood))throw Error('请选择一种心情');
+  text=String(text).trim().slice(0,500);
+  if(!mood&&!text)throw Error('选一个心情，或写一句话再保存吧');
+  const now=new Date().toISOString();
+  let entry=d.journalEntries.find(x=>x.date===day);
+  if(entry)Object.assign(entry,{mood,text,updatedAt:now});
+  else {entry={id:'journal|'+day,date:day,mood,text,createdAt:now,updatedAt:now};d.journalEntries.push(entry);}
+  return entry;
+ }
  function credit(d,n){let debt=Math.min(d.demoGrowth.pointDebt||0,n);d.demoGrowth.pointDebt-=debt;d.points=(Number(d.points)||0)+n-debt;}
  function debit(d,n){let available=Number(d.points)||0;d.points=Math.max(0,available-n);d.demoGrowth.pointDebt=(d.demoGrowth.pointDebt||0)+Math.max(0,n-available);}
  function finish(d,id,kind='homework',day=date(0)){
@@ -31,9 +45,14 @@ const DemoCore=(()=>{
   return {...r,title:kind==='homework'?item.content:item.name};
  }
  function undo(d,id,kind='homework',day=date(0)){ensure(d);const target=kind==='homework'?d.homework.find(h=>h.id===id):(d.classCheckins||{})[day+'|'+id];if(!target?.done)return false;const key=kind==='homework'?'homework|'+id:'class|'+day+'|'+id;let r=d.demoGrowth.receipts[key];if(!r)r=d.demoGrowth.receipts[key]={historical:true,points:target.earnedPoints??target.pointsAwarded??target.points??0,drops:[],construction:0};if(!r.reversed){debit(d,r.points||0);r.reversed=true;}target.done=false;target.completedAt=null;if(kind==='homework'){target.earnedPoints=0;d.totalCompleted=Math.max(0,(d.totalCompleted||0)-1);}else target.pointsAwarded=0;return true;}
- function validate(value){let d=value;if(!Array.isArray(d?.homework)&&Array.isArray(d?.data?.homework))d=d.data;if(!d||typeof d!=='object'||Array.isArray(d)||!Array.isArray(d.homework))throw Error('请选择作业岛导出的 JSON 备份。');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions'])if(d[k]!==undefined&&!Array.isArray(d[k]))throw Error(k+' 字段格式不正确');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions']){const ids=(d[k]||[]).map(x=>x?.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw Error(k+' 中存在缺失或重复 ID');}if(!Number.isFinite(Number(d.points??0))||Number(d.points??0)<0)throw Error('积分数据不正确');return clone(d);}
+ function validate(value){let d=value;if(!Array.isArray(d?.homework)&&Array.isArray(d?.data?.homework))d=d.data;if(!d||typeof d!=='object'||Array.isArray(d)||!Array.isArray(d.homework))throw Error('请选择作业岛导出的 JSON 备份。');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions','journalEntries'])if(d[k]!==undefined&&!Array.isArray(d[k]))throw Error(k+' 字段格式不正确');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions','journalEntries']){const ids=(d[k]||[]).map(x=>x?.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw Error(k+' 中存在缺失或重复 ID');}if(!Number.isFinite(Number(d.points??0))||Number(d.points??0)<0)throw Error('积分数据不正确');return clone(d);}
  function importData(value){let d=ensure({...createDefaultData(),...validate(value)});localStorage.setItem(DEMO_KEY,JSON.stringify(d));return d;}
- return {init,ensure,seed,finish,undo,validate,importData,date,key:DEMO_KEY};
+ function homeworkProgress(d,day=date(0)){
+  const tasks=buildDayTimeline(d,day).items.filter(x=>x.kind==='homework').map(x=>x.hw);
+  const remaining=tasks.filter(h=>!h.done);
+  return {total:tasks.length,remaining:remaining.length,waiting:remaining.filter(h=>h.pendingApproval).length,next:remaining.find(h=>!h.pendingApproval)||null,complete:remaining.length===0};
+ }
+ return {init,ensure,seed,finish,undo,validate,importData,homeworkProgress,journalMoods,saveJournal,date,key:DEMO_KEY};
 })();
 DemoCore.init();
 const IslandSync={start:async()=>{},schedulePush(){},pull:async()=>null,push:async()=>{},getCode:()=> '本机 Demo',setCode(){},openPanel(){showToast('这是隔离 Demo，记录仅保存在本机，不连接线上家庭。');}};
