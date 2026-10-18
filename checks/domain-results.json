@@ -1,5 +1,5 @@
 {
-  "passed": 14,
+  "passed": 26,
   "results": [
     "isolated storage and no cloud SDK",
     "default ten companions, legacy custom rewards and material counts",
@@ -14,6 +14,18 @@
     "invalid backup rejected without overwriting current data",
     "new schema survives import/export roundtrip",
     "production keys never changed across all operations",
-    "production sync script and SDK not shipped in demo pages"
+    "production sync script and SDK not shipped in demo pages",
+    "unfinished homework keeps construction and decoration locked",
+    "next homework advances after completion",
+    "only completing all of todays homework unlocks island activities",
+    "undo immediately locks island activities again",
+    "pending parent confirmation stays locked without reopening submitted homework",
+    "parent confirmation unlocks activities when the final homework is approved",
+    "a newly added homework relocks activities while a day without homework stays open",
+    "mood and daily note persist without changing points, growth or legacy signature",
+    "editing one day updates its existing note without duplicating history",
+    "mood-only and text-only notes are supported on separate days",
+    "empty or invalid journal submissions cannot alter saved notes",
+    "journal history and old signature survive backup import roundtrip"
   ]
 }
