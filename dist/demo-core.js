@@ -52,7 +52,39 @@ const DemoCore=(()=>{
   const remaining=tasks.filter(h=>!h.done);
   return {total:tasks.length,remaining:remaining.length,waiting:remaining.filter(h=>h.pendingApproval).length,next:remaining.find(h=>!h.pendingApproval)||null,complete:remaining.length===0};
  }
- return {init,ensure,seed,finish,undo,validate,importData,homeworkProgress,journalMoods,saveJournal,date,key:DEMO_KEY};
+ const companions=[
+  ['🐻','bear','小熊','慢慢来，我就在这里陪你。','companion-bear-v3.png'],
+  ['🐰','rabbit','小兔','先做好眼前这一小步。','companion-rabbit-v3.png'],
+  ['🐺','fox','小狐','一起试试，总会找到办法。','companion-fox-v3.png'],
+  ['🐱','cat','小猫','按自己的节奏来，每一点努力都算数。','char_cat.png'],
+  ['🐶','dog','小狗','写完这一件，我们一起去看看小岛。','char_dog.png'],
+  ['🐼','panda','熊猫','累了就伸个懒腰，我会陪你。','companion-panda-v3.png'],
+  ['🐦','owl','猫头鹰','认真想一想，答案会慢慢出现。','companion-owl-v3.png'],
+  ['🐿️','squirrel','小松鼠','今天的努力，会变成明天的小惊喜。','char_squirrel.png'],
+  ['🐯','lion','小狮子','你已经迈出勇敢的一步。','companion-lion-v3.png'],
+  ['🐴','unicorn','独角兽','每一点进步，都有自己的光。','companion-unicorn-v3.png']
+ ].map(([emoji,id,name,line,file])=>({emoji,id,name,line,src:'assets/characters/'+file}));
+ const roomSlots=[{id:'0',zone:'desk',name:'书桌左侧',x:22,y:43},{id:'2',zone:'window',name:'窗边',x:22,y:36},{id:'desk-2',zone:'desk',name:'书桌右侧',x:34,y:42}];
+ for(let row=0;row<3;row++)for(let col=0;col<4;col++)roomSlots.push({id:row===0&&col===0?'1':`shelf-${row*4+col+1}`,zone:'shelf',name:`展示架第 ${row+1} 层 · ${col+1} 号`,x:52+col*11,y:22+row*10});
+ function roomUsage(d,item){return Object.values(ensure(d).demoGrowth.room).filter(x=>x===item).length;}
+ function editRoom(d,action,slot,item){
+  ensure(d);const room=d.demoGrowth.room;
+  if(!homeworkProgress(d).complete)return {ok:false,message:'先完成今日作业，再布置房间。'};
+  if(!roomSlots.some(s=>s.id===String(slot)))return {ok:false,message:'请选择房间里的一个位置。'};
+  slot=String(slot);
+  if(action==='remove'){delete room[slot];return {ok:true,message:'已收回收藏，可以重新摆放。'};}
+  if(action==='move'){
+   const from=String(item);if(!roomSlots.some(s=>s.id===from)||!room[from])return {ok:false,message:'先选一件已经摆好的收藏。'};
+   const old=room[slot];room[slot]=room[from];if(old)room[from]=old;else delete room[from];
+   return {ok:true,message:old&&from!==slot?'两件收藏已交换位置。':'收藏已经换了一个位置。'};
+  }
+  if(action!=='place'||!(Number(d.materials?.[item])>0))return {ok:false,message:'先从收藏里选择一件物品。'};
+  if(room[slot]===item)return {ok:true,message:'这件收藏已经摆在这里了。'};
+  if(roomUsage(d,item)>=Number(d.materials[item]))return {ok:false,message:'这件收藏已全部摆好，可以用「移动摆件」换位置。'};
+  const replaced=!!room[slot];room[slot]=item;
+  return {ok:true,message:replaced?'已替换，原来的收藏已收回。':'收藏摆好了。'};
+ }
+ return {init,ensure,seed,finish,undo,validate,importData,homeworkProgress,journalMoods,saveJournal,companions,roomSlots,roomUsage,editRoom,date,key:DEMO_KEY};
 })();
 DemoCore.init();
 const IslandSync={start:async()=>{},schedulePush(){},pull:async()=>null,push:async()=>{},getCode:()=> '本机 Demo',setCode(){},openPanel(){showToast('这是隔离 Demo，记录仅保存在本机，不连接线上家庭。');}};
