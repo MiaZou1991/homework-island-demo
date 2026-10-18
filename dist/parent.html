@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#8FD6FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="小岛日历">
+    <link rel="manifest" href="manifest.json">
+    <title>作业岛·小岛日历 · 家长端</title>
+    <link rel="stylesheet" href="style.css?v=20261018-demo-integrated">
+<link rel="stylesheet" href="upgrade.css?v=1">
+</head>
+<body data-mode="parent">
+<!--
+  家长端 · 小岛日历
+  视图（底部 tab 或 gotoParentView() 切换）
+    home      作业：今日看板 / 快捷操作 / 作业日历（日周月）
+    review    审核：待完成 + 今天已完成，可一键标记 / 取消
+    report    报告：本周概览 / 每天完成数 / 各科完成情况 / 本月
+    reward    奖励：积分余额 + 调整积分 + 伙伴解锁清单 + 收集统计
+    settings  设置：家庭码 / 云端同步 / 数据管理
+  弹层
+    ovl-publish  发布作业（手动 + AI 识别）
+-->
+<div class="phone">
+
+    <!-- ===== 天空底 ===== -->
+    <div class="sky">
+        <i class="cloud c1"></i>
+        <i class="cloud c2"></i>
+        <i class="cloud c3"></i>
+    </div>
+
+    <!-- ===== 顶栏 ===== -->
+    <header class="topbar">
+        <a class="back-btn" href="index.html" title="返回主页" aria-label="返回主页">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#4A3F30" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5"/><path d="M11 5.5 L4.5 12 L11 18.5"/></svg>
+        </a>
+        <div class="brand">
+            <img class="brand-logo" src="assets/logo.svg" alt="作业岛 Homework Island">
+        </div>
+        <div class="hud">
+            <span class="kid-chip" onclick="openSyncPanel()" title="家庭码 / 多设备共享">
+                <img src="assets/cut/icon_coin.png" alt="">
+                <b id="kid-points">0</b>
+                <i>分</i>
+            </span>
+            <span class="icon-btn" onclick="gotoParentView('review')" title="待确认的作业">
+                ✅<i class="dot" id="review-dot" hidden></i>
+            </span>
+        </div>
+    </header>
+
+    <div class="stage">
+
+    <!-- ============================================================
+         页面 1 · 作业
+         ============================================================ -->
+    <section class="view on" data-view="home">
+
+        <section class="welcome">
+            <h1>
+                <em>今天的</em>
+                <b>小岛日历
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="p-welcome">还没有布置作业，发布一份让岛上热闹起来吧。</p>
+        </section>
+
+        <section class="board compact">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">📊</span>
+                <h2>今日看板</h2>
+                <span class="b-badge" id="p-tag">暂无作业</span>
+            </div>
+            <div class="stats" style="margin-top:0">
+                <span class="stat"><b id="p-total">0</b><span>今日作业</span></span>
+                <span class="stat hot"><b id="p-done">0</b><span>已完成</span></span>
+                <span class="stat gold"><b id="p-points">0</b><span>累计积分</span></span>
+            </div>
+        </section>
+
+        <!-- ========== 今日时间线：作业 + 兴趣班 + 安排混排（2026-10-17 新增） ==========
+             id="p-timeline" 由 renderTimeline() 填充；没有任何日程时自动隐藏 -->
+        <section class="board" id="p-timeline-board" style="display:none">
+            <div class="board-head">
+                <span class="b-ico">📅</span>
+                <h2>今天的日程</h2>
+                <span class="b-badge" id="p-timeline-count">0 项</span>
+            </div>
+            <div id="p-timeline" class="timeline"></div>
+            <div class="timeline-foot">
+                <span class="btn btn-ok" onclick="openClassEditor(null)">＋ 添加周期活动</span>
+                <span class="btn btn-ghost" onclick="openEventEditor(null)">添加安排</span>
+                <span class="btn btn-ghost" onclick="openPublishSheet('manual')">发布作业</span>
+                <span class="hint">周期活动每周重复，积分默认 10 分；临时安排点「添加安排」</span>
+            </div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">⚡</span>
+                <h2>快捷操作</h2>
+            </div>
+            <div class="grid4" style="margin-top:0">
+                <span class="act" onclick="openPublishSheet('ocr')">
+                    <span class="a-ico i-english">📷</span>
+                    <span>拍照导入</span>
+                </span>
+                <span class="act" onclick="gotoParentView('classes')">
+                    <span class="a-ico i-science">🎒</span>
+                    <span>周期课表</span>
+                </span>
+                <span class="act" onclick="gotoParentView('review')">
+                    <span class="a-ico i-math">✅</span>
+                    <span>确认完成</span>
+                </span>
+                <span class="act" onclick="gotoParentView('reward')">
+                    <span class="a-ico i-chinese">⭐</span>
+                    <span>调整积分</span>
+                </span>
+            </div>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">📋</span>
+                <h2 id="p-cal-title">今日作业</h2>
+                <span class="b-badge" id="p-cal-badge">—</span>
+            </div>
+
+            <div class="seg" id="p-range-switch">
+                <span class="range-btn on" data-range="day" onclick="switchParentRange('day')">日</span>
+                <span class="range-btn" data-range="week" onclick="switchParentRange('week')">周</span>
+                <span class="range-btn" data-range="month" onclick="switchParentRange('month')">月</span>
+            </div>
+
+            <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="stepParentRange(-1)" aria-label="上一区间">‹</button>
+                <div class="cal-nav-label">
+                    <span id="p-cal-range">今天</span>
+                    <span class="cal-nav-sub" id="p-cal-sub">—</span>
+                </div>
+                <button class="cal-nav-btn" onclick="stepParentRange(1)" aria-label="下一区间">›</button>
+                <button class="cal-nav-today" id="p-cal-today" onclick="goParentToday()">今天</button>
+            </div>
+
+            <div class="cal-strip" id="p-cal-strip"></div>
+            <div class="cal-summary" id="p-cal-summary"></div>
+            <div id="parent-homework-list" class="homework-list"></div>
+
+            <a class="board-more" onclick="openPublishSheet('manual')">发布新作业 <span>›</span></a>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 2 · 审核（确认完成）
+         ============================================================ -->
+    <section class="view" data-view="review">
+
+        <section class="welcome">
+            <h1>
+                <em>等着你</em>
+                <b>确认完成
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="rev-sub">孩子完成后，可以在这里帮他确认。</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">⏳</span>
+                <h2>还没完成</h2>
+                <span class="b-badge" id="rev-open-badge">—</span>
+            </div>
+            <div id="rev-open-list"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">✅</span>
+                <h2>已经完成</h2>
+                <span class="b-badge" id="rev-done-badge">—</span>
+            </div>
+            <div id="rev-done-list"></div>
+            <p class="hint">点「取消完成」会把积分一起收回，孩子端也会同步变回未完成。</p>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 3 · 报告
+         ============================================================ -->
+    <section class="view" data-view="report">
+
+        <section class="welcome">
+            <h1>
+                <em>最近的</em>
+                <b>学习报告
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="p-rep-sub">先发布几份作业，这里就会有数据啦。</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">📊</span>
+                <h2>本周概览</h2>
+                <span class="b-badge" id="p-rep-range">—</span>
+            </div>
+            <div class="stats" id="p-rep-stats" style="margin-top:0"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">📈</span>
+                <h2>每天完成数</h2>
+                <span class="b-badge" id="p-rep-week-total">—</span>
+            </div>
+            <div class="bars" id="p-rep-bars"></div>
+            <p class="hint" id="p-rep-hint"></p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🎒</span>
+                <h2>各科完成情况</h2>
+                <span class="b-badge" id="p-rep-subj-total">—</span>
+            </div>
+            <div id="p-rep-subjects"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🗓️</span>
+                <h2 id="p-rep-month-title">本月</h2>
+                <span class="b-badge" id="p-rep-month-badge">—</span>
+            </div>
+            <canvas id="p-month-chart" width="350" height="180"></canvas>
+            <div class="report-content" id="p-month-report"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 4 · 奖励
+         ============================================================ -->
+    <section class="view" data-view="reward">
+
+        <section class="welcome">
+            <h1>
+                <em>小岛的</em>
+                <b>积分与伙伴
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p>孩子完成作业自动攒积分，<br>你可以在这里准备各种兑换奖励。</p>
+        </section>
+
+        <div class="balance">
+            <span class="b-emo">⭐</span>
+            <span class="b-main">
+                <span class="b-num"><span id="p-balance-num">0</span> <small>积分</small></span>
+                <span class="b-sub" id="p-balance-sub">还没有积分，发布作业就能开始攒了</span>
+            </span>
+        </div>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">✏️</span>
+                <h2>调整积分</h2>
+                <span class="b-badge">直接改分数</span>
+            </div>
+            <div class="form-row two-col" style="margin-top:2px">
+                <div>
+                    <label>增加</label>
+                    <input type="number" id="p-points-add" min="1" value="10">
+                </div>
+                <div>
+                    <label>减少</label>
+                    <input type="number" id="p-points-sub" min="1" value="10">
+                </div>
+            </div>
+            <div class="review-act">
+                <span class="btn btn-ok" onclick="adjustPoints(1)">＋ 加分</span>
+                <span class="btn btn-back" onclick="adjustPoints(-1)">－ 扣分</span>
+            </div>
+            <p class="hint">积分是兑换奖励的「钱」。孩子兑换时会自动扣掉相应积分，已经兑换到手的奖励不会被回收。</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">🎁</span>
+                <h2>奖励清单</h2>
+                <span class="b-badge" id="p-reward-count">—</span>
+            </div>
+            <div id="p-reward-items"></div>
+            <div class="review-act" style="margin-top:10px">
+                <span class="btn btn-ok" onclick="openRewardItemEditor()">＋ 添加奖励</span>
+            </div>
+            <p class="hint">这里是你给孩子准备的兑换清单：既能放小动物伙伴，也能放「游乐场玩一次」这类实物奖励。孩子攒够积分就能在儿童端自己兑换。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">📄</span>
+                <h2>待兑现</h2>
+                <span class="b-badge" id="p-redeem-count">—</span>
+            </div>
+            <div id="p-redemptions"></div>
+            <p class="hint">孩子兑换的奖励会记在这里，兑现完点「已兑现」留个记录。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🐾</span>
+                <h2>伙伴兑换情况</h2>
+                <span class="b-badge" id="p-mate-count">—</span>
+            </div>
+            <div id="p-reward-mates"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🏝️</span>
+                <h2>收集到的宝贝</h2>
+                <span class="b-badge" id="p-mat-count">—</span>
+            </div>
+            <!-- class="display-wall"：与儿童端展示墙共用同一套格子样式（app.js 里由 renderMaterialWall 渲染） -->
+            <div id="p-reward-materials" class="display-wall"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 · 布置（发布作业 + 周期课表）
+         2026-10-17 新增课表；2026-10-18 与「发布作业」合并为同一个布置入口
+         ============================================================ -->
+    <section class="view" data-view="classes">
+        <section class="welcome">
+            <h1>
+                <em>给小岛主</em>
+                <b>布置
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p>发布今天的作业，或添加每周固定的兴趣班——它们都会出现在孩子的同一条时间轴上。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">📝</span>
+                <h2>发布作业</h2>
+                <span class="b-badge">手动 / 拍照</span>
+            </div>
+            <div class="timeline-foot" style="margin-top:10px">
+                <span class="btn btn-ok" onclick="openPublishSheet('manual')">✏️ 手动填写</span>
+                <span class="btn btn-ghost" onclick="openPublishSheet('ocr')">📷 拍照识别</span>
+            </div>
+            <p class="hint">作业会带上完成按钮和积分，孩子做完点一下就能拿到分。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🎒</span>
+                <h2>一周课表</h2>
+                <span class="b-badge" id="p-class-count">0 门课</span>
+            </div>
+            <div id="p-class-week" class="week-board"></div>
+            <div class="timeline-foot">
+                <span class="btn btn-ok" onclick="openClassEditor(null)">＋ 添加周期活动</span>
+                <span class="hint">周期活动每周重复，单节课默认 10 分</span>
+            </div>
+        </section>
+    </section>
+
+    <!-- ============================================================
+         页面 5 · 设置
+         ============================================================ -->
+    <section class="view" data-view="settings">
+
+        <section class="welcome">
+            <h1>
+                <em>家里的小岛</em>
+                <b>设置
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p>把家庭码告诉家人，<br>大家就能看到同一座小岛啦。</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">🔑</span>
+                <h2>家庭码</h2>
+                <span class="b-badge">多设备共享</span>
+            </div>
+            <div class="fam-code" style="margin-top:2px">
+                <span>
+                    <span class="fc-num" id="set-code">未设置</span>
+                    <span class="fc-sub" id="set-code-sub">点「换一个码」给自己起个好记的</span>
+                </span>
+                <span class="fc-copy" onclick="openSyncPanel()">管理</span>
+            </div>
+            <p class="hint">在另一台设备上打开小岛日历，输入这串家庭码就能看到同一份作业。</p>
+            <div class="review-act">
+                <span class="btn btn-ok" onclick="copyInviteLinkFor('child')">复制儿童端链接</span>
+                <span class="btn btn-ghost" onclick="copyInviteLinkFor('parent')">复制家长端链接</span>
+                <span class="btn btn-ghost" onclick="openSyncPanel()">管理家庭码</span>
+            </div>
+            <p class="hint">发给孩子的用「儿童端链接」，发给另一位家长的用「家长端链接」；对方点开就自动连上这个家庭码，不用再手输。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">👦</span>
+                <h2>孩子资料</h2>
+                <span class="b-badge" id="set-kid-avatar">👦</span>
+            </div>
+            <div class="form-row" style="margin-top:2px">
+                <label>孩子的名字</label>
+                <input type="text" id="set-kid-name" maxlength="12" placeholder="小岛主">
+            </div>
+            <div class="review-act">
+                <span class="btn btn-ok" onclick="saveKidName()">保存名字</span>
+            </div>
+            <p class="hint">孩子在儿童端首页能看到自己的头像、名字和心情签名，也可以自己改。</p>
+        </section>
+
+        <section class="settings">
+            <div class="set-item">
+                <span class="si-ico">🎒</span>
+                <span class="si-main">
+                    <b>周期课表</b>
+                    <span>每周固定的兴趣班 / 活动安排</span>
+                </span>
+                <span class="si-go" onclick="gotoParentView('classes')">›</span>
+            </div>
+            <div class="set-item">
+                <span class="si-ico">☁️</span>
+                <span class="si-main">
+                    <b>云端同步</b>
+                    <span id="set-sync-state">尚未连接</span>
+                </span>
+                <span class="si-go" onclick="openSyncPanel()">›</span>
+            </div>
+            <div class="set-item">
+                <span class="si-ico">📤</span>
+                <span class="si-main">
+                    <b>导出作业数据</b>
+                    <span>下载一份 JSON 备份</span>
+                </span>
+                <span class="si-go" onclick="exportData()">›</span>
+            </div>
+            <div class="set-item">
+                <span class="si-ico">🗑</span>
+                <span class="si-main">
+                    <b>清空已完成作业</b>
+                    <span id="set-clean-sub">把已完成的记录收起来</span>
+                </span>
+                <span class="si-go" onclick="cleanDoneHomework()">›</span>
+            </div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">📦</span>
+                <h2>数据概览</h2>
+            </div>
+            <div class="report-content" id="set-stats"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    </div><!-- /stage -->
+
+    <!-- ===== 底部导航：5 个 ===== -->
+    <nav class="tabbar">
+        <span class="tab on" data-tab="home" role="button" tabindex="0"><span class="emo">📖</span><span>今天</span></span>
+        <span class="tab" data-tab="classes" role="button" tabindex="0"><span class="emo">📝</span><span>布置</span></span>
+        <span class="tab" data-tab="review" role="button" tabindex="0"><span class="emo">✅</span><span>确认</span><span class="badge" id="tab-review-badge" hidden>0</span></span>
+        <span class="tab" data-tab="reward" role="button" tabindex="0"><span class="emo">🎁</span><span>奖励</span></span>
+        <span class="tab" data-tab="settings" role="button" tabindex="0"><span class="emo">⚙️</span><span>设置</span></span>
+    </nav>
+
+    <!-- ===== 弹层 · 发布作业 ===== -->
+    <div class="ovl" id="ovl-publish">
+        <div class="scrim" onclick="closePublishSheet()"></div>
+        <div class="sheet">
+            <div class="sheet-grip"></div>
+            <div class="sheet-head">
+                <span class="sh-ico">📝</span>
+                <h2>发布作业</h2>
+                <span class="x" onclick="closePublishSheet()">✕</span>
+            </div>
+
+            <div class="tabs" style="display:flex;gap:8px;margin-bottom:12px">
+                <button class="tab-btn hw-btn done" onclick="switchParentTab('manual')">✏️ 手动填写</button>
+                <button class="tab-btn hw-btn" onclick="switchParentTab('ocr')">图片 / 文字</button>
+            </div>
+
+            <!-- ---- 手动填写 ---- -->
+            <div id="tab-manual" class="tab-panel active">
+                <div class="form-row">
+                    <label>科目</label>
+                    <select id="manual-subject">
+                        <option value="语文">📖 语文</option>
+                        <option value="数学">🔢 数学</option>
+                        <option value="英语">🔤 英语</option>
+                        <option value="科学">🔬 科学</option>
+                        <option value="美术">🎨 美术</option>
+                        <option value="音乐">🎵 音乐</option>
+                        <option value="体育">🏃 体育</option>
+                        <option value="其他">📌 其他</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label>作业内容</label>
+                    <textarea id="manual-content" rows="4" placeholder="例如：抄写古诗二首，背诵课文第3段"></textarea>
+                </div>
+                <div class="form-row">
+                    <label>截止时间</label>
+                    <input type="datetime-local" id="manual-deadline">
+                </div>
+                <div class="form-row two-col">
+                    <div>
+                        <label>预计时长（分钟）</label>
+                        <input type="number" id="manual-duration" min="1" value="20" oninput="onManualDurationChange()">
+                    </div>
+                    <div>
+                        <label>奖励积分</label>
+                        <input type="number" id="manual-points" min="1" value="7" oninput="manualPointsEdited = true">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <label>作业照片（可选，最多 3 张）</label>
+                    <input type="file" id="manual-attachments" accept="image/*" multiple>
+                    <p class="attach-hint">📎 可以贴作业原题照片、老师通知截图，孩子端也能看到</p>
+                    <div class="edit-attach-grid" id="manual-attach-preview"></div>
+                </div>
+
+                <label class="cycle-toggle" for="manual-is-recurring">
+                    <input type="checkbox" id="manual-is-recurring" onchange="onCycleToggle()">
+                    <span class="cycle-box">✓</span>
+                    <span class="cycle-label">🔄 周期作业</span>
+                    <span class="cycle-sub">每天 / 每周 / 每月</span>
+                </label>
+
+                <div class="cycle-panel" id="cycle-panel">
+                    <div class="form-row">
+                        <label>重复周期</label>
+                        <select id="manual-frequency" onchange="onCycleFrequencyChange()">
+                            <option value="daily">每天</option>
+                            <option value="weekly">每周</option>
+                            <option value="monthly">每月</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="manual-weekly-row" style="display:none;">
+                        <label>每周几</label>
+                        <select id="manual-weekly-day">
+                            <option value="1">周一</option>
+                            <option value="2">周二</option>
+                            <option value="3">周三</option>
+                            <option value="4">周四</option>
+                            <option value="5">周五</option>
+                            <option value="6">周六</option>
+                            <option value="0">周日</option>
+                        </select>
+                    </div>
+                    <div class="form-row" id="manual-monthly-row" style="display:none;">
+                        <label>每月几号</label>
+                        <input type="number" id="manual-monthly-day" min="1" max="31" value="1">
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="btn-publish-hw" onclick="addManualHomework()">✨ 发布到小岛</button>
+                <div class="hint" style="text-align:center">发布后孩子端会立刻收到</div>
+            </div>
+
+            <!-- ---- AI 识别 ---- -->
+            <div id="tab-ocr" class="tab-panel">
+                <p class="hint" style="margin-bottom:10px">拍下作业本或老师通知，识别后检查文字，再整理成作业。</p>
+
+                <div class="form-row">
+                    <label>上传截图</label>
+                    <input type="file" id="ocr-image" accept="image/*" onchange="handleImageUpload(this)">
+                </div>
+                <div class="image-preview-box" id="image-preview-box" style="display:none;">
+                    <img id="image-preview" alt="作业截图预览">
+                </div>
+                <button id="btn-recognize" class="btn-primary" onclick="recognizeImage()" disabled style="margin-top:10px">
+                    识别图片
+                </button>
+                <div id="ocr-status" class="ocr-status"></div>
+
+                <hr class="ocr-divider">
+
+                <div class="form-row">
+                    <label>识别结果 / 手动粘贴</label>
+                    <textarea id="ocr-text" rows="10" placeholder="例如：&#10;语文：背诵《春晓》，预习第2课&#10;数学：练习册P15-16&#10;英语：听读Unit3&#10;&#10;也可以直接上传图片，让 AI 帮你识别和拆分"></textarea>
+                </div>
+                <button class="btn-primary" id="btn-parse-ocr" onclick="parseOcrHomework()">✨ 一键解析为作业</button>
+                <div id="ocr-preview" class="ocr-preview"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+<script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
+
+<script src="app.js?v=20261018-demo-integrated"></script>
+<script src="demo-core.js?v=1"></script>
+<script src="upgrade.js?v=1"></script>
+</body>
+</html>

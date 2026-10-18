@@ -1,0 +1,2832 @@
+/* ============================================================
+   作业岛 · 页面迭代设计稿
+   设计令牌 + 组件库
+   色彩/圆角/字阶均从参考稿（GPT 出图）取样标定
+   ------------------------------------------------------------
+   改动约定：本目录为设计稿，不影响线上 homework-game
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   1. 设计令牌
+   ------------------------------------------------------------ */
+:root {
+    /* ---- 天空 / 海 / 陆地 ---- */
+    --sky-1: #8FD6FF;
+    --sky-2: #BCE7FE;
+    --sky-3: #E4F6FF;
+    --sky-4: #F4FBE8;
+    --sea: #4FC3E8;
+    --sea-deep: #2FA8D4;
+    --sea-light: #A8E6F5;
+    --grass: #8FD06A;
+    --grass-deep: #6BB44A;
+    --grass-light: #C8E9A0;
+    --sand: #F6DFA8;
+
+    /* ---- 木 ---- */
+    --wood: #C99A63;
+    --wood-light: #E0B87F;
+    --wood-pale: #EFD9B8;
+    --wood-deep: #8B6239;
+    --wood-rgb: 139, 98, 57;
+
+    /* ---- 纸 / 墨 ---- */
+    --cream: #FDF7EB;
+    --cream-2: #FFFCF5;
+    --paper: #FFFFFF;
+    --ink: #4A3A2A;
+    --ink-2: #7A6A56;
+    --ink-3: #A2967F;
+    --line: #EFE6D4;
+    --ring: #C2BCB0;
+
+    /* ---- 强调 ---- */
+    --gold: #FBBF24;
+    --gold-deep: #E0A020;
+    --leaf-title: #7AB93C;
+    --c-math: #F5A623;
+    --c-chinese: #EF6E68;
+    --c-english: #56AEE8;
+    --c-science: #7DC46A;
+    --c-art: #C69AE8;
+
+    /* ---- 圆角 ---- */
+    --r-card: 24px 22px 24px 22px;
+    --r-board: 28px 26px 28px 26px;
+    --r-row: 16px;
+    --r-tile: 14px;
+    --r-tab: 24px;
+    --r-pill: 999px;
+    --r-sign: 12px 10px 12px 10px;
+
+    /* ---- 阴影 ---- */
+    --sh-card: 0 8px 20px rgba(90, 70, 40, .13);
+    --sh-card-lift: 0 12px 28px rgba(90, 70, 40, .18);
+    --sh-tab: 0 6px 16px rgba(60, 90, 60, .16);
+    --sh-tab-on: 0 5px 14px rgba(120, 80, 30, .34);
+    --sh-soft: 0 2px 8px rgba(90, 70, 40, .10);
+
+    /* ---- 字体 ---- */
+    --font-round: "Yuanti SC", "圆体-简", "幼圆", "YouYuan",
+                  "Hiragino Maru Gothic ProN", "PingFang SC",
+                  "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    /* emoji 字体必须放在**最后**：
+       放在前面时，安卓遇到不认识的字形会直接渲染成豆腐块（□）而不是回退到下一个字体。
+       放最后 + 保留 sans-serif 结尾，安卓找不到就交给系统默认字体渲染，最坏也只是黑白字形，不会出现方框。
+       "Segoe UI Emoji" 只对 Windows 有用，"Noto Color Emoji" 是安卓的彩色 emoji 字体。 */
+    --font-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+                  "Segoe UI Symbol", "Android Emoji", sans-serif;
+
+    /* ---- 版心 ---- */
+    --pw: 390px;
+    --gutter: 16px;
+    --tabbar-h: 74px;
+
+    /* ---- 吸顶顶栏的天空色（浏览器 / 主屏模式两套）----
+       顶栏要一直浮在页面顶端挡住滚上来的内容，
+       刘海机加到主屏后整页铺到状态栏后面，顶栏底色必须跟 .sky 顶段一致，
+       否则看起来像一条贴上去的胶带。 */
+    --head-fade: linear-gradient(180deg,
+        #8FD6FF 0%, #8FD6FF calc(100% - 14px), rgba(143, 214, 255, 0) 100%);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { margin: 0; padding: 0; }
+
+/* 手机端：画布底色取天空顶部色。
+   刘海机 / 状态栏 / 橡皮筋回弹露出的区域都是这一层，取天空色才不会有灰边。 */
+html { background: #8FD6FF; }
+body {
+    font-family: var(--font-round);
+    color: var(--ink);
+    background: #8FD6FF;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+}
+
+ul, li, h1, h2, h3, p { margin: 0; padding: 0; list-style: none; }
+
+img { display: block; max-width: 100%; }
+
+/* ------------------------------------------------------------
+   2. 手机画布
+   ------------------------------------------------------------ */
+.phone {
+    position: relative;
+    width: 100%;
+    max-width: var(--pw);
+    margin: 0 auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: clip;                 /* clip 而非 hidden：不产生滚动容器，底栏 sticky 才生效 */
+    background: var(--sky-2);
+    scrollbar-width: none;
+}
+.phone::-webkit-scrollbar { display: none; }
+
+@media (min-width: 520px) {
+    /* 桌面端：手机框外是工作台底色，不用天空色 */
+    html, body { background: #E8F0F4; }
+    body { padding: 26px 0; }
+    .phone {
+        height: 844px;
+        height: min(844px, calc(100dvh - 52px));
+        overflow-y: auto;           /* 桌面端：手机框内部滚动，底栏钉在框底 */
+        overflow-x: clip;
+        border-radius: 38px;
+        box-shadow: 0 26px 60px rgba(40, 70, 90, .28), 0 0 0 10px #fff, 0 0 0 12px #D9E4EA;
+    }
+    .phone::after {
+        content: '';
+        position: absolute; inset: 0 0 auto 0; height: 8px;
+        pointer-events: none;
+    }
+}
+
+/* 天空底 + 云（铺满整页内容高度：天空 → 草地 → 米白） */
+.sky {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+        #8FD6FF 0%, #A5DFFE 10%, #C6EBFE 20%, #E1F5FE 29%,
+        #E8F6DA 38%, #F1F5E2 47%, #FAF6EA 56%, #FBF6EA 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+.cloud {
+    position: absolute;
+    border-radius: 999px;
+    background: #fff;
+    opacity: .9;
+    filter: blur(.4px);
+    box-shadow: 0 6px 18px rgba(120, 180, 220, .18);
+}
+.cloud::before, .cloud::after {
+    content: ''; position: absolute; border-radius: 999px; background: #fff;
+}
+.cloud.c1 { width: 104px; height: 30px; left: 24px; top: 74px; }
+.cloud.c1::before { width: 46px; height: 46px; left: 16px; top: -22px; }
+.cloud.c1::after { width: 32px; height: 32px; left: 56px; top: -14px; }
+.cloud.c2 { width: 76px; height: 22px; right: 30px; top: 118px; opacity: .78; }
+.cloud.c2::before { width: 34px; height: 34px; left: 12px; top: -16px; }
+.cloud.c2::after { width: 24px; height: 24px; left: 40px; top: -10px; }
+.cloud.c3 { width: 58px; height: 18px; left: 190px; top: 52px; opacity: .62; }
+.cloud.c3::before { width: 26px; height: 26px; left: 10px; top: -12px; }
+.cloud.c3::after { width: 18px; height: 18px; left: 30px; top: -8px; }
+
+/* 所有内容浮在天空之上。
+   这里的 :not() 列表很重要：规则里有 4 个类级选择器，特指度高于任何单类选择器，
+   谁不排除谁就会被强制改成 position: relative（fixed / sticky 的零件会被这样吃掉）。
+   当前浮动零件：.sync-pill（在 .stage 内，不受影响）、.topbar（吸顶）。
+   以后往 .phone 直接加 position:fixed / sticky 的零件，必须同步补进这个 :not() 名单。 */
+.phone > *:not(.sky):not(.tabbar):not(.ovl):not(.topbar) { position: relative; z-index: 1; }
+
+/* ------------------------------------------------------------
+   3. 顶栏
+   ------------------------------------------------------------ */
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    /* 吸顶：页面滚动时顶栏留在最上面，内容不会钻进刘海 / 状态栏底下。
+       （iPhone 加到主屏后整页铺到刘海后面，顶栏若跟着滚走，
+       白色看板卡片就会滑到状态栏文字后面，看起来像显示错乱。） */
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    /* 顶部安全区：刘海机全屏（viewport-fit=cover）时把内容压到刘海下方；
+       非全屏浏览器 env() 为 0，不留多余空白。 */
+    padding: calc(12px + env(safe-area-inset-top, 0px)) var(--gutter) 10px;
+    /* 底色与天空顶段一致并向下淡出，吸顶后看不出「贴了一条」 */
+    background: var(--head-fade);
+}
+
+/* 顶栏左侧 · 返回主页按钮（儿童端 / 家长端通用）
+   两端的返回入口都放这里：位置固定、一眼可见，回 index.html（入口页）。
+   index.html 会读 localStorage 里的家庭码自动透传，回来不用重输码。 */
+.back-btn {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    background: linear-gradient(180deg, #FFFFFF, #FDF1DA);
+    border: 2.5px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(120, 90, 40, .22);
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .14s ease;
+}
+.back-btn svg { display: block; }
+.back-btn:active { transform: scale(.88); }
+
+/* ---- 品牌：矢量 Logo（assets/logo.svg，纯路径无字体依赖）---- */
+.brand { display: flex; align-items: center; gap: 6px; margin-right: auto; min-width: 0; }
+.brand-logo {
+    height: 32px; width: auto; display: block; flex-shrink: 0;
+    filter: drop-shadow(0 3px 5px rgba(90, 74, 50, .18));
+}
+/* 兼容旧结构：家长端 / 儿童端标题行（无 Logo 时退化为文字） */
+.brand-text { line-height: 1.05; white-space: nowrap; }
+.brand-text b {
+    display: block;
+    font-size: 14px; font-weight: 800; letter-spacing: .5px;
+    color: #3D3226;
+}
+.brand-text i {
+    display: block; font-style: normal;
+    font-size: 8px; font-weight: 700; letter-spacing: .6px;
+    color: #7C6E58; text-transform: uppercase;
+}
+
+/* ---- 顶栏右侧：小岛状态胶囊 + 积分胶囊 + 头像 ----
+   规格取自设计基准稿（右上角「小岛天气 / 小岛情况」）：
+   底色 #FBFEFF、描边 #E3EBEE、文字 #3D4449、全圆角、柔和投影。
+   注意：顶栏横向预算只有 362px（390 - 左右各 16），
+   三个零件都加了 flex-shrink:0，宁可让文案短一点也不能把头像挤出去。 */
+.hud { display: flex; align-items: center; gap: 6px; min-width: 0; flex-shrink: 0; }
+.capsule {
+    display: flex; align-items: center; gap: 8px;
+    background: #FBFEFF;
+    border: 1.5px solid #E3EBEE;
+    border-radius: var(--r-pill);
+    padding: 5px 10px;
+    font-size: 11px; font-weight: 800; color: #3D4449;
+    box-shadow: 0 3px 8px rgba(90, 74, 50, .08);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.capsule .cseg { display: flex; align-items: center; gap: 4px; }
+.capsule .ci { width: 15px; height: 15px; flex-shrink: 0; object-fit: contain; }
+.capsule b { color: #3D4449; font-variant-numeric: tabular-nums; }
+.capsule.pts { background: linear-gradient(180deg, #FFF7DC, #FFEFC2); border-color: #F3DEA6; }
+.capsule.pts b { color: #8A5A10; }
+.hud-avatar {
+    width: 32px; height: 32px; flex-shrink: 0;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 2px 6px rgba(120, 90, 40, .22);
+    cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+   4. 手绘欢迎标题
+   ------------------------------------------------------------ */
+.welcome { padding: 16px var(--gutter) 0; }
+
+.welcome h1 {
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1.14;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow:
+        2px 2px 0 #6E4A22, -2px 2px 0 #6E4A22, 2px -2px 0 #6E4A22, -2px -2px 0 #6E4A22,
+        0 6px 12px rgba(70, 50, 20, .22);
+}
+.welcome h1 em {
+    display: block;
+    font-style: normal;
+    font-size: 24px;
+}
+.welcome h1 b { display: block; position: relative; }
+
+/* 手绘绿色下划线 */
+.scribble {
+    display: block;
+    width: 148px; height: 12px;
+    margin: 2px 0 0 -2px;
+    overflow: visible;
+}
+.scribble path {
+    fill: none;
+    stroke: var(--leaf-title);
+    stroke-width: 5;
+    stroke-linecap: round;
+}
+
+.welcome p {
+    margin-top: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.6;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(90, 70, 40, .55), 0 3px 8px rgba(70, 50, 20, .3);
+}
+
+/* ------------------------------------------------------------
+   5. 主视觉 + 飞机横幅
+   ------------------------------------------------------------ */
+.hero {
+    position: relative;
+    margin: 10px var(--gutter) 0;
+    border-radius: 26px 22px 26px 22px;
+    overflow: hidden;
+    box-shadow: 0 14px 30px rgba(50, 90, 120, .26);
+}
+.hero img { width: 100%; height: 196px; object-fit: cover; object-position: 46% 62%; }
+.hero::after {
+    content: '';
+    position: absolute; inset: auto 0 0 0; height: 42px;
+    background: linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.5));
+}
+
+.plane {
+    display: flex; align-items: center; gap: 5px;
+    position: absolute; right: 8px; top: 12px;
+    animation: fly 5.5s ease-in-out infinite;
+}
+.plane .p-emo { font-family: var(--font-emoji); font-size: 17px; }
+.plane .p-flag {
+    font-size: 10.5px; font-weight: 800; color: #fff;
+    padding: 3px 9px;
+    background: rgba(245, 166, 35, .92);
+    border-radius: 4px 8px 8px 4px;
+    box-shadow: 0 3px 8px rgba(180, 120, 20, .3);
+    white-space: nowrap;
+}
+@keyframes fly {
+    0%, 100% { transform: translate3d(0, 0, 0) rotate(-1deg); }
+    50%      { transform: translate3d(-10px, 4px, 0) rotate(1deg); }
+}
+
+/* ------------------------------------------------------------
+   6. 木牌路标（学习 / 成长 / 更好的自己）
+   ------------------------------------------------------------ */
+.signposts {
+    display: flex; gap: 8px;
+    padding: 12px var(--gutter) 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.signposts::-webkit-scrollbar { display: none; }
+.signpost {
+    flex: 1 0 auto;
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 7px 12px 8px;
+    font-size: 11.5px; font-weight: 800; color: #5C4326;
+    background: linear-gradient(180deg, var(--wood-light), var(--wood));
+    border-radius: var(--r-sign);
+    box-shadow: 0 3px 0 rgba(var(--wood-rgb), .35), 0 5px 10px rgba(90, 70, 40, .16),
+                inset 0 2px 0 rgba(255, 255, 255, .5);
+    white-space: nowrap;
+}
+.signpost .emo { font-family: var(--font-emoji); font-size: 12px; }
+
+/* ------------------------------------------------------------
+   7. 木挂牌（主卡）
+   ------------------------------------------------------------ */
+.board {
+    position: relative;
+    margin: 14px var(--gutter) 0;
+    padding: 14px 14px 12px;
+    background: var(--cream);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+}
+.board::before {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(96deg,
+        rgba(var(--wood-rgb), .035) 0 3px, transparent 3px 14px);
+    pointer-events: none;
+}
+.board > * { position: relative; }
+
+/* 顶部木钉 */
+.board .peg {
+    position: absolute; top: -11px; left: 34px;
+    width: 9px; height: 22px;
+    background: linear-gradient(180deg, #E5B981, #B98A56);
+    border-radius: 4px 4px 2px 2px;
+    box-shadow: 0 3px 6px rgba(90, 70, 40, .28), inset -1.5px 0 0 rgba(120, 80, 40, .3);
+}
+.board .peg::after {
+    content: ''; position: absolute; left: 50%; top: 3px;
+    width: 8px; height: 8px; margin-left: -4px;
+    background: radial-gradient(circle at 34% 30%, #FFF0D2, #D8A96F);
+    border-radius: 50%;
+    box-shadow: inset 0 -1px 1px rgba(120, 80, 40, .35);
+}
+
+.board-head {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px;
+}
+.board-head .b-ico {
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    font-size: 15px; font-family: var(--font-emoji);
+    background: #fff;
+    border-radius: var(--r-tile);
+    box-shadow: var(--sh-soft);
+}
+.board-head h2 {
+    font-size: 17px; font-weight: 800; letter-spacing: .5px;
+    color: #3D3226;
+}
+.board-head .b-badge {
+    margin-left: auto;
+    font-size: 10.5px; font-weight: 800; color: #8A6A3A;
+    padding: 3px 9px;
+    background: var(--wood-pale);
+    border-radius: var(--r-pill);
+}
+
+/* 列表行 */
+.row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 11px;
+    margin-bottom: 7px;
+    background: var(--cream-2);
+    border-radius: var(--r-row);
+    box-shadow: 0 2px 6px rgba(90, 70, 40, .07);
+}
+.row:last-of-type { margin-bottom: 0; }
+.row .r-ico {
+    width: 32px; height: 32px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; font-family: var(--font-emoji);
+    border-radius: 10px;
+    color: #fff;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10), 0 2px 5px rgba(90, 70, 40, .16);
+}
+.i-math    { background: linear-gradient(180deg, #FFC24D, var(--c-math)); }
+.i-chinese { background: linear-gradient(180deg, #FF8E88, var(--c-chinese)); }
+.i-english { background: linear-gradient(180deg, #7BC7F2, var(--c-english)); }
+.i-science { background: linear-gradient(180deg, #9AD68A, var(--c-science)); }
+.i-art     { background: linear-gradient(180deg, #D6B0F2, var(--c-art)); }
+
+.row .r-sub {
+    font-size: 13.5px; font-weight: 800; color: var(--ink);
+    white-space: nowrap;
+}
+.row .r-desc {
+    font-size: 12.5px; font-weight: 500; color: var(--ink-2);
+    flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.row .r-check {
+    width: 22px; height: 22px; flex: none;
+    border: 2px solid var(--ring);
+    border-radius: 50%;
+}
+.row.done { background: #F1F8EC; }
+.row.done .r-check {
+    border-color: var(--grass-deep);
+    background: var(--grass-deep);
+    position: relative;
+}
+.row.done .r-check::after {
+    content: ''; position: absolute; left: 5px; top: 3px;
+    width: 7px; height: 11px;
+    border: 2.5px solid #fff; border-top: 0; border-left: 0;
+    transform: rotate(42deg);
+}
+.row.done .r-desc { text-decoration: line-through; opacity: .6; }
+
+.board-more {
+    display: block;
+    margin-top: 10px;
+    text-align: right;
+    font-size: 12px; font-weight: 700; color: var(--ink-2);
+}
+.board-more span { color: var(--ink-3); }
+
+/* ------------------------------------------------------------
+   8. 伙伴解锁卡
+   ------------------------------------------------------------ */
+.unlock {
+    display: flex; align-items: center; gap: 10px;
+    margin: 14px var(--gutter) 0;
+    padding: 12px 14px 12px 12px;
+    background: linear-gradient(135deg, #FFF8E4, #FDEFD0);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+    position: relative;
+    overflow: hidden;
+}
+.unlock-img {
+    width: 74px; height: 74px; flex: none;
+    border-radius: 18px;
+    object-fit: cover;
+    object-position: 20% 60%;
+    box-shadow: 0 4px 10px rgba(90, 70, 40, .2), 0 0 0 3px #fff;
+}
+.unlock-txt { flex: 1; min-width: 0; }
+.unlock-txt b {
+    display: block;
+    font-size: 14.5px; font-weight: 800; color: #5C4326;
+    line-height: 1.35;
+}
+.unlock-txt p {
+    margin-top: 4px;
+    font-size: 11.5px; font-weight: 600; color: #9A7E52;
+}
+.unlock-go {
+    flex: none;
+    font-size: 11px; font-weight: 800; color: #fff;
+    padding: 7px 12px;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+    border-radius: var(--r-pill);
+    box-shadow: 0 3px 0 rgba(90, 130, 50, .35);
+    white-space: nowrap;
+}
+
+/* ------------------------------------------------------------
+   9. 底部导航
+   ------------------------------------------------------------ */
+.tabbar {
+    position: sticky;
+    bottom: 0;
+    display: flex; align-items: flex-end; justify-content: space-around;
+    gap: 4px;
+    margin-top: 16px;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(180deg, rgba(251,246,234,.72), rgba(251,246,234,.96) 46%);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+    z-index: 20;
+}
+
+.tab {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    padding: 9px 2px 8px;
+    background: rgba(255, 255, 255, .92);
+    border-radius: var(--r-tab);
+    box-shadow: var(--sh-tab);
+    color: var(--ink);
+    /* tab 是 span，不是 button：自己给指针态，并禁掉长按选中/放大镜 */
+    cursor: pointer;
+    -webkit-user-select: none; user-select: none;
+    -webkit-touch-callout: none;
+    transition: transform .14s ease;
+}
+.tab:active { transform: scale(.94); }
+.tab.on:active { transform: translateY(-6px) scale(.96); }
+.tab .emo { font-family: var(--font-emoji); font-size: 19px; line-height: 1; }
+.tab span { font-size: 10.5px; font-weight: 800; letter-spacing: .2px; }
+
+.tab.on {
+    background: linear-gradient(180deg, var(--wood-light) 0%, var(--wood) 100%);
+    box-shadow: 0 0 0 3px #fff, var(--sh-tab-on);
+    color: #4E3618;
+    transform: translateY(-6px);
+    padding-top: 12px; padding-bottom: 10px;
+}
+.tab.on .emo { font-size: 21px; }
+
+/* ------------------------------------------------------------
+   10. 家长端专用
+   ------------------------------------------------------------ */
+/* 进度条 */
+.pbar {
+    height: 12px;
+    margin: 2px 0 14px;
+    background: #EDE6D6;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    box-shadow: inset 0 2px 4px rgba(90, 70, 40, .12);
+}
+.pbar i {
+    display: block; height: 100%;
+    border-radius: var(--r-pill);
+    background: linear-gradient(180deg, #A5DC78, var(--grass-deep));
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .45), 0 1px 3px rgba(90, 130, 50, .35);
+}
+
+/* 待办提醒所在行去掉外边距时的对齐 */
+.sec-head + div .todo:first-child { margin-top: 10px; }
+
+/* 底部 tab 上的红点 */
+.tab { position: relative; }
+.tab .badge {
+    position: absolute; right: 50%; top: 4px;
+    transform: translateX(20px);
+    min-width: 16px; height: 16px;
+    padding: 0 4px;
+    display: grid; place-items: center;
+    font-size: 9.5px; font-weight: 800; color: #fff;
+    background: #EF5A54;
+    border: 2px solid #fff;
+    border-radius: var(--r-pill);
+}
+
+/* 家长端顶栏 · 家庭码 / 积分胶囊（规格同儿童端 .capsule） */
+.kid-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 11px;
+    background: linear-gradient(180deg, #FFF7DC, #FFEFC2);
+    border: 1.5px solid #F3DEA6;
+    border-radius: var(--r-pill);
+    box-shadow: 0 3px 8px rgba(90, 74, 50, .08);
+    font-size: 11px; font-weight: 800; color: #8A5A10;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.kid-chip img {
+    width: 16px; height: 16px;
+    object-fit: contain;
+}
+.kid-chip b { font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.kid-chip i {
+    font-style: normal; font-size: 9px; color: #B08B3C; font-weight: 800;
+}
+.icon-btn {
+    width: 32px; height: 32px; flex: none;
+    display: grid; place-items: center;
+    font-family: var(--font-emoji); font-size: 15px;
+    background: #FBFEFF;
+    border: 1.5px solid #E3EBEE;
+    border-radius: 12px 10px 12px 10px;
+    box-shadow: 0 3px 8px rgba(90, 74, 50, .08);
+    position: relative;
+    cursor: pointer;
+}
+.icon-btn .dot {
+    position: absolute; right: 5px; top: 5px;
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #EF5A54; border: 2px solid #fff;
+}
+
+/* 数据看板 */
+.stats { display: flex; gap: 8px; margin-top: 12px; }
+.stat {
+    flex: 1;
+    padding: 11px 8px 10px;
+    text-align: center;
+    background: var(--cream-2);
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+}
+.stat b {
+    display: block;
+    font-size: 21px; font-weight: 800; line-height: 1.1;
+    color: #3D3226;
+    font-variant-numeric: tabular-nums;
+}
+.stat b small { font-size: 11px; font-weight: 800; color: var(--ink-3); }
+.stat span { display: block; margin-top: 2px; font-size: 10.5px; font-weight: 700; color: var(--ink-2); }
+.stat.hot b { color: var(--c-chinese); }
+.stat.gold b { color: var(--gold-deep); }
+
+/* 快捷操作 4 宫格 */
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+.act {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 11px 4px 9px;
+    background: var(--cream-2);
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+    text-align: center;
+}
+.act .a-ico {
+    width: 36px; height: 36px;
+    display: grid; place-items: center;
+    font-family: var(--font-emoji); font-size: 17px;
+    border-radius: 12px;
+    color: #fff;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10), 0 3px 7px rgba(90, 70, 40, .18);
+}
+.act span { font-size: 10.5px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+
+/* 待办提醒 */
+.todo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    margin-top: 8px;
+    background: var(--cream-2);
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+}
+.todo .t-bar { width: 4px; align-self: stretch; border-radius: 4px; background: var(--c-math); }
+.todo .t-main { flex: 1; min-width: 0; }
+.todo .t-main b { display: block; font-size: 13px; font-weight: 800; color: var(--ink); }
+.todo .t-main span { display: block; margin-top: 2px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.todo .t-go {
+    flex: none; font-size: 11px; font-weight: 800;
+    padding: 6px 11px;
+    color: #fff;
+    background: linear-gradient(180deg, #FFB84D, var(--c-math));
+    border-radius: var(--r-pill);
+    box-shadow: 0 3px 0 rgba(190, 120, 20, .32);
+}
+
+/* 周进度 */
+.week { display: flex; justify-content: space-between; margin-top: 12px; }
+.day { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+.day .d-dot {
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    font-family: var(--font-emoji); font-size: 12px;
+    background: #EDE6D6;
+    border-radius: 50%;
+}
+.day.on .d-dot { background: linear-gradient(180deg, #9BD46E, var(--grass-deep)); color: #fff; }
+.day.today .d-dot { box-shadow: 0 0 0 2.5px var(--wood), 0 0 0 5px rgba(201, 154, 99, .28); }
+.day span { font-size: 9.5px; font-weight: 800; color: var(--ink-3); }
+
+/* 段落标题 */
+.sec-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 18px var(--gutter) 0;
+}
+.sec-head h3 { font-size: 14px; font-weight: 800; color: #3D3226; }
+.sec-head a { font-size: 11.5px; font-weight: 700; color: var(--ink-2); }
+
+/* 家长端草地底板 */
+.ground { margin-top: 20px; padding-bottom: 6px; }
+.board.wide { padding: 14px; }
+
+/* ============================================================
+   12. 多视图框架（全套 demo）
+   ------------------------------------------------------------
+   一个 html 承载该端所有页面，用 ?view=xxx 定位；
+   .view 默认隐藏，.on 显示；底部 tab 共用一份，切换 view 只换高亮。
+   ============================================================ */
+.stage { position: relative; }
+
+.view { display: none; }
+.view.on { display: block; }
+
+/* 子页返回栏 */
+.subbar {
+    display: flex; align-items: center; gap: 10px;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) var(--gutter) 0;
+}
+.subbar .back {
+    width: 34px; height: 34px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; color: var(--ink);
+    background: rgba(255, 255, 255, .92);
+    border-radius: 12px 10px 12px 10px;
+    box-shadow: var(--sh-soft);
+}
+.subbar h2 {
+    font-size: 17px; font-weight: 800; letter-spacing: .5px;
+    color: #fff;
+    text-shadow: 1px 1px 0 rgba(90, 70, 40, .5), 0 3px 8px rgba(70, 50, 20, .28);
+}
+.subbar .sb-right { margin-left: auto; }
+
+/* 分段控件（本周 / 上月） */
+.seg {
+    display: inline-flex; gap: 2px;
+    padding: 3px;
+    background: rgba(255, 255, 255, .88);
+    border-radius: var(--r-pill);
+    box-shadow: var(--sh-soft);
+}
+.seg span {
+    padding: 6px 15px;
+    font-size: 11.5px; font-weight: 800; color: var(--ink-2);
+    border-radius: var(--r-pill);
+    white-space: nowrap;
+}
+.seg span.on {
+    color: #4E3618;
+    background: linear-gradient(180deg, var(--wood-light), var(--wood));
+    box-shadow: 0 2px 0 rgba(var(--wood-rgb), .35), inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+/* ============================================================
+   13. 图表 / 数据
+   ============================================================ */
+/* 竖向柱状图 */
+.bars {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 5px;
+    height: 112px;
+    margin-top: 12px;
+    padding: 0 2px 0;
+}
+.bar {
+    flex: 1;
+    height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    gap: 6px;
+}
+.bar i {
+    display: block;
+    width: 100%; max-width: 22px;
+    border-radius: 8px 8px 5px 5px;
+    background: linear-gradient(180deg, #A5DC78, var(--grass-deep));
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .42), 0 2px 5px rgba(90, 130, 50, .2);
+}
+.bar.today i { background: linear-gradient(180deg, #FFC24D, var(--c-math)); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .45), 0 3px 0 rgba(190, 120, 20, .3); }
+.bar.zero i { background: #E8E0CE; box-shadow: none; }
+.bar span { font-size: 9.5px; font-weight: 800; color: var(--ink-3); }
+
+/* 科目完成情况 */
+.subj { display: flex; align-items: center; gap: 10px; margin-top: 11px; }
+.subj .s-ico {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    font-size: 14px; font-family: var(--font-emoji); color: #fff;
+    border-radius: 10px;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10), 0 2px 5px rgba(90, 70, 40, .16);
+}
+.subj .s-main { flex: 1; min-width: 0; }
+.subj .s-top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    font-size: 12px; font-weight: 800; color: var(--ink);
+}
+.subj .s-top em { font-style: normal; font-size: 11px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.subj .s-bar {
+    display: block;                 /* 行内元素上的 height 不生效，必须显式 block */
+    height: 8px; margin-top: 5px;
+    background: #EDE6D6;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(90, 70, 40, .12);
+}
+.subj .s-bar i { display: block; height: 100%; border-radius: var(--r-pill); }
+
+/* 评语气泡 */
+.quote {
+    display: flex; gap: 9px;
+    padding: 11px 12px;
+    margin-top: 10px;
+    background: #FFFDF6;
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+}
+.quote .q-av {
+    width: 34px; height: 34px; flex: none;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px #fff, 0 2px 6px rgba(90, 70, 40, .18);
+}
+.quote .q-main { flex: 1; min-width: 0; }
+.quote .q-name { font-size: 11px; font-weight: 800; color: var(--ink-3); }
+.quote .q-txt { margin-top: 3px; font-size: 12.5px; font-weight: 600; line-height: 1.6; color: var(--ink); }
+
+/* ============================================================
+   14. 成就 / 展示墙 / 商城
+   ============================================================ */
+/* 徽章墙 */
+.medals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 12px; }
+.medal {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 12px 6px 10px;
+    background: var(--cream-2);
+    border-radius: 20px 18px 20px 18px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+    text-align: center;
+}
+.medal .m-ico {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    font-size: 23px; font-family: var(--font-emoji);
+    border-radius: 50%;
+    background: linear-gradient(180deg, #FFE9A8, var(--gold));
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .35), inset 0 2px 0 rgba(255, 255, 255, .72);
+}
+.medal b { font-size: 11.5px; font-weight: 800; color: var(--ink); line-height: 1.2; }
+.medal span { font-size: 9.5px; font-weight: 700; color: var(--ink-3); }
+.medal.locked { background: #F4F0E6; box-shadow: none; }
+.medal.locked .m-ico {
+    background: #E6DECC;
+    box-shadow: inset 0 0 0 2px #D8CEB8;
+    filter: grayscale(1);
+    opacity: .5;
+}
+.medal.locked b { color: var(--ink-3); }
+
+/* 小岛展示墙 4×3 */
+.wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-top: 12px; }
+.wall-cell {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    font-size: 20px; font-family: var(--font-emoji);
+    background: #F5EFE2;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 2px #EDE5D3;
+}
+.wall-cell.has {
+    background: linear-gradient(180deg, #FFF6DC, #FFE9AE);
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .26), inset 0 0 0 2px #fff;
+}
+.wall-cell.empty { opacity: .38; filter: grayscale(.5); }
+
+/* 积分余额条 */
+.balance {
+    display: flex; align-items: center; gap: 11px;
+    margin: 14px var(--gutter) 0;
+    padding: 13px 15px;
+    background: linear-gradient(135deg, #FFF4D4, #FFE6A4);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+}
+.balance .b-emo {
+    width: 40px; height: 40px; flex: none;
+    display: grid; place-items: center;
+    font-size: 21px; font-family: var(--font-emoji);
+    background: #fff;
+    border-radius: 14px 12px 14px 12px;
+    box-shadow: var(--sh-soft);
+}
+.balance .b-main { flex: 1; min-width: 0; }
+.balance .b-num {
+    font-size: 25px; font-weight: 800; line-height: 1.05;
+    color: #7A5210;
+    font-variant-numeric: tabular-nums;
+}
+.balance .b-num small { font-size: 11.5px; font-weight: 800; color: #A8842F; }
+.balance .b-sub { margin-top: 2px; font-size: 11px; font-weight: 700; color: #A8842F; }
+.balance .b-act {
+    flex: none;
+    padding: 7px 12px;
+    font-size: 11px; font-weight: 800; color: #fff;
+    background: linear-gradient(180deg, #FFB84D, var(--c-math));
+    border-radius: var(--r-pill);
+    box-shadow: 0 3px 0 rgba(190, 120, 20, .32);
+    white-space: nowrap;
+}
+
+/* 商城商品网格 */
+.shop-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+.shop-card {
+    display: flex; flex-direction: column; align-items: center; gap: 7px;
+    padding: 11px 11px 12px;
+    background: var(--cream-2);
+    border-radius: 22px 20px 22px 20px;
+    box-shadow: var(--sh-card);
+}
+.shop-card .sc-img {
+    width: 100%;
+    aspect-ratio: 1.3;
+    display: grid; place-items: center;
+    font-size: 36px; font-family: var(--font-emoji);
+    background: linear-gradient(180deg, #E9F6FF, #CCEBFB);
+    border-radius: 16px;
+    box-shadow: inset 0 -3px 0 rgba(90, 150, 190, .12);
+}
+.shop-card.warm .sc-img { background: linear-gradient(180deg, #FFF1D6, #FFE3AE); box-shadow: inset 0 -3px 0 rgba(190, 140, 30, .14); }
+.shop-card.leaf .sc-img { background: linear-gradient(180deg, #EDF9E2, #D6F0C2); box-shadow: inset 0 -3px 0 rgba(90, 150, 60, .14); }
+.shop-card.rose .sc-img { background: linear-gradient(180deg, #FFEDEC, #FFD9D6); box-shadow: inset 0 -3px 0 rgba(190, 90, 90, .12); }
+.shop-card b { font-size: 12.5px; font-weight: 800; color: var(--ink); text-align: center; line-height: 1.3; }
+.shop-card .sc-price {
+    display: inline-flex; align-items: center; gap: 3px;
+    padding: 4px 11px;
+    font-size: 11.5px; font-weight: 800; color: #8A6A3A;
+    background: var(--wood-pale);
+    border-radius: var(--r-pill);
+    font-variant-numeric: tabular-nums;
+}
+.shop-card .sc-price.gold {
+    color: #7A5210;
+    background: linear-gradient(180deg, #FFE9A8, var(--gold));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+.shop-card .sc-btn {
+    width: 100%;
+    padding: 8px;
+    font-size: 11.5px; font-weight: 800; color: #fff;
+    text-align: center;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+    border-radius: var(--r-pill);
+    box-shadow: 0 3px 0 rgba(90, 130, 50, .32);
+}
+.shop-card .sc-btn.owned { color: var(--ink-3); background: #EDE6D6; box-shadow: none; }
+
+/* ============================================================
+   15. 作业日历（日 / 周 / 月）
+   ============================================================ */
+.cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 12px; }
+.cal .cd {
+    aspect-ratio: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px;
+    font-size: 11px; font-weight: 800; color: var(--ink-2);
+    background: #F7F1E4;
+    border-radius: 12px;
+    font-variant-numeric: tabular-nums;
+}
+.cal .cd.head { background: none; font-size: 10px; color: var(--ink-3); aspect-ratio: auto; padding: 4px 0; }
+.cal .cd.mute { opacity: .32; }
+.cal .cd.done { background: #EAF6E2; color: #47761F; box-shadow: inset 0 0 0 2px #CDE8B6; }
+.cal .cd.today {
+    color: #6B4218;
+    background: linear-gradient(180deg, #FFD98A, var(--gold));
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .34), inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+.cal .cd .cdot { display: flex; gap: 2px; }
+.cal .cd .cdot i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .75; }
+
+/* 周视图：7 列任务条 */
+.cal-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 12px; }
+.cal-week .cw {
+    min-height: 96px;
+    padding: 6px 4px;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    background: #F7F1E4;
+    border-radius: 12px;
+}
+.cal-week .cw b { font-size: 10px; font-weight: 800; color: var(--ink-3); }
+.cal-week .cw .cw-n { font-size: 13px; font-weight: 800; color: var(--ink); }
+.cal-week .cw.today { background: #FFF4D8; box-shadow: inset 0 0 0 2px #F3D68A; }
+.cal-week .cw .cw-pill {
+    width: 100%;
+    padding: 3px 2px;
+    font-size: 9px; font-weight: 800;
+    text-align: center;
+    border-radius: 6px;
+    color: #fff;
+    background: var(--c-math);
+}
+/* 日视图：任务时间线 */
+.timeline { margin-top: 12px; }
+.tl-row { display: flex; gap: 10px; margin-top: 10px; }
+.tl-time { width: 46px; flex: none; font-size: 11px; font-weight: 800; color: var(--ink-3); padding-top: 9px; }
+.tl-card {
+    flex: 1;
+    padding: 10px 12px;
+    background: var(--cream-2);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+    border-left: 4px solid var(--c-math);
+}
+.tl-card b { display: block; font-size: 12.5px; font-weight: 800; }
+.tl-card span { display: block; margin-top: 2px; font-size: 11px; color: var(--ink-3); font-weight: 600; }
+
+/* ============================================================
+   16. 审核 / 设置 / 家庭码（家长端）
+   ============================================================ */
+.review {
+    margin: 14px var(--gutter) 0;
+    padding: 13px 14px 12px;
+    background: var(--cream);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+}
+.review-top { display: flex; align-items: center; gap: 9px; }
+.review-top .rt-sub { font-size: 13.5px; font-weight: 800; color: var(--ink); }
+.review-top .rt-time { margin-left: auto; font-size: 10.5px; font-weight: 700; color: var(--ink-3); }
+.review-desc { margin-top: 5px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); line-height: 1.55; }
+.shots { display: flex; gap: 7px; margin-top: 10px; }
+.shots .sh {
+    width: 62px; height: 62px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(90, 70, 40, .16);
+}
+.shots .sh-more {
+    display: grid; place-items: center;
+    font-size: 12px; font-weight: 800; color: var(--ink-2);
+    background: #F2EBDC;
+    border-radius: 12px;
+}
+/* 弹层 / 卡片底部操作条：按钮多了就换行，绝不被挤出屏幕
+   （320px 窄机上「复制儿童端链接」等 7 字按钮放一行会溢出 8px） */
+.review-act { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
+.review-act .btn { flex: 1 1 auto; min-width: 0; }
+/* ------------------------------------------------------------
+   按钮三态系统（规格取自设计基准稿）
+   主按钮金黄渐变 + 深棕字 + 立体底边；次按钮米白渐变；
+   禁用按钮灰渐变；删除按钮浅红渐变。颜色都按 WCAG AA 校验过。
+   ------------------------------------------------------------ */
+.btn {
+    flex: 1;
+    padding: 9px 14px;
+    font-size: 12.5px; font-weight: 800;
+    text-align: center;
+    border-radius: var(--r-pill);
+    white-space: nowrap;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:active { transform: translateY(2px); }
+/* 主按钮：完成 / 打卡 / 保存 */
+.btn-ok {
+    color: #55401F;
+    background: linear-gradient(180deg, #FFDC82 0%, #FED77B 40%, #FDC145 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 3px 0 #F0A72E, 0 6px 12px rgba(240, 167, 46, .28);
+}
+.btn-ok:active { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 1px 0 #F0A72E; }
+/* 次按钮 / 取消 */
+.btn-ghost, .btn-back {
+    color: #8B6F4B;
+    background: linear-gradient(180deg, #FDF6EB, #FCF0DC);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 3px 0 #EDDFC2;
+}
+.btn-ghost:active, .btn-back:active { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 1px 0 #EDDFC2; }
+/* 禁用态：表单没填完时主按钮自动变灰，避免误点 */
+.btn-disabled {
+    color: #7B858C;
+    background: linear-gradient(180deg, #EBEEF0, #E7EBED);
+    box-shadow: 0 3px 0 #D8DEE1;
+    cursor: default;
+    pointer-events: none;
+}
+.btn-primary {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%;
+    padding: 13px;
+    font-size: 15px; font-weight: 800; color: #55401F;
+    text-align: center;
+    background: linear-gradient(180deg, #FFDC82 0%, #FED77B 40%, #FDC145 100%);
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 4px 0 #F0A72E, 0 8px 16px rgba(240, 167, 46, .3);
+    cursor: pointer;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-primary:active { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 2px 0 #F0A72E; }
+.btn-primary:disabled {
+    color: #7B858C;
+    background: linear-gradient(180deg, #EBEEF0, #E7EBED);
+    box-shadow: 0 4px 0 #D8DEE1;
+    cursor: default;
+}
+.btn-primary svg, .btn-primary img { width: 16px; height: 16px; }
+.btn svg, .btn img { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* 儿童端常驻主按钮：「我想做点什么」（孩子自己加日程的入口）
+   固定在拇指热区，用主按钮三态里最醒目的那档。 */
+.fab-event {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    width: calc(100% - var(--gutter) * 2);
+    margin: 14px var(--gutter) 0;
+    padding: 14px;
+    font-size: 15px; font-weight: 800; color: #55401F;
+    font-family: inherit;
+    text-align: center;
+    background: linear-gradient(180deg, #FFDC82 0%, #FED77B 40%, #FDC145 100%);
+    border: none;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 4px 0 #F0A72E, 0 8px 16px rgba(240, 167, 46, .3);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.fab-event:active { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 2px 0 #F0A72E; }
+.fab-event .fplus {
+    width: 22px; height: 22px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; font-weight: 800;
+    color: #55401F;
+    background: rgba(255, 255, 255, .55);
+    border-radius: 50%;
+}
+.review.done-card { background: #F6F3EA; box-shadow: none; }
+.review.done-card .rt-sub { color: var(--ink-2); }
+
+/* 设置列表 */
+.settings {
+    margin: 14px var(--gutter) 0;
+    background: var(--cream);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+    overflow: hidden;
+}
+.set-item { display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-bottom: 1px solid #F3ECDD; }
+.set-item:last-child { border-bottom: 0; }
+.set-item .si-ico {
+    width: 32px; height: 32px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; font-family: var(--font-emoji);
+    background: #fff;
+    border-radius: 11px 9px 11px 9px;
+    box-shadow: var(--sh-soft);
+}
+.set-item .si-main { flex: 1; min-width: 0; }
+.set-item .si-main b { display: block; font-size: 13px; font-weight: 800; color: var(--ink); }
+.set-item .si-main span { display: block; margin-top: 1px; font-size: 11px; font-weight: 600; color: var(--ink-3); }
+.set-item .si-val { font-size: 12px; font-weight: 800; color: var(--ink-2); }
+.set-item .si-go { font-size: 14px; font-weight: 800; color: var(--ink-3); }
+.switch {
+    width: 40px; height: 23px; flex: none;
+    padding: 2px;
+    background: #E6DECC;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 1px 3px rgba(90, 70, 40, .18);
+}
+.switch i {
+    display: block; width: 19px; height: 19px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(90, 70, 40, .3);
+}
+.switch.on { background: linear-gradient(180deg, #A5DC78, var(--grass-deep)); }
+.switch.on i { margin-left: 17px; }
+
+/* 家庭码卡 */
+.fam-code {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 15px;
+    background: linear-gradient(135deg, #EAF6FF, #D2EBFB);
+    border-radius: 20px 18px 20px 18px;
+}
+.fam-code .fc-num {
+    display: block;
+    font-size: 23px; font-weight: 800; letter-spacing: 4px;
+    color: #2C6B8E;
+    font-variant-numeric: tabular-nums;
+}
+.fam-code .fc-sub { display: block; margin-top: 3px; font-size: 11px; font-weight: 700; color: #4E8CAB; }
+.fam-code .fc-copy {
+    margin-left: auto;
+    padding: 7px 12px;
+    font-size: 11px; font-weight: 800; color: #2C6B8E;
+    background: #fff;
+    border-radius: var(--r-pill);
+    box-shadow: var(--sh-soft);
+    white-space: nowrap;
+}
+
+/* 奖励管理行 */
+.manage-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    background: var(--cream-2);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(90, 70, 40, .08);
+}
+.manage-row .mr-img {
+    width: 42px; height: 42px; flex: none;
+    display: grid; place-items: center;
+    font-size: 21px; font-family: var(--font-emoji);
+    background: linear-gradient(180deg, #FFF1D6, #FFE3AE);
+    border-radius: 13px;
+}
+.manage-row .mr-main { flex: 1; min-width: 0; }
+.manage-row .mr-main b { display: block; font-size: 12.5px; font-weight: 800; color: var(--ink); }
+.manage-row .mr-main span { display: block; margin-top: 2px; font-size: 10.5px; font-weight: 700; color: var(--ink-3); }
+
+/* ============================================================
+   17. 底部弹层 / 表单（发布作业、换伙伴）
+   ============================================================ */
+/* 弹层容器：本身覆盖整块画布，作为内部 sheet / 遮罩的包含块 */
+.ovl {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+}
+.ovl.on { display: block; }
+.ovl > * { pointer-events: auto; }
+
+.scrim {
+    position: fixed; inset: 0;
+    background: rgba(48, 42, 28, .44);
+    z-index: 50;
+}
+.sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 60;
+    width: 100%; max-width: var(--pw);
+    margin: 0 auto;
+    max-height: 90%;
+    overflow-y: auto;
+    padding: 14px var(--gutter) calc(18px + env(safe-area-inset-bottom, 0px));
+    background: var(--cream);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -14px 36px rgba(50, 40, 20, .32);
+    scrollbar-width: none;
+}
+.sheet::-webkit-scrollbar { display: none; }
+.sheet-grip { width: 42px; height: 5px; margin: 0 auto 12px; border-radius: var(--r-pill); background: #E3D9C5; }
+.sheet-head { display: flex; align-items: center; gap: 9px; margin-bottom: 13px; }
+.sheet-head .sh-ico {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; font-family: var(--font-emoji);
+    background: #fff;
+    border-radius: var(--r-tile);
+    box-shadow: var(--sh-soft);
+}
+.sheet-head h2 { font-size: 16.5px; font-weight: 800; color: #3D3226; }
+.sheet-head .x {
+    margin-left: auto;
+    width: 28px; height: 28px; flex: none;
+    display: grid; place-items: center;
+    font-size: 13px; color: var(--ink-2);
+    background: #F2EBDC;
+    border-radius: 50%;
+}
+
+/* 表单 */
+.field { margin-bottom: 12px; }
+.field > label {
+    display: block; margin-bottom: 6px;
+    font-size: 12px; font-weight: 800; color: var(--ink-2);
+}
+.input {
+    width: 100%;
+    padding: 11px 13px;
+    font-family: var(--font-round);
+    font-size: 13.5px; font-weight: 700; color: var(--ink);
+    background: #fff;
+    border: 2px solid #EFE6D4;
+    border-radius: 14px;
+    outline: none;
+}
+.input.area { min-height: 84px; resize: none; line-height: 1.6; font-weight: 600; }
+.input::placeholder { color: var(--ink-3); font-weight: 600; }
+
+.subj-pick { display: flex; flex-wrap: wrap; gap: 7px; }
+.subj-pick span {
+    padding: 7px 14px;
+    font-size: 12px; font-weight: 800; color: var(--ink-2);
+    background: #fff;
+    border-radius: var(--r-pill);
+    box-shadow: var(--sh-soft);
+}
+.subj-pick span.on {
+    color: #fff;
+    background: linear-gradient(180deg, #FFC24D, var(--c-math));
+    box-shadow: 0 3px 0 rgba(190, 120, 20, .3);
+}
+
+.attach-row { display: flex; gap: 9px; flex-wrap: wrap; }
+.attach-row .ph {
+    width: 64px; height: 64px;
+    border-radius: 14px;
+    object-fit: cover;
+    box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(90, 70, 40, .16);
+}
+.attach-row .add {
+    width: 64px; height: 64px;
+    display: grid; place-items: center;
+    font-size: 20px; color: var(--ink-3);
+    background: #F7F1E4;
+    border: 2px dashed #E0D6C2;
+    border-radius: 14px;
+}
+.hint { margin-top: 6px; font-size: 10.5px; font-weight: 600; color: var(--ink-3); }
+
+.ai-tip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 11.5px; font-weight: 700; line-height: 1.45;
+    color: #55489B;
+    background: linear-gradient(135deg, #F1ECFF, #E5DCFF);
+    border-radius: 14px;
+}
+
+/* 换伙伴：横向伙伴列表 */
+.mate-list { display: flex; gap: 9px; overflow-x: auto; padding: 2px 0 6px; scrollbar-width: none; }
+.mate-list::-webkit-scrollbar { display: none; }
+.mate-item {
+    flex: none;
+    width: 78px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 11px 6px 9px;
+    background: #fff;
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: var(--sh-soft);
+}
+.mate-item .mi-av {
+    width: 46px; height: 46px;
+    display: grid; place-items: center;
+    font-size: 24px; font-family: var(--font-emoji);
+    background: radial-gradient(circle at 34% 26%, #fff, #EFF6E2 60%, #DCEBC4);
+    border-radius: 16px;
+}
+.mate-item b { font-size: 11.5px; font-weight: 800; color: var(--ink); }
+.mate-item span { font-size: 9.5px; font-weight: 700; color: var(--ink-3); }
+.mate-item.on {
+    background: linear-gradient(180deg, #FFF6DC, #FFE9AE);
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .3), inset 0 0 0 2px #fff;
+}
+.mate-item.lock .mi-av { filter: grayscale(1); opacity: .5; }
+
+/* ============================================================
+   18. 动态渲染兼容层
+   ------------------------------------------------------------
+   本节收纳 app.js / cloud-sync.js 动态生成元素的样式。
+   命名以「hw- 作业行 / cal- 日历 / wall- 展示墙 / mate- 伙伴 /
+   ocr- 识别 / edit- 附件编辑 / sync- 同步」分区。
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   18.1 表单基元（含 iOS 输入框溢出修复）
+   ------------------------------------------------------------ */
+input, select, textarea, button { font-family: var(--font-round); }
+input, select, textarea { box-sizing: border-box; max-width: 100%; }
+select, textarea, input[type="text"], input[type="number"],
+input[type="datetime-local"], input[type="file"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13.5px; font-weight: 700; color: var(--ink);
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 13px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+input[type="file"] { padding: 8px 10px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+select {
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%),
+                      linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+    background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 32px;
+}
+textarea { resize: none; line-height: 1.6; font-weight: 600; }
+input:focus, select:focus, textarea:focus { border-color: var(--wood-light); }
+button { border: 0; background: none; padding: 0; color: inherit; }
+
+.form-row { margin-bottom: 12px; }
+.form-row > label {
+    display: block; margin-bottom: 6px;
+    font-size: 12px; font-weight: 800; color: var(--ink-2);
+}
+.form-row.two-col { display: flex; gap: 10px; }
+.form-row.two-col > div { flex: 1; min-width: 0; }
+
+/* 主按钮 / 次按钮（弹层内的大按钮，规格同 .btn-ok） */
+.btn-primary {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%;
+    padding: 13px;
+    font-size: 15px; font-weight: 800; color: #55401F;
+    text-align: center;
+    background: linear-gradient(180deg, #FFDC82 0%, #FED77B 40%, #FDC145 100%);
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 4px 0 #F0A72E, 0 8px 16px rgba(240, 167, 46, .3);
+    cursor: pointer;
+    border: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn-primary:active { transform: translateY(2px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .55), 0 2px 0 #F0A72E; }
+.btn-primary:disabled {
+    color: #7B858C;
+    background: linear-gradient(180deg, #EBEEF0, #E7EBED);
+    box-shadow: 0 4px 0 #D8DEE1;
+    cursor: default;
+}
+.btn-secondary {
+    padding: 8px 13px;
+    font-size: 12px; font-weight: 800; color: #8B6F4B;
+    background: linear-gradient(180deg, #FDF6EB, #FCF0DC);
+    border: 1.5px solid #F6EBD4;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 3px 0 #EDDFC2;
+    cursor: pointer;
+}
+.btn-danger {
+    color: #C2453C;
+    background: linear-gradient(180deg, #FFF1EE, #FFE3DE);
+    box-shadow: 0 3px 0 #F2C6BE;
+}
+
+/* ------------------------------------------------------------
+   18.2 作业行（两端共用）
+   ------------------------------------------------------------ */
+.hw-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-top: 8px;
+    padding: 10px 11px;
+    background: var(--cream-2);
+    border-radius: var(--r-row);
+    box-shadow: var(--sh-soft);
+}
+.hw-row.done { background: #F1F8EC; }
+.hw-row.overdue { background: #FFF3F1; box-shadow: inset 0 0 0 2px #FBDCD6; }
+
+/* 全量修改后，被同步到的行闪一下 —— 明确告诉家长"改到这儿了"，
+   避免"保存成功了但看不出改在哪"的困惑 */
+@keyframes recurFlash {
+    0%   { background: #FFE7A3; box-shadow: var(--sh-soft), 0 0 0 0 rgba(255, 178, 44, .95); }
+    55%  { background: #FFF3D6; box-shadow: var(--sh-soft), 0 0 0 7px rgba(255, 178, 44, 0); }
+    100% { background: var(--cream-2); box-shadow: var(--sh-soft); }
+}
+.hw-row.flash { animation: recurFlash 1.9s ease-out 1; }
+
+.hw-row .r-ico {
+    width: 34px; height: 34px; flex: none;
+    display: grid; place-items: center;
+    font-size: 15px; font-family: var(--font-emoji); color: #fff;
+    border-radius: 11px;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10), 0 2px 5px rgba(90, 70, 40, .16);
+}
+.i-music { background: linear-gradient(180deg, #C9A6F5, #A97EE0); }
+.i-pe    { background: linear-gradient(180deg, #8FE0C8, #56BFA4); }
+.i-other { background: linear-gradient(180deg, #C4BCAE, #9C9285); }
+.i-math    { background: linear-gradient(180deg, #FFC24D, var(--c-math)); }
+.i-chinese { background: linear-gradient(180deg, #FF8E88, var(--c-chinese)); }
+.i-english { background: linear-gradient(180deg, #7BC7F2, var(--c-english)); }
+.i-science { background: linear-gradient(180deg, #9AD68A, var(--c-science)); }
+.i-art     { background: linear-gradient(180deg, #D6B0F2, var(--c-art)); }
+.hw-row .i-chinese { font-family: var(--font-round); font-size: 15px; font-weight: 800; }
+.s-bar i.i-chinese, .s-ico.i-chinese { font-family: var(--font-round); }
+
+.hw-main { flex: 1; min-width: 0; }
+.hw-top { display: flex; align-items: baseline; gap: 7px; }
+.hw-subj {
+    font-size: 12.5px; font-weight: 800; color: var(--ink);
+    white-space: nowrap;
+}
+.hw-subj .hw-recur-mark { font-family: var(--font-emoji); font-size: 11px; }
+.hw-pts {
+    margin-left: auto; flex: none;
+    font-size: 10.5px; font-weight: 800; color: var(--gold-deep);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.hw-desc {
+    display: block; margin-top: 3px;
+    font-size: 12.5px; font-weight: 600; line-height: 1.5;
+    color: var(--ink-2);
+    word-break: break-word;
+}
+.hw-row.done .hw-desc { color: var(--ink-3); }
+.hw-note {
+    display: block; margin-top: 4px;
+    font-size: 10.5px; font-weight: 700; color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+}
+.hw-note.warn { color: #C4564A; }
+.hw-group { margin-top: 14px; }
+.hw-group-title {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 800; color: var(--ink-2);
+}
+.hw-group-title .hw-group-wd {
+    padding: 1px 7px;
+    font-size: 10px; font-weight: 800; color: #fff;
+    background: var(--wood);
+    border-radius: var(--r-pill);
+}
+
+/* 行内操作按钮（规格同主按钮三态系统） */
+.hw-acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.hw-btn {
+    padding: 6px 12px;
+    font-size: 11.5px; font-weight: 800;
+    color: #8B6F4B;
+    background: linear-gradient(180deg, #FDF6EB, #FCF0DC);
+    border: 1.5px solid #F6EBD4;
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .7), 0 3px 0 #EDDFC2;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.hw-btn.done {
+    color: #55401F;
+    background: linear-gradient(180deg, #FFDC82 0%, #FED77B 40%, #FDC145 100%);
+    border-color: transparent;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .55), 0 3px 0 #F0A72E, 0 6px 12px rgba(240, 167, 46, .28);
+}
+.hw-btn.undo { color: #8B6F4B; background: var(--wood-pale); border-color: transparent; box-shadow: none; }
+.hw-btn.del { color: #C2453C; background: linear-gradient(180deg, #FFF1EE, #FFE3DE); border-color: transparent; box-shadow: 0 3px 0 #F2C6BE; }
+.hw-btn:active { transform: translateY(1px); }
+
+/* 勾选圈（儿童端一键完成） */
+.r-check {
+    width: 28px; height: 28px; flex: none;
+    margin-top: 2px;
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 800; color: transparent;
+    background: #fff;
+    border: 2px dashed var(--ring);
+    border-radius: 50%;
+    cursor: pointer;
+}
+.r-check::after { content: '✓'; }
+.hw-row.done .r-check {
+    color: #fff;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+    border: 2px solid var(--grass-deep);
+    box-shadow: 0 2px 0 rgba(90, 130, 50, .3);
+}
+.hw-row.overdue .r-check { border-color: #E8B4AC; }
+
+/* 附件缩略图 */
+.hw-attach { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.hw-thumb {
+    width: 54px; height: 54px;
+    object-fit: cover;
+    border-radius: 11px;
+    box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(90, 70, 40, .16);
+    cursor: zoom-in;
+}
+
+/* 空状态 */
+.empty-state {
+    padding: 24px 12px 22px;
+    text-align: center;
+}
+.empty-state .big-emoji { display: block; font-size: 34px; font-family: var(--font-emoji); }
+.empty-state p {
+    margin-top: 9px;
+    font-size: 12.5px; font-weight: 700; color: var(--ink-3); line-height: 1.6;
+}
+
+/* 木牌内进度标签 */
+.b-badge.all-done {
+    color: #fff;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+}
+
+/* ------------------------------------------------------------
+   18.3 日历（月历网格 / 日期格）
+   ------------------------------------------------------------ */
+.cal-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 12px; }
+.cal-strip:not(.show) { display: none; }
+.cal-cell {
+    aspect-ratio: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 1px;
+    background: #F7F1E4;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.cal-cell .cal-cell-wd { font-size: 9px; font-weight: 800; color: var(--ink-3); }
+.cal-cell .cal-cell-day {
+    font-size: 12.5px; font-weight: 800; color: var(--ink);
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.cal-cell .cal-cell-dot {
+    min-height: 10px;
+    font-size: 9px; font-weight: 800; color: var(--grass-deep);
+}
+.cal-cell.has-item { background: #F2F8EC; }
+.cal-cell.all-done { background: #EAF6E2; box-shadow: inset 0 0 0 2px #CDE8B6; }
+.cal-cell.overdue  { background: #FFF3F1; box-shadow: inset 0 0 0 2px #FBDCD6; }
+.cal-cell.overdue .cal-cell-dot { color: #C4564A; }
+.cal-cell.today {
+    background: linear-gradient(180deg, #FFD98A, var(--gold));
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .34), inset 0 1px 0 rgba(255, 255, 255, .6);
+}
+.cal-cell.today .cal-cell-wd,
+.cal-cell.today .cal-cell-day { color: #6B4218; }
+.cal-cell.today .cal-cell-dot { color: #6B4218; }
+
+/* 区间汇总胶囊 */
+.cal-summary { display: none; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.cal-summary.show { display: flex; }
+.cal-sum-item {
+    padding: 4px 11px;
+    font-size: 10.5px; font-weight: 800; color: var(--ink-2);
+    background: #F5EFE2;
+    border-radius: var(--r-pill);
+}
+.cal-sum-item.ok { color: #47761F; background: #EAF6E2; }
+.cal-sum-item.warn { color: #B8483F; background: #FFEDEA; }
+
+/* 儿童端日历页：月历里的圆点 */
+.cal .cd .cdot { display: flex; gap: 2px; justify-content: center; }
+.cal .cd .cdot i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: .7; }
+
+/* ------------------------------------------------------------
+   18.4 小岛展示墙
+   ------------------------------------------------------------ */
+/* 展示墙：外层只负责纵向排布，分区标题 + 每区 4 列网格由 .wall-group 承担 */
+.display-wall { margin-top: 12px; }
+.display-wall .wall-group {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 7px;
+    margin-top: 10px;
+}
+/* 分区标题：整行占位 */
+.display-wall .wall-group-head {
+    grid-column: 1 / -1;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 2px;
+    padding: 3px 8px;
+    font-size: 11px; font-weight: 800; color: #7A5A20;
+    background: rgba(255, 243, 214, .9);
+    border-radius: var(--r-pill);
+}
+.display-wall .wall-group-num { font-size: 10px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+/* 一片海域一件都没收集到：折成一行 */
+.display-wall .wall-group.locked { display: block; opacity: .8; }
+.display-wall .wall-group.locked .wall-group-head {
+    background: rgba(240, 236, 226, .9);
+    color: var(--ink-3);
+    cursor: default;
+}
+/* 深海 / 传说：给稀有度一点视觉分层 */
+.display-wall .wall-group.deep .wall-group-head { background: rgba(214, 238, 250, .95); color: #1F6B86; }
+.display-wall .wall-group.legend .wall-group-head { background: linear-gradient(90deg, #FFF0C2, #FFE3A0); color: #8A5A10; }
+
+.display-wall .wall-cell {
+    aspect-ratio: 1;
+    position: relative;
+    /* emoji 和名字用绝对定位钉在固定位置。
+       以前用 padding-top:12px 给角标让位，会把内容整体顶下去、上下留白不均；
+       现在角标改为半嵌在右上角，不再占用内容区，内容可以真正垂直居中。 */
+    background: #F5EFE2;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 2px #EDE5D3;
+}
+.display-wall .wall-shelf {
+    /* emoji 占格子上半部（给底部名字留出 18px），并真正水平居中。
+       用 flex 居中而不是 top 百分比：emoji 字形自带基线偏移，
+       纯 top 定位会偏左偏上。 */
+    position: absolute;
+    left: 0; right: 0; top: 0;
+    height: calc(100% - 18px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+.display-wall .wall-label {
+    position: absolute;
+    left: 0; right: 0; bottom: 6px;
+    text-align: center;
+    font-size: 8.5px; font-weight: 800; color: var(--ink-3);
+    transform: scale(.92);
+    max-width: 100%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.display-wall .wall-cell.filled {
+    background: linear-gradient(180deg, #FFF6DC, #FFE9AE);
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .26), inset 0 0 0 2px #fff;
+}
+/* 深海宝贝偏海蓝，传说宝贝带金边 */
+.display-wall .wall-group.deep .wall-cell.filled {
+    background: linear-gradient(180deg, #EFFAFF, #CDEAF8);
+    box-shadow: 0 3px 0 rgba(40, 120, 160, .22), inset 0 0 0 2px #fff;
+}
+.display-wall .wall-group.legend .wall-cell.filled {
+    background: linear-gradient(180deg, #FFF7E0, #FFE7B0);
+    box-shadow: 0 3px 0 rgba(200, 140, 20, .30), inset 0 0 0 2px #fff, 0 0 0 2px rgba(224, 160, 32, .35);
+}
+.display-wall .wall-cell.empty { opacity: .55; }
+.display-wall .wall-cell.is-new { animation: wallPop .5s ease-out; }
+@keyframes wallPop {
+    0%   { transform: scale(.6) rotate(-14deg); }
+    60%  { transform: scale(1.14) rotate(6deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+.display-wall .wall-shelf { line-height: 1; }
+.display-wall .wall-emoji { font-size: 19px; font-family: var(--font-emoji); }
+.display-wall .wall-label {
+    font-size: 8.5px; font-weight: 800; color: var(--ink-3);
+    transform: scale(.92);
+    /* 名字必须完整可见：超长时缩一点，而不是被角标盖住或撑破格子 */
+    max-width: 100%;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.display-wall .wall-cell.filled .wall-label { color: #8A6A3A; }
+/* 数量角标：固定在格子右上角内侧，四边留白一致，所有格子完全对齐。
+   这里翻过几次车，结论是**不要贴边也不要骑边**：
+     · top:3px 骑在圆角描边上 → 一半露在格外，看着像贴歪；
+     · top:0;right:0 半嵌 → 棕色块贴着格子上沿溢出，同样像补丁。
+   最稳的是「缩进 + 小圆角药丸」：不碰边界、不压名字、每个格子位置完全相同。 */
+.display-wall .wall-count {
+    position: absolute;
+    top: 4px; right: 4px;
+    min-width: 16px;
+    padding: 0 5px;
+    font-size: 8.5px; font-weight: 800; line-height: 14px;
+    text-align: center;
+    color: #fff;
+    background: var(--wood-deep);
+    border: 1.5px solid rgba(255, 255, 255, .95);
+    border-radius: var(--r-pill);
+    box-shadow: 0 1px 2px rgba(90, 60, 20, .25);
+}
+/* 未收集的格子：淡但保留形状，写清「待解锁」而不是一串问号 */
+.display-wall .wall-cell.empty {
+    opacity: 1;
+    background: #F7F2E7;
+    box-shadow: inset 0 0 0 2px #EAE1D0;
+}
+.display-wall .wall-cell.empty .wall-label { color: #B9AE9A; }
+.display-wall .wall-lock {
+    display: block;
+    font-size: 15px;
+    font-family: var(--font-emoji);
+    filter: grayscale(.75);
+    opacity: .6;
+}
+/* 深海 / 传说格子里的角标跟着换色，保持分层 */
+.display-wall .wall-group.deep .wall-count { background: #1F6B86; }
+.display-wall .wall-group.legend .wall-count { background: #B8801A; }
+/* 新收集到的 ⭐：固定在左上角，不再跟着格子内边距漂移 */
+.display-wall .wall-star {
+    position: absolute;
+    top: 4px; left: 5px;
+    font-size: 11px; font-family: var(--font-emoji);
+    filter: drop-shadow(0 1px 2px rgba(255, 255, 255, .95));
+}
+.display-wall:empty { display: none; }
+
+/* 剪贴板不可用时的手动复制兜底（安卓 WebView / 主屏 PWA 里 prompt 会被静默拦截） */
+.copy-fallback {
+    position: fixed; inset: 0; z-index: 120;
+    display: grid; place-items: center;
+    padding: 20px;
+    background: rgba(48, 42, 28, .5);
+    -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+}
+.copy-fallback-card {
+    width: 100%; max-width: 340px;
+    padding: 18px 16px 16px;
+    background: var(--cream);
+    border-radius: var(--r-board);
+    box-shadow: 0 20px 50px rgba(40, 30, 10, .35);
+    text-align: center;
+}
+.copy-fallback-tip { font-size: 12.5px; font-weight: 800; color: var(--ink-2); margin-bottom: 10px; }
+.copy-fallback-input {
+    width: 100%;
+    padding: 10px 11px;
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    user-select: all; -webkit-user-select: all;
+}
+.copy-fallback-btn {
+    margin-top: 12px;
+    padding: 9px 22px;
+    font-size: 13px; font-weight: 800; color: #fff;
+    background: var(--wood);
+    border: none;
+    border-radius: var(--r-pill);
+}
+
+/* ------------------------------------------------------------
+   一周课表（家长端）
+   ------------------------------------------------------------ */
+.week-board {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+}
+.week-board::-webkit-scrollbar { display: none; }
+
+.wk-col {
+    flex: 1 0 auto;
+    min-width: 62px;
+    display: flex;
+    flex-direction: column;
+}
+.wk-head {
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+    padding: 4px 2px;
+    margin-bottom: 5px;
+    font-size: 10.5px; font-weight: 800; color: var(--ink-2);
+    background: rgba(240, 236, 226, .9);
+    border-radius: var(--r-pill);
+}
+.wk-col.today .wk-head { background: var(--wood); color: #fff; }
+.wk-today { font-size: 8.5px; opacity: .85; }
+.wk-body { display: flex; flex-direction: column; gap: 5px; min-height: 42px; }
+.wk-none {
+    display: grid; place-items: center;
+    height: 42px;
+    font-size: 10px; font-weight: 700; color: #C8BCA8;
+    background: rgba(250, 247, 240, .7);
+    border: 1.5px dashed #E8E0D0;
+    border-radius: var(--r-row);
+}
+.wk-col.today .wk-none { border-color: #E0CBA8; color: #C0A070; }
+
+.wk-card {
+    padding: 6px 6px 7px;
+    background: linear-gradient(180deg, #F4FBFF, #E6F4FC);
+    border-radius: var(--r-row);
+    box-shadow: inset 0 0 0 1.5px #CFE6F5, 0 1px 2px rgba(60, 110, 140, .1);
+    cursor: pointer;
+    transition: transform .12s ease;
+}
+.wk-card:active { transform: scale(.96); }
+.wk-top { display: flex; align-items: center; gap: 3px; }
+.wk-emo { flex: none; font-size: 13px; font-family: var(--font-emoji); }
+.wk-name {
+    font-size: 10.5px; font-weight: 800; color: #245A75;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wk-time { margin-top: 2px; font-size: 9.5px; font-weight: 800; color: #5A8AA8; font-variant-numeric: tabular-nums; }
+.wk-line { margin-top: 2px; font-size: 9px; font-weight: 700; color: #7A9AAE;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk-bring { margin-top: 2px; font-size: 9px; font-weight: 700; color: #7A9AAE; }
+.wk-pts {
+    display: inline-block;
+    margin-top: 3px;
+    padding: 1px 5px;
+    font-size: 8.5px; font-weight: 800; color: #fff;
+    background: #38BDF8;
+    border-radius: var(--r-pill);
+}
+
+/* ---- 课程编辑器：星期多选 ---- */
+.ce-days { display: flex; gap: 5px; flex-wrap: wrap; }
+.ce-day {
+    width: 38px; padding: 7px 0;
+    font-family: inherit;
+    font-size: 12px; font-weight: 800; color: var(--ink-3);
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform .1s ease, background .12s ease;
+}
+.ce-day:active { transform: scale(.93); }
+.ce-day.on { background: var(--wood); color: #fff; border-color: var(--wood-deep); }
+.ce-hint { margin-top: 5px; font-size: 10.5px; color: var(--ink-3); line-height: 1.5; }
+#ce-bring { min-height: 66px; font-family: inherit; font-size: 12.5px; line-height: 1.6; }
+
+/* ------------------------------------------------------------
+   今日时间线（作业 + 兴趣班）· 2026-10-17
+   ------------------------------------------------------------ */
+/* 顶栏是 sticky 的，任何"滚到某个卡片"的定位都会被它盖住顶部。
+   给所有可定位元素留出与顶栏等高的上边距（浏览器会对齐 scroll-margin）。 */
+:target, .view, .board, .timeline-foot { scroll-margin-top: 84px; }
+
+.timeline { margin-top: 10px; }
+
+.tl-item-row {
+    display: flex;
+    gap: 9px;
+    align-items: stretch;
+    margin-bottom: 9px;
+}
+.tl-item-row:last-child { margin-bottom: 0; }
+
+.tl-time {
+    flex: none;
+    width: 40px;
+    padding-top: 10px;
+    font-size: 11px; font-weight: 800;
+    color: var(--ink-3);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+/* 时间轴上的一颗点：作业用金色，兴趣班用蓝色 */
+.tl-dot {
+    flex: none;
+    width: 9px; height: 9px;
+    margin-top: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, .22);
+}
+.tl-dot.cls { background: #38BDF8; box-shadow: 0 0 0 3px rgba(56, 189, 248, .22); }
+.tl-dot.late { background: #F97316; box-shadow: 0 0 0 3px rgba(249, 115, 22, .22); }
+
+.tl-card {
+    flex: 1; min-width: 0;
+    padding: 10px 11px;
+    border-radius: var(--r-row);
+    background: var(--cream-2);
+    box-shadow: inset 0 0 0 1.5px var(--line);
+}
+.tl-card.hw { background: #FFFBF0; box-shadow: inset 0 0 0 1.5px #F0E4C8; }
+.tl-card.class { background: #F4FBFF; box-shadow: inset 0 0 0 1.5px #D3EAF7; }
+.tl-card.late { background: #FFF6F0; box-shadow: inset 0 0 0 1.5px #F6D8C6; }
+/* 已完成：整行压暗，一眼分出还没做的 */
+.tl-item-row.done .tl-card { opacity: .62; background: #F4F1E9; box-shadow: inset 0 0 0 1.5px #E8E1D2; }
+.tl-item-row.done .tl-name { text-decoration: line-through; }
+
+.tl-card-top { display: flex; align-items: center; gap: 6px; }
+.tl-emo { flex: none; font-size: 16px; font-family: var(--font-emoji); }
+.tl-name {
+    flex: 1; min-width: 0;
+    font-size: 13.5px; font-weight: 800; color: var(--ink);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.tl-sub { flex: none; font-size: 10px; font-weight: 800; color: var(--ink-3); }
+.tl-pts {
+    flex: none;
+    padding: 2px 7px;
+    font-size: 10px; font-weight: 800; color: #fff;
+    background: #38BDF8;
+    border-radius: var(--r-pill);
+}
+.tl-meta { margin-top: 4px; font-size: 11px; font-weight: 700; color: var(--ink-3); }
+.tl-late-tag, .late-tag { color: #EA580C; font-weight: 800; }
+.tl-place, .tl-wear { margin-top: 3px; font-size: 11.5px; font-weight: 700; color: #5A7A8A; }
+.tl-wear { color: #7A6A8A; }
+
+.tl-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+.tl-actions .btn { padding: 6px 13px; font-size: 11.5px; }
+.tl-done-tag { font-size: 11.5px; font-weight: 800; color: #4B8A3E; }
+
+/* ---- 携带物清单：孩子逐项核对 ---- */
+.tl-bring { margin-top: 9px; }
+.tl-bring-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.tl-bring-title { font-size: 11px; font-weight: 800; color: #5A7A8A; }
+.tl-bring-count { font-size: 10.5px; font-weight: 800; color: var(--ink-3); }
+.tl-bring-count.ok { color: #2E9E5B; }
+.tl-bring-list { display: flex; flex-wrap: wrap; gap: 5px; }
+
+/* 一个物品就是一个可点的方块任务：没勾是空框，勾了打钩+变色 */
+.tl-item {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 9px 5px 7px;
+    font-family: inherit;
+    background: #fff;
+    border: 1.5px solid #D8E6EE;
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+.tl-item:active { transform: scale(.94); }
+.tl-item.on { background: #E4F7EC; border-color: #7FCF9A; }
+.tl-item.add { border-style: dashed; color: var(--ink-3); }
+
+/* 儿童端专用：更大的点击方块。
+   家长端那个小胶囊是给大人快速增删用的；孩子用手指在手机上逐项打勾，
+   热区必须够大（≥44px 是公认的最小可点尺寸），否则会点不中、反复点错。 */
+.tl-item.big {
+    padding: 9px 13px 9px 9px;
+    border-width: 2px;
+    border-color: #C3D6E0;
+}
+.tl-item.big .tl-box {
+    width: 20px; height: 20px;
+    font-size: 13px;
+    border-width: 2px;
+    border-radius: 6px;
+}
+.tl-item.big .tl-item-t { font-size: 13.5px; }
+.tl-item.big.on { background: #DFF5E7; border-color: #5FBE80; }
+.tl-item.big.on .tl-item-t { color: #2A7A45; }
+.tl-box {
+    width: 15px; height: 15px; flex: none;
+    display: grid; place-items: center;
+    font-size: 10px; font-weight: 900; color: #fff;
+    background: #fff;
+    border: 1.5px solid #C3D6E0;
+    border-radius: 4px;
+}
+.tl-item.on .tl-box { background: #3FA85C; border-color: #3FA85C; }
+.tl-item-t { font-size: 11.5px; font-weight: 800; color: var(--ink-2); }
+.tl-item.on .tl-item-t { color: #2E7D46; text-decoration: line-through; }
+.tl-item-x {
+    /* 删除按钮要小得几乎看不见，鼠标移上去才显出来。
+       之前跟物品名一样大，一排 ✕ 抢眼，看着像删除键而不是标签的一部分。 */
+    width: 13px; height: 13px;
+    margin-left: 1px;
+    display: grid; place-items: center;
+    font-size: 8px; font-weight: 900;
+    color: #C4B4A4;
+    background: rgba(0, 0, 0, .04);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity .12s ease;
+}
+.tl-item:hover .tl-item-x { opacity: 1; }
+.tl-item:active .tl-item-x { opacity: .7; }
+
+.timeline-foot {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px;
+    margin-top: 11px;
+}
+.timeline-foot .btn { flex: 0 0 auto; padding: 8px 15px; font-size: 12px; }
+.timeline-foot .hint { flex: 1 1 100%; font-size: 10.5px; color: var(--ink-3); line-height: 1.4; }
+
+.wall-progress {
+    height: 9px;
+    background: #EDE6D6;
+    border-radius: var(--r-pill);
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(90, 70, 40, .12);
+}
+.wall-progress-bar {
+    height: 100%;
+    border-radius: var(--r-pill);
+    background: linear-gradient(180deg, #A5DC78, var(--grass-deep));
+    transition: width .4s ease;
+}
+.wall-progress-text {
+    display: block; margin-top: 6px;
+    font-size: 10.5px; font-weight: 700; color: var(--ink-3);
+}
+.wall-stats { margin-top: 12px; }
+.wall-empty-tip {
+    margin: 0; padding: 10px 0;
+    font-size: 12px; font-weight: 700; color: var(--ink-3); text-align: center;
+}
+.wall-hint {
+    margin: 0; font-size: 12px; font-weight: 600; line-height: 1.6; color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------
+   18.5 报告数值行
+   ------------------------------------------------------------ */
+.report-content { margin-top: 10px; }
+.report-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0;
+    border-bottom: 1px dashed var(--line);
+}
+.report-row:last-child { border-bottom: 0; }
+.report-label { font-size: 12.5px; font-weight: 700; color: var(--ink-2); }
+.report-value {
+    font-size: 13.5px; font-weight: 800; color: var(--ink);
+    font-variant-numeric: tabular-nums;
+}
+#month-chart {
+    width: 100%; height: auto;
+    margin-top: 12px;
+    border-radius: 14px;
+    background: #FBF7EC;
+}
+
+/* ------------------------------------------------------------
+   18.6 伙伴选择（弹层内）
+   ------------------------------------------------------------ */
+.mate-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.mate-card {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 11px 6px 9px;
+    background: #fff;
+    border-radius: 18px 16px 18px 16px;
+    box-shadow: var(--sh-soft);
+    cursor: pointer;
+}
+.mate-card .mate-emoji { font-size: 25px; font-family: var(--font-emoji); line-height: 1; }
+.mate-card .mate-name { font-size: 11.5px; font-weight: 800; color: var(--ink); }
+.mate-card .mate-state { font-size: 9.5px; font-weight: 700; color: var(--ink-3); text-align: center; }
+.mate-card.current {
+    background: linear-gradient(180deg, #FFF6DC, #FFE9AE);
+    box-shadow: 0 3px 0 rgba(190, 140, 30, .3), inset 0 0 0 2px #fff;
+}
+.mate-card.locked { background: #F4F0E6; box-shadow: none; cursor: default; }
+.mate-card.locked .mate-name { color: var(--ink-3); }
+.mate-card.locked .mate-emoji { opacity: .55; }
+.mate-tip {
+    margin: 0; padding: 0 var(--gutter) 4px;
+    font-size: 12px; font-weight: 700; color: var(--ink-3);
+}
+.mate-tip + .sheet-body { padding-top: 4px; }
+
+/* ------------------------------------------------------------
+   18.7 OCR / AI 识别
+   ------------------------------------------------------------ */
+.ocr-status {
+    margin-top: 10px;
+    font-size: 12px; font-weight: 700; color: var(--ink-3);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+.ocr-status.loading { color: #55489B; }
+.ocr-status.success { color: #47761F; }
+.ocr-status.error { color: #B8483F; }
+.ocr-divider {
+    height: 1px; margin: 16px 0;
+    border: 0;
+    background: var(--line);
+}
+.ocr-preview { margin-top: 12px; }
+.ocr-item {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+    padding: 9px 10px;
+    background: #fff;
+    border-radius: 13px;
+    box-shadow: var(--sh-soft);
+}
+.ocr-item-content {
+    flex: 1; min-width: 0;
+    font-size: 12.5px; font-weight: 600; line-height: 1.5; color: var(--ink);
+    word-break: break-word;
+}
+.ocr-item-content b { font-weight: 800; color: var(--ink); }
+.ocr-item-points { flex: none; width: 66px; }
+.ocr-points-input { padding: 6px 8px !important; font-size: 12px !important; text-align: center; }
+.ocr-remove-btn {
+    flex: none;
+    width: 26px; height: 26px;
+    display: grid; place-items: center;
+    font-size: 13px; font-weight: 800; color: #B8483F;
+    background: #FFEDEA;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.image-preview-box {
+    margin-top: 10px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--sh-soft);
+}
+.image-preview-box img { width: 100%; max-height: 260px; object-fit: contain; background: #F7F1E4; }
+.attach-hint { margin: 6px 0 0; font-size: 10.5px; font-weight: 600; color: var(--ink-3); }
+
+/* 周期作业开关 */
+.cycle-toggle {
+    display: flex; align-items: center; gap: 8px;
+    margin: 4px 0 12px;
+    padding: 11px 13px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: var(--sh-soft);
+    cursor: pointer;
+}
+.cycle-toggle input { position: absolute; opacity: 0; pointer-events: none; }
+.cycle-box {
+    width: 21px; height: 21px; flex: none;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 800; color: transparent;
+    background: #F2EBDC;
+    border-radius: 7px;
+}
+.cycle-toggle input:checked + .cycle-box {
+    color: #fff;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+}
+.cycle-label { font-size: 12.5px; font-weight: 800; color: var(--ink); }
+.cycle-sub { margin-left: auto; font-size: 10px; font-weight: 700; color: var(--ink-3); }
+.cycle-panel {
+    display: none;
+    margin-bottom: 12px; padding: 12px 13px 2px;
+    background: #FBF7EC;
+    border-radius: 14px;
+}
+.cycle-panel.show { display: block; }
+
+/* ------------------------------------------------------------
+   18.8 家长端：作业编辑器 / 图片查看器
+   ------------------------------------------------------------ */
+.hw-editor-mask {
+    position: fixed; inset: 0;
+    background: rgba(48, 42, 28, .44);
+    z-index: 60;
+}
+.hw-editor {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 61;
+    width: 100%; max-width: var(--pw);
+    margin: 0 auto;
+    max-height: 88vh;
+    overflow-y: auto;
+    background: var(--cream);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -14px 36px rgba(50, 40, 20, .32);
+    scrollbar-width: none;
+}
+.hw-editor::-webkit-scrollbar { display: none; }
+.hw-editor-head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 16px var(--gutter) 10px;
+}
+.hw-editor-head h3 { font-size: 16px; font-weight: 800; color: #3D3226; }
+.hw-editor-close {
+    margin-left: auto;
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    font-size: 13px; color: var(--ink-2);
+    background: #F2EBDC;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.hw-editor-body { padding: 0 var(--gutter) calc(22px + env(safe-area-inset-bottom, 0px)); }
+.hw-editor-tip {
+    margin: 0 0 12px;
+    padding: 9px 11px;
+    font-size: 11px; font-weight: 700; color: #8A6A3A;
+    background: #FFF6E2;
+    border-radius: 12px;
+}
+/* 「这条下面的作业都已经完成了」的警告句 */
+.hw-editor-tip .tip-warn { display: block; margin-top: 5px; color: #C2410C; font-weight: 800; }
+.hw-editor-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.edit-attach-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+.edit-attach-cell { position: relative; width: 62px; height: 62px; }
+.edit-attach-cell img {
+    width: 62px; height: 62px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 0 0 2px #fff, 0 3px 8px rgba(90, 70, 40, .16);
+    cursor: zoom-in;
+}
+.edit-attach-del {
+    position: absolute; top: -5px; right: -5px;
+    width: 20px; height: 20px;
+    display: grid; place-items: center;
+    font-size: 11px; font-weight: 800; color: #fff;
+    background: var(--c-chinese);
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+    cursor: pointer;
+}
+.img-viewer {
+    position: fixed; inset: 0;
+    z-index: 90;
+    display: grid; place-items: center;
+    padding: 20px;
+    background: rgba(24, 20, 14, .88);
+}
+.img-viewer img { max-width: 100%; max-height: 100%; border-radius: 14px; }
+.img-viewer-close {
+    position: absolute; top: 18px; right: 18px;
+    width: 34px; height: 34px;
+    display: grid; place-items: center;
+    font-size: 15px; color: #fff;
+    background: rgba(255, 255, 255, .18);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+/* ------------------------------------------------------------
+   18.9 Toast / 礼花 / 掉落物
+   ------------------------------------------------------------ */
+.toast {
+    position: fixed; left: 50%; bottom: 96px;
+    transform: translateX(-50%);
+    z-index: 95;
+    max-width: 82vw;
+    padding: 11px 18px;
+    font-size: 13px; font-weight: 800; color: #fff;
+    text-align: center;
+    background: rgba(60, 48, 32, .92);
+    border-radius: var(--r-pill);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .28);
+    animation: toastIn .22s ease-out;
+}
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.confetti-canvas {
+    position: fixed; inset: 0;
+    z-index: 80;
+    pointer-events: none;
+}
+.falling-item {
+    position: absolute;
+    z-index: 3;
+    font-size: 18px;
+    font-family: var(--font-emoji);
+    pointer-events: none;
+    animation: fallDown linear forwards;
+}
+@keyframes fallDown {
+    from { transform: translateY(-30px) rotate(0deg); opacity: 0; }
+    12%  { opacity: 1; }
+    to   { transform: translateY(160px) rotate(220deg); opacity: 0; }
+}
+
+/* ------------------------------------------------------------
+   18.10 云端同步（家庭码）
+   ------------------------------------------------------------ */
+.sync-pill {
+    position: fixed;
+    right: 10px; bottom: calc(94px + env(safe-area-inset-bottom, 0px));
+    z-index: 70;
+    display: flex; align-items: center; gap: 5px;
+    max-width: 34px;
+    padding: 7px 8px;
+    font-size: 11px; font-weight: 800; color: var(--ink-2);
+    background: rgba(255, 252, 245, .94);
+    border-radius: var(--r-pill);
+    box-shadow: var(--sh-soft);
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: max-width .28s ease, padding .28s ease;
+}
+.sync-pill.expanded { max-width: 220px; padding: 7px 13px 7px 9px; }
+.sync-pill .sync-dot { font-size: 12px; font-family: var(--font-emoji); line-height: 1; }
+.sync-pill .sync-text { display: none; }
+.sync-pill.expanded .sync-text { display: inline; }
+
+.sync-mask { position: fixed; inset: 0; z-index: 76; background: rgba(48, 42, 28, .44); }
+.sync-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    z-index: 77;
+    width: 100%; max-width: var(--pw);
+    margin: 0 auto;
+    padding: 16px var(--gutter) calc(22px + env(safe-area-inset-bottom, 0px));
+    background: var(--cream);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -14px 36px rgba(50, 40, 20, .32);
+}
+.sync-sheet-head { display: flex; align-items: center; margin-bottom: 12px; }
+.sync-sheet-head h3 { font-size: 16px; font-weight: 800; color: #3D3226; }
+.sync-close {
+    margin-left: auto;
+    width: 28px; height: 28px;
+    display: grid; place-items: center;
+    font-size: 13px; color: var(--ink-2);
+    background: #F2EBDC;
+    border-radius: 50%;
+    cursor: pointer;
+}
+.sync-label { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: var(--ink-2); line-height: 1.55; }
+.sync-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px; font-weight: 800; letter-spacing: 2px;
+    text-align: center; text-transform: uppercase;
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    outline: none;
+}
+.sync-input.err { border-color: var(--c-chinese); }
+.sync-actions { display: flex; gap: 8px; margin-top: 10px; }
+.sync-btn {
+    flex: 1;
+    padding: 11px;
+    font-size: 12.5px; font-weight: 800; color: var(--ink-2);
+    text-align: center;
+    background: #fff;
+    border-radius: var(--r-pill);
+    box-shadow: var(--sh-soft);
+    cursor: pointer;
+}
+.sync-btn.primary {
+    color: #fff;
+    background: linear-gradient(180deg, #9BD46E, var(--grass-deep));
+    box-shadow: 0 3px 0 rgba(90, 130, 50, .32);
+}
+.sync-tip { margin: 12px 0 0; font-size: 10.5px; font-weight: 600; line-height: 1.6; color: var(--ink-3); }
+
+/* ------------------------------------------------------------
+   18.11 兜底：旧类名残留时也不至于裸奔
+   ------------------------------------------------------------ */
+.card {
+    margin: 14px var(--gutter) 0;
+    padding: 14px;
+    background: var(--cream);
+    border-radius: var(--r-board);
+    box-shadow: var(--sh-card);
+}
+.card-head { display: flex; align-items: center; gap: 8px; }
+.card-head h2 { font-size: 14px; font-weight: 800; color: var(--ink); }
+.card-tag {
+    margin-left: auto; flex: none;
+    padding: 3px 11px;
+    font-size: 10.5px; font-weight: 800; color: var(--ink-2);
+    background: var(--wood-pale);
+    border-radius: var(--r-pill);
+    white-space: nowrap;
+}
+.card-tag.all-done { color: #fff; background: linear-gradient(180deg, #9BD46E, var(--grass-deep)); }
+.app-footer { display: none; }
+.hint { margin: 8px 0 0; font-size: 10.5px; font-weight: 600; color: var(--ink-3); line-height: 1.6; }
+
+/* 家长端：孩子切换 chip 可点 */
+.kid-chip { cursor: pointer; }
+
+/* ============================================================
+   19. 页面专属零件
+   ============================================================ */
+
+/* ---- 区间导航条（‹ 今天 今天 ›） ---- */
+.cal-nav {
+    display: flex; align-items: center; gap: 7px;
+    margin-top: 10px;
+    padding: 6px 8px;
+    background: #FBF7EC;
+    border-radius: var(--r-pill);
+}
+.cal-nav-btn {
+    width: 30px; height: 30px; flex: none;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 800; color: var(--ink-2);
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: var(--sh-soft);
+    cursor: pointer;
+}
+.cal-nav-btn:active { transform: translateY(1px); }
+.cal-nav-label {
+    flex: 1; min-width: 0;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 1px;
+    text-align: center;
+}
+.cal-nav-label > span:first-child {
+    font-size: 12.5px; font-weight: 800; color: var(--ink);
+    white-space: nowrap;
+}
+.cal-nav-sub {
+    font-size: 10px; font-weight: 700; color: var(--ink-3);
+    white-space: nowrap;
+}
+.cal-nav-today {
+    flex: none;
+    padding: 6px 12px;
+    font-size: 11px; font-weight: 800; color: #4E3618;
+    background: linear-gradient(180deg, var(--wood-light), var(--wood));
+    border-radius: var(--r-pill);
+    box-shadow: 0 2px 0 rgba(var(--wood-rgb), .35);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.cal-nav-today.is-off,
+.cal-nav-today:disabled {
+    color: var(--ink-3);
+    background: #EDE6D6;
+    box-shadow: none;
+}
+
+/* ---- 分段控件里的按钮（JS 用 .range-btn 定位） ---- */
+.seg .range-btn { cursor: pointer; user-select: none; }
+
+/* ---- 弹层内的 tab 面板 ---- */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ---- 顶栏：伙伴头像 / 家长端积分 chip ---- */
+.hud-avatar {
+    display: grid; place-items: center;
+    font-family: var(--font-emoji);
+    background: radial-gradient(circle at 34% 26%, #fff 0%, #EFF6E2 60%, #DCEBC4 100%);
+    cursor: pointer;
+}
+.kid-av { font-family: var(--font-emoji); font-size: 13px; }
+.kid-chip b { font-variant-numeric: tabular-nums; }
+
+/* ---- 陪伴条：今天谁陪我写作业 ---- */
+.mate-strip {
+    display: flex; align-items: center; gap: 10px;
+    margin: 14px var(--gutter) 0;
+    padding: 10px 12px;
+    background: var(--cream);
+    border-radius: 20px 18px 20px 18px;
+    box-shadow: var(--sh-card);
+    cursor: pointer;
+}
+.mate-strip:active { transform: scale(.99); }
+.mate-strip .ms-av {
+    width: 42px; height: 42px; flex: none;
+    display: grid; place-items: center;
+    font-size: 23px; font-family: var(--font-emoji);
+    background: radial-gradient(circle at 34% 26%, #fff 0%, #EFF6E2 60%, #DCEBC4 100%);
+    border-radius: 15px 13px 15px 13px;
+    box-shadow: inset 0 -2px 0 rgba(90, 130, 50, .12), 0 2px 6px rgba(90, 70, 40, .14);
+}
+.mate-strip .ms-txt { flex: 1; min-width: 0; }
+.mate-strip .ms-txt b {
+    display: block;
+    font-size: 13px; font-weight: 800; color: var(--ink);
+}
+.mate-strip .ms-txt i {
+    display: block; margin-top: 2px;
+    font-size: 10.5px; font-weight: 700; font-style: normal; color: var(--ink-3);
+}
+.mate-strip .ms-swap {
+    flex: none;
+    width: 30px; height: 30px;
+    display: grid; place-items: center;
+    font-size: 14px; font-family: var(--font-emoji);
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: var(--sh-soft);
+}
+
+/* ---- 主视觉容器：兜住飘落动效 + 兜住窄屏高度 ---- */
+.hero { position: relative; overflow: hidden; }
+.hero img { display: block; }
+
+/* ---- 页面尾部留白（内容不长时也不贴住底栏） ---- */
+.tail-space { height: 12px; }
+
+/* ---- 儿童端作业列表宿主 ---- */
+.child-homework-list { margin-top: 2px; }
+.homework-list { margin-top: 2px; }
+
+/* ---- 窄屏收一档 ---- */
+@media (max-width: 360px) {
+    .signpost { font-size: 11px; padding: 6px 11px; }
+    .mate-strip { padding: 9px 10px; gap: 8px; }
+    .hw-subj { font-size: 12px; }
+    .hw-desc { font-size: 12px; }
+    .stats .stat b { font-size: 19px; }
+    .tab span { font-size: 9.5px; }
+}
+
+/* ============================================================
+   20. 入口页
+   ============================================================ */
+body[data-mode="entry"] { background: var(--sky-2); }
+
+.entry {
+    display: flex; align-items: center; gap: 11px;
+    margin-top: 8px;
+    padding: 12px;
+    background: var(--cream-2);
+    border-radius: 18px;
+    box-shadow: var(--sh-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: transform .16s ease;
+}
+.entry:active { transform: translateY(1px); }
+.entry .e-ico {
+    width: 44px; height: 44px; flex: none;
+    display: grid; place-items: center;
+    font-size: 21px; font-family: var(--font-emoji); color: #fff;
+    border-radius: 14px;
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .10), 0 2px 6px rgba(90, 70, 40, .16);
+}
+.entry .e-main { flex: 1; min-width: 0; }
+.entry .e-main b {
+    display: block;
+    font-size: 14px; font-weight: 800; color: var(--ink);
+}
+.entry .e-main span {
+    display: block; margin-top: 3px;
+    font-size: 11px; font-weight: 600; line-height: 1.5; color: var(--ink-3);
+}
+.entry .e-go {
+    flex: none;
+    font-size: 12px; font-weight: 800; color: var(--wood-deep);
+    white-space: nowrap;
+}
+
+.footer-note {
+    margin: 14px auto 26px;
+    max-width: var(--pw);
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    text-align: center;
+}
+
+/* ============================================================
+   21 · 桌面端收口
+   手机端（≤519px）这些零件本身就落在可视区域内，不用管；
+   桌面端 .phone 是居中的 390px 框，fixed 定位的零件必须按框宽收回来。
+   ============================================================ */
+@media (min-width: 520px) {
+    .sync-pill { right: calc(50% - var(--pw) / 2 + 10px); }
+}
+
+/* ============================================================
+   22 · hidden 属性必须永远生效
+   我们不少组件类里写了 display: grid / flex（.tab .badge、.stat…），
+   作者样式会盖掉浏览器默认的 [hidden] { display: none }，
+   结果"本该隐藏"的元素照样显示 —— 底部「确认」tab 上那个 0 角标就是这么冒出来的。
+   ============================================================ */
+[hidden] { display: none !important; }
+
+/* ============================================================
+   23 · 主屏模式（加到主屏后从图标启动）
+   浏览器里顶部那条状态栏是浏览器自己画的，网页改不了；
+   但"加到主屏"启动时没有浏览器自带顶栏，网页可以一直铺到刘海后面。
+   这里把天空顶端压深半档：
+     ① 白色状态栏图标在浅蓝上才看得清；
+     ② 从上到下的深→浅过渡，刘海区域看上去就是天空的一部分。
+   （百分比是相对整页高度，3% ≈ 60px，正好是刘海那一带）
+   ============================================================ */
+@media (display-mode: standalone) {
+    html, body { background: #6FC0EC; }
+    :root {
+        /* 吸顶顶栏在主屏模式下也压深半档，跟 .sky 顶段保持一致 */
+        --head-fade: linear-gradient(180deg,
+            #6FC0EC 0%, #7FC6EF calc(100% - 14px), rgba(127, 198, 239, 0) 100%);
+    }
+    .sky {
+        background: linear-gradient(180deg,
+            #6FC0EC 0%, #7FC6EF 3%, #8FD6FF 5%, #A5DFFE 10%,
+            #C6EBFE 20%, #E1F5FE 29%, #E8F6DA 38%, #F1F5E2 47%,
+            #FAF6EA 56%, #FBF6EA 100%);
+    }
+}
+
+/* ============================================================
+   22 · 定时（周期）作业管理
+   家长端首页「🔄 定时作业」看板：模板列表 + 全量修改弹层
+   ============================================================ */
+/* 暂停中的模板整行压暗，一眼区分 */
+.hw-row.off { opacity: .58; }
+.hw-row.off .hw-btn { opacity: .92; }
+/* 模板行里的周期标签 */
+.hw-note .recur-when {
+    display: inline-block;
+    padding: 1px 7px;
+    margin-right: 4px;
+    font-size: 10.5px; font-weight: 800;
+    color: #7A5A20;
+    background: #FFF3D6;
+    border-radius: var(--r-pill);
+}
+
+/* ============================================================
+   §24 积分兑换 / 我的名片（2026-09-22）
+   ============================================================ */
+
+/* ---- 家长端：奖励清单行右侧的操作按钮组 ---- */
+.manage-row .mr-act {
+    display: flex; align-items: center; gap: 5px;
+    flex: none;
+}
+.manage-row .mr-act .hw-btn { padding: 5px 9px; font-size: 11px; }
+.manage-row.off { opacity: .55; }
+.manage-row.off .mr-img { filter: grayscale(.55); }
+/* 家长端「收集到的宝贝」：海域分区标题 + 传说项金边 */
+.mat-group-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin: 10px 0 5px;
+    padding: 4px 9px;
+    font-size: 11.5px; font-weight: 800; color: #7A5A20;
+    background: rgba(255, 243, 214, .9);
+    border-radius: var(--r-pill);
+}
+.mat-group-head + .manage-row { margin-top: 0; }
+.manage-row.rare { background: linear-gradient(180deg, #FFF9E8, #FFF1CE); }
+.manage-row.rare .mr-img { box-shadow: 0 0 0 2px rgba(224, 160, 32, .45); }
+
+/* ---- 编辑弹层里的开关行 ---- */
+.switch-row {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 800; color: var(--ink-2);
+}
+.switch-row input[type=checkbox] {
+    width: 18px; height: 18px; flex: none;
+    accent-color: var(--grass-deep);
+}
+
+/* ---- 头像 / 图标选择网格（孩子选头像、家长选奖励图标共用）---- */
+.avatar-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 7px;
+    margin-top: 2px;
+}
+.avatar-opt {
+    aspect-ratio: 1;
+    display: grid; place-items: center;
+    font-size: 20px; font-family: var(--font-emoji);
+    background: var(--cream-2);
+    border: 2px solid transparent;
+    border-radius: 13px;
+    box-shadow: var(--sh-soft);
+    cursor: pointer;
+    transition: transform .12s ease, border-color .12s ease, background .12s ease;
+}
+.avatar-opt:active { transform: scale(.92); }
+.avatar-opt.on {
+    border-color: var(--c-math);
+    background: linear-gradient(180deg, #FFF1D6, #FFE3AE);
+    box-shadow: 0 0 0 3px rgba(255, 178, 44, .28);
+}
+
+/* ---- 通用确认弹层：比底部面板更居中一些 ---- */
+.confirm-sheet {
+    top: 50%; bottom: auto;
+    transform: translateY(-50%);
+    border-radius: 26px;
+    box-shadow: 0 18px 44px rgba(50, 40, 20, .34);
+}
+.confirm-body { padding: 20px 18px 16px; text-align: center; }
+.confirm-body .confirm-emo {
+    display: block;
+    font-size: 38px; font-family: var(--font-emoji);
+    margin-bottom: 6px;
+}
+.confirm-body h3 { margin: 0 0 7px; font-size: 16px; font-weight: 800; color: var(--ink-1); }
+.confirm-body p {
+    margin: 0 0 16px;
+    font-size: 12.5px; font-weight: 700; color: var(--ink-2); line-height: 1.55;
+}
+.confirm-body .hw-editor-actions { display: flex; gap: 9px; align-items: center; }
+.confirm-body .hw-editor-actions .btn-primary { flex: 1; }
+.confirm-body .hw-editor-actions .btn-secondary { flex: none; padding: 11px 18px; }
+
+/* ---- 儿童端：首页「我的名片」---- */
+.me-card {
+    display: flex; align-items: center; gap: 11px;
+    margin: 12px var(--gutter) 0;
+    padding: 11px 13px;
+    background: linear-gradient(180deg, #FFFDF6, #FFF2D8);
+    border-radius: var(--r-card);
+    box-shadow: var(--sh-soft), inset 0 0 0 3px rgba(255, 236, 200, .92);
+    cursor: pointer;
+    transition: transform .14s ease;
+    -webkit-user-select: none; user-select: none;
+}
+.me-card:active { transform: scale(.985); }
+.me-card .me-av {
+    width: 52px; height: 52px; flex: none;
+    display: grid; place-items: center;
+    font-size: 28px; font-family: var(--font-emoji);
+    background: linear-gradient(180deg, #8FD6FF, #6FC0EC);
+    border-radius: 50%;
+    box-shadow: var(--sh-hard);
+}
+.me-card .me-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.me-card .me-txt b { font-size: 15px; font-weight: 800; color: var(--ink-1); }
+.me-card .me-txt i {
+    font-style: normal;
+    font-size: 11.5px; font-weight: 700; color: var(--ink-2);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    /* 签名是孩子自己写的，中文 + emoji 混排。
+       用「中文字体在前、emoji 字体在后」的组合栈：emoji 放最后，
+       安卓不支持某个新 emoji 时回退成黑白字形，而不是渲染成豆腐块 □。 */
+    font-family: var(--font-round);
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+                 var(--font-emoji);
+}
+.me-card .me-txt i.empty { color: #A9A093; }
+.me-card .me-edit { flex: none; font-size: 15px; opacity: .65; }
+

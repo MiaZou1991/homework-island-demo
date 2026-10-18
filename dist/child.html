@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#8FD6FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="小岛日历">
+    <link rel="manifest" href="manifest.json">
+    <title>作业岛·小岛日历</title>
+    <link rel="stylesheet" href="style.css?v=20261018-demo-integrated">
+<link rel="stylesheet" href="upgrade.css?v=1">
+</head>
+<body data-mode="child">
+<!-- 内联图标库（纯路径，无 emoji 依赖；规格与设计基准稿一致） -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+        <symbol id="i-sun" viewBox="0 0 24 24">
+            <g stroke="#F5A728" stroke-width="2" stroke-linecap="round">
+                <path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>
+            </g>
+            <circle cx="12" cy="12" r="5.2" fill="#FFC93C"/>
+            <circle cx="12" cy="12" r="3" fill="#FFDD7A"/>
+        </symbol>
+        <symbol id="i-leaf" viewBox="0 0 24 24">
+            <path d="M4 20C4 11 10 4.5 20 4c1 10-6 16-14 16z" fill="#56B94C"/>
+            <path d="M4 20C8 14 12 10 18 7" stroke="#3E9440" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        </symbol>
+        <symbol id="i-star" viewBox="0 0 24 24">
+            <path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5 6.1 20.6l1.2-6.5L2.5 9.5l6.6-.9z" fill="#FFC93C"/>
+            <path d="M12 6.4l1.9 4 4.3.6-3.1 3 .8 4.2-3.9-2.1-3.9 2.1.8-4.2-3.1-3 4.3-.6z" fill="#FFE49B" opacity=".85"/>
+        </symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none"/>
+        </symbol>
+    </defs>
+</svg>
+<!--
+  儿童端 · 小岛日历（「今日岛屿」版）
+  视图（底部 tab 或 gotoChildView() 切换）
+    home      今日岛屿：当日统一时间线（作业/课表/自由安排同一条轴）
+    calendar  小岛日历：月视图选日 + 看那天的安排
+    report    学习报告
+    achieve   成就：徽章墙 + 小岛展示墙
+    shop      积分商城
+  孩子自加安排：「我想做点什么」→ ovl-event（自己加的事件不给分）
+-->
+<div class="phone">
+
+    <!-- ===== 天空底 ===== -->
+    <div class="sky">
+        <i class="cloud c1"></i>
+        <i class="cloud c2"></i>
+        <i class="cloud c3"></i>
+    </div>
+
+    <!-- ===== 顶栏 ===== -->
+    <header class="topbar">
+        <a class="back-btn" href="index.html" title="返回主页" aria-label="返回主页">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#4A3F30" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5"/><path d="M11 5.5 L4.5 12 L11 18.5"/></svg>
+        </a>
+        <div class="brand">
+            <img class="brand-logo" src="assets/logo.svg" alt="作业岛 Homework Island">
+        </div>
+        <div class="hud">
+            <span class="capsule" id="hud-status">
+                <span class="cseg" id="hud-weather"><svg class="ci"><use href="#i-sun"/></svg>今日晴 22&deg;</span>
+                <span class="cseg" id="hud-mood"><svg class="ci"><use href="#i-leaf"/></svg>岛屿平静</span>
+            </span>
+            <span class="capsule pts"><svg class="ci"><use href="#i-star"/></svg><b id="child-points">0</b></span>
+            <img class="hud-avatar" id="hud-avatar" src="assets/char_bear.png" alt="我的名片" title="我的名片" onclick="openMeEditor()" role="button" tabindex="0">
+        </div>
+    </header>
+
+    <div class="stage">
+
+    <!-- ============================================================
+         页面 1 · 今天（今日岛屿：月历 + 当日统一时间线）
+         ============================================================ -->
+    <section class="view on" data-view="home">
+
+        <!-- 紧凑欢迎 + 当日概要 -->
+        <section class="welcome welcome-compact">
+            <h1>
+                <em id="child-hi">你好呀</em>
+                <b>小岛今天
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="child-greeting">今天还没有安排，先去岛上玩一会儿吧！</p>
+            <div class="day-summary" id="c-day-summary"></div>
+        </section>
+
+        <!-- 今日三统计：作业 / 已完成 / 小岛积分 -->
+        <section class="stats" id="c-stats" style="margin-top:12px"></section>
+
+        <!-- 当日时间线：作业 + 课表 + 自由安排，同一条轴 -->
+        <section class="board" id="c-timeline-board" style="display:none">
+            <div class="board-head">
+                <span class="b-ico">📅</span>
+                <h2 id="c-day-label">今天</h2>
+                <span class="b-badge" id="c-timeline-count">0 项</span>
+            </div>
+            <div id="c-timeline" class="timeline"></div>
+        </section>
+
+        <!-- 孩子自己加的安排 -->
+        <button class="fab-event" onclick="openEventEditor(null)"><span class="fplus">＋</span>我想做点什么</button>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 2 · 小岛日历（月视图 + 选日看安排）
+         ============================================================ -->
+    <section class="view" data-view="calendar">
+
+        <section class="welcome">
+            <h1>
+                <em>翻翻</em>
+                <b>小岛日历
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p>点任意一天，看看那天有什么安排。</p>
+        </section>
+
+        <!-- 月历：选日中枢 -->
+        <section class="board month-board" id="c-month-board">
+            <div class="board-head month-head">
+                <button class="cal-nav-btn" onclick="stepChildMonth(-1)" aria-label="上一月">‹</button>
+                <h2 id="c-month-title">—</h2>
+                <button class="cal-nav-btn" onclick="stepChildMonth(1)" aria-label="下一月">›</button>
+                <button class="cal-nav-today" onclick="goChildTodayDay()">今天</button>
+            </div>
+            <div class="cal-weekdays">
+                <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div class="cal-grid" id="c-month-grid"></div>
+        </section>
+
+        <!-- 选中那天的安排 -->
+        <section class="board" id="c-cal-board">
+            <div class="board-head">
+                <span class="b-ico">📅</span>
+                <h2 id="c-cal-day-label">今天</h2>
+                <span class="b-badge" id="c-cal-count">—</span>
+            </div>
+            <div id="c-cal-timeline" class="timeline"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 2 · 学习报告
+         ============================================================ -->
+    <section class="view" data-view="report">
+
+        <section class="welcome">
+            <h1>
+                <em>我的</em>
+                <b>学习报告
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="rep-sub">先完成几项作业，报告就丰富起来啦～</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">📊</span>
+                <h2>本周概览</h2>
+                <span class="b-badge" id="rep-range">—</span>
+            </div>
+            <div class="stats" id="rep-stats" style="margin-top:0"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">📈</span>
+                <h2>每天完成情况</h2>
+                <span class="b-badge" id="rep-week-total">—</span>
+            </div>
+            <div class="bars" id="rep-bars"></div>
+            <p class="hint" id="rep-hint"></p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🎒</span>
+                <h2>各科情况</h2>
+                <span class="b-badge" id="rep-subj-total">—</span>
+            </div>
+            <div id="rep-subjects"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">☀️</span>
+                <h2>今天</h2>
+                <span class="b-badge" id="rep-today-badge">—</span>
+            </div>
+            <div class="report-content" id="child-daily-report"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🗓️</span>
+                <h2 id="rep-month-title">本月</h2>
+                <span class="b-badge" id="rep-month-badge">—</span>
+            </div>
+            <canvas id="month-chart" width="350" height="180"></canvas>
+            <div class="report-content" id="child-monthly-report"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 3 · 成就
+         ============================================================ -->
+    <section class="view" data-view="achieve">
+
+        <section class="welcome">
+            <h1>
+                <em>我的</em>
+                <b>成就墙
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p id="ach-sub">完成作业、连续打卡，都能点亮新徽章～</p>
+        </section>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">🏅</span>
+                <h2>成就徽章</h2>
+                <span class="b-badge" id="badge-count">—</span>
+            </div>
+            <div class="medals" id="badge-wall"></div>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🏝️</span>
+                <h2>小岛展示墙</h2>
+                <span class="b-badge" id="inv-count-tag">0 种</span>
+            </div>
+            <p class="wall-hint" id="inventory-summary">完成一项作业，就能捡到一件宝贝摆上墙哦！</p>
+            <div class="display-wall" id="display-wall"></div>
+            <div class="wall-stats" id="wall-stats"></div>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    <!-- ============================================================
+         页面 4 · 积分商城
+         ============================================================ -->
+    <section class="view" data-view="shop">
+
+        <section class="welcome">
+            <h1>
+                <em>用小岛的</em>
+                <b>积分换奖励
+                    <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
+                    </svg>
+                </b>
+            </h1>
+            <p>完成作业、连续打卡都能攒积分，<br>攒够了就来这里兑换喜欢的奖励。</p>
+        </section>
+
+        <div class="balance">
+            <span class="b-emo">⭐</span>
+            <span class="b-main">
+                <span class="b-num"><span id="shop-points">0</span> <small>积分</small></span>
+                <span class="b-sub" id="shop-sub">完成作业就能攒积分</span>
+            </span>
+            <span class="b-act" onclick="openMatePicker(event)">选伙伴</span>
+        </div>
+
+        <section class="board">
+            <i class="peg"></i>
+            <div class="board-head">
+                <span class="b-ico">🎁</span>
+                <h2>可以兑换啦</h2>
+                <span class="b-badge" id="shop-redeem-count">—</span>
+            </div>
+            <div class="shop-grid" id="shop-items"></div>
+            <p class="hint">积分够了就能点「兑换」把它带回家。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🎯</span>
+                <h2>还要再攒攒</h2>
+                <span class="b-badge" id="shop-locked-count">—</span>
+            </div>
+            <div class="shop-grid" id="shop-locked"></div>
+            <p class="hint">继续完成作业，很快就够啦。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🏅</span>
+                <h2>我的奖励</h2>
+                <span class="b-badge" id="shop-mine-count">—</span>
+            </div>
+            <div class="shop-grid" id="shop-mine"></div>
+            <p class="hint">兑换好的奖励会记在这里，记得找爸爸妈妈兑现哦。</p>
+        </section>
+
+        <section class="board">
+            <div class="board-head">
+                <span class="b-ico">🏝️</span>
+                <h2>我捡到的宝贝</h2>
+                <span class="b-badge" id="shop-mat-count">—</span>
+            </div>
+            <div class="shop-grid" id="shop-materials"></div>
+            <p class="hint">每完成一项作业，都会在小岛上捡到一件宝贝，它们会摆进「成就」页的展示墙。</p>
+        </section>
+
+        <div class="tail-space"></div>
+    </section>
+
+    </div><!-- /stage -->
+
+    <!-- ===== 底部导航：5 个 ===== -->
+    <nav class="tabbar">
+        <span class="tab on" data-tab="home" role="button" tabindex="0"><span class="emo">🏝️</span><span>今日岛屿</span></span>
+        <span class="tab" data-tab="calendar" role="button" tabindex="0"><span class="emo">📅</span><span>小岛日历</span></span>
+        <span class="tab" data-tab="report" role="button" tabindex="0"><span class="emo">📊</span><span>报告</span></span>
+        <span class="tab" data-tab="achieve" role="button" tabindex="0"><span class="emo">⭐</span><span>成就</span></span>
+        <span class="tab" data-tab="shop" role="button" tabindex="0"><span class="emo">🛍️</span><span>商城</span></span>
+    </nav>
+
+    <!-- ===== 弹层 · 今天谁陪我写作业 ===== -->
+    <div class="ovl" id="ovl-mate">
+        <div class="scrim" onclick="closeMatePicker()"></div>
+        <div class="sheet">
+            <div class="sheet-grip"></div>
+            <div class="sheet-head">
+                <span class="sh-ico">🐾</span>
+                <h2>今天谁陪我写作业？</h2>
+                <span class="x" onclick="closeMatePicker()">✕</span>
+            </div>
+            <p class="mate-tip" id="mate-tip">选一个伙伴陪你一起写作业吧！</p>
+            <div class="sheet-body">
+                <div class="mate-grid" id="mate-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 弹层 · 添加 / 编辑自由安排（孩子与家长共用） ===== -->
+    <div class="ovl" id="ovl-event">
+        <div class="scrim" onclick="closeEventEditor()"></div>
+        <div class="sheet">
+            <div class="sheet-grip"></div>
+            <div class="sheet-head">
+                <span class="sh-ico">🗓️</span>
+                <h2 id="ev-title-label">我想做点什么</h2>
+                <span class="x" onclick="closeEventEditor()">✕</span>
+            </div>
+
+            <div class="form-row">
+                <label>选个图标</label>
+                <input type="hidden" id="ev-emo">
+                <div class="ev-emo-row" id="ev-emo-row"></div>
+            </div>
+            <div class="form-row">
+                <label>这是什么</label>
+                <input type="text" id="ev-title" maxlength="20" placeholder="阅读 / 运动 / 练琴…">
+            </div>
+            <div class="form-row two-col">
+                <div>
+                    <label>日期</label>
+                    <input type="date" id="ev-date">
+                </div>
+                <div>
+                    <label>开始时间</label>
+                    <input type="time" id="ev-start">
+                </div>
+            </div>
+            <div class="form-row">
+                <label>结束时间（可选）</label>
+                <input type="time" id="ev-end">
+            </div>
+            <div class="form-row">
+                <label>准备清单（可选）</label>
+                <div class="ev-checklist" id="ev-checklist"></div>
+                <div class="ev-add-row">
+                    <input type="text" id="ev-new-item" maxlength="20" placeholder="比如：选一本绘本" onkeydown="if(event.key==='Enter')addEvChip()">
+                    <button class="btn btn-ok" type="button" onclick="addEvChip()">＋</button>
+                </div>
+            </div>
+
+            <div class="review-act">
+                <button class="btn btn-ok" type="button" onclick="saveEventEditor()">保存</button>
+                <button class="btn btn-ghost" type="button" id="ev-del" onclick="deleteEventFromEditor()">删除</button>
+                <button class="btn btn-back" type="button" onclick="closeEventEditor()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 返回主页入口已移到顶栏左上角（.back-btn），一眼可见 -->
+
+</div>
+
+<canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+<script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
+
+<script src="app.js?v=20261018-demo-integrated"></script>
+<script src="demo-core.js?v=1"></script>
+<script src="upgrade.js?v=1"></script>
+</body>
+</html>
