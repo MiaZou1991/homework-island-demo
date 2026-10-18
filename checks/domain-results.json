@@ -1,0 +1,19 @@
+{
+  "passed": 14,
+  "results": [
+    "isolated storage and no cloud SDK",
+    "default ten companions, legacy custom rewards and material counts",
+    "completion uses legacy streak bonus and new construction",
+    "same completion cannot settle twice",
+    "undo and re-complete preserve fixed drops and construction",
+    "class score and drop persist atomically",
+    "course re-completion does not reroll drops",
+    "recurring generation is idempotent",
+    "old backup retains stable ids, points, unknown fields and all owned mates",
+    "repeat import does not re-award history",
+    "invalid backup rejected without overwriting current data",
+    "new schema survives import/export roundtrip",
+    "production keys never changed across all operations",
+    "production sync script and SDK not shipped in demo pages"
+  ]
+}

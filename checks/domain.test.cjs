@@ -1,0 +1,27 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
+const root=path.join(__dirname,'../dist'),mem=new Map([['acnh_homework_v1','PRODUCTION_SENTINEL'],['acnh_family_code','DO_NOT_USE']]),listeners={};
+const doc={addEventListener:(n,fn)=>{(listeners[n] ||= []).push(fn);},body:{getAttribute:()=> 'parent'},querySelector:()=>null,querySelectorAll:()=>[],getElementById:()=>null};
+const ctx={document:doc,window:{addEventListener(){},__ISLAND_ERRORS__:[]},localStorage:{getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,String(v)),removeItem:k=>mem.delete(k)},sessionStorage:{getItem:()=>null,setItem(){}},location:{search:'',reload(){}},URLSearchParams,Date,Math:Object.assign(Object.create(Math),{random:()=>0}),console,setTimeout:()=>1,clearTimeout(){},requestAnimationFrame(){}};vm.createContext(ctx);
+for(const file of ['app.js','demo-core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
+const run=s=>vm.runInContext(s,ctx),get=()=>JSON.parse(run('JSON.stringify(getData())'));
+let results=[];function check(name,fn){fn();results.push(name);}
+check('isolated storage and no cloud SDK',()=>{assert.equal(mem.get('acnh_homework_v1'),'PRODUCTION_SENTINEL');assert.equal(mem.get('acnh_family_code'),'DO_NOT_USE');assert.equal(run('typeof WorkBuddyCloud'),'undefined');assert.equal(run('IslandSync.getCode()'),'本机 Demo');});
+check('default ten companions, legacy custom rewards and material counts',()=>{assert.equal(get().rewardItems.filter(x=>x.type==='mate').length,10);assert.equal(get().materials.shell,2);assert.equal(get().points,128);});
+run('var testData=DemoCore.ensure(getData()); var first=DemoCore.finish(testData,"demo_math");saveData(testData)');
+check('completion uses legacy streak bonus and new construction',()=>{assert.equal(get().points,144);assert.equal(get().demoGrowth.construction,20);assert.equal(get().materials.wood,4);assert.equal(get().homework[0].earnedPoints,16);});
+check('same completion cannot settle twice',()=>{assert.equal(run('DemoCore.finish(testData,"demo_math")'),null);assert.equal(get().points,144);});
+run('DemoCore.undo(testData,"demo_math");saveData(testData);var again=DemoCore.finish(testData,"demo_math");saveData(testData)');
+check('undo and re-complete preserve fixed drops and construction',()=>{assert.equal(get().points,144);assert.equal(get().materials.wood,4);assert.equal(get().demoGrowth.construction,20);assert.equal(run('again.replayed'),true);});
+run('DemoCore.finish(testData,"demo_swim","class",todayStr());saveData(testData)');
+check('class score and drop persist atomically',()=>{assert.equal(get().points,154);assert.equal(get().materials.wood,5);assert.equal(get().demoGrowth.construction,20);});
+run('DemoCore.undo(testData,"demo_swim","class",todayStr());DemoCore.finish(testData,"demo_swim","class",todayStr());saveData(testData)');
+check('course re-completion does not reroll drops',()=>{assert.equal(get().points,154);assert.equal(get().materials.wood,5);});
+check('recurring generation is idempotent',()=>{run('generateRecurringTasks();generateRecurringTasks()');assert.equal(get().homework.filter(h=>h.recurringTaskId==='demo_reading').length,1);});
+check('old backup retains stable ids, points, unknown fields and all owned mates',()=>{run('var oldBackup={homework:[{id:"OLD_H",content:"旧作业",done:true,earnedPoints:12}],points:777,materials:{legacy_unknown:9,wood:4},rewardsUnlocked:["🐻","🐼"],customUnknown:{keep:1},redemptions:[{id:"OLD_R",fulfilled:true}],classes:[{id:"OLD_C"}],classCheckins:{"2026-10-01|OLD_C":{done:true,pointsAwarded:10}}};DemoCore.importData(oldBackup)');let d=get();assert.equal(d.points,777);assert.equal(d.homework[0].id,'OLD_H');assert.equal(d.customUnknown.keep,1);assert.equal(d.materials.legacy_unknown,9);assert.deepEqual(d.rewardsUnlocked,['🐻','🐼']);assert.equal(d.redemptions[0].id,'OLD_R');assert.equal(d.demoGrowth.receipts['homework|OLD_H'].historical,true);});
+check('repeat import does not re-award history',()=>{run('DemoCore.importData(oldBackup)');assert.equal(get().points,777);assert.equal(get().materials.wood,4);assert.equal(get().demoGrowth.construction,10);});
+check('invalid backup rejected without overwriting current data',()=>{let before=JSON.stringify(get());assert.throws(()=>run('DemoCore.importData({homework:[{id:"DUP"},{id:"DUP"}],points:0})'));assert.equal(JSON.stringify(get()),before);});
+check('new schema survives import/export roundtrip',()=>{run('var full=getData();full.demoGrowth.buildings=["garden"];full.demoGrowth.room={0:"wood"};DemoCore.importData(full)');assert.deepEqual(get().demoGrowth.buildings,['garden']);assert.equal(get().demoGrowth.room[0],'wood');});
+check('production keys never changed across all operations',()=>{assert.equal(mem.get('acnh_homework_v1'),'PRODUCTION_SENTINEL');assert.equal(mem.get('acnh_family_code'),'DO_NOT_USE');});
+const pages=['child.html','parent.html'].map(p=>fs.readFileSync(path.join(root,p),'utf8'));
+check('production sync script and SDK not shipped in demo pages',()=>{for(const s of pages){assert.ok(!s.includes('workbuddy-cloud-sdk'));assert.ok(!s.includes('cloud-sync.js'));}assert.ok(!fs.existsSync(path.join(root,'cloud-sync.js')));});
+fs.writeFileSync(path.join(__dirname,'domain-results.json'),JSON.stringify({passed:results.length,results},null,2));console.log('PASS',results.length,'domain/isolation checks');
