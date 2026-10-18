@@ -1,5 +1,5 @@
 {
-  "passed": 26,
+  "passed": 33,
   "results": [
     "isolated storage and no cloud SDK",
     "default ten companions, legacy custom rewards and material counts",
@@ -26,6 +26,13 @@
     "editing one day updates its existing note without duplicating history",
     "mood-only and text-only notes are supported on separate days",
     "empty or invalid journal submissions cannot alter saved notes",
-    "journal history and old signature survive backup import roundtrip"
+    "journal history and old signature survive backup import roundtrip",
+    "fifteen distinct room places preserve all three legacy positions",
+    "multiple owned copies can be displayed but cannot be duplicated beyond inventory",
+    "moving a collectible to an empty place preserves its count",
+    "moving onto another collectible swaps without losing either item",
+    "replacing and removing a display returns objects to the available collection",
+    "invalid positions and incomplete homework cannot change the room",
+    "all ten default companions have an existing illustrated asset"
   ]
 }
