@@ -145,7 +145,12 @@
       }
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
       const local = readLocal();
-      pending = readPending() || pending;
+      const savedPending = readPending();
+      if (savedPending) {
+        // Startup may have generated today's tasks in the local copy.
+        pending = validPayload(local) ? local : savedPending;
+        localStorage.setItem(pendingKey(), JSON.stringify(pending));
+      }
       let initialUploadFailed = false;
       try {
         const remote = pending ? null : await loadRemote();
