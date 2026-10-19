@@ -5,7 +5,7 @@ const ctx={document:doc,window:{addEventListener(){},__ISLAND_ERRORS__:[]},local
 for(const file of ['app.js','demo-core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx);
 const run=s=>vm.runInContext(s,ctx),get=()=>JSON.parse(run('JSON.stringify(getData())'));
 let results=[];function check(name,fn){fn();results.push(name);}
-check('isolated storage and no cloud SDK',()=>{assert.equal(mem.get('acnh_homework_v1'),'PRODUCTION_SENTINEL');assert.equal(mem.get('acnh_family_code'),'DO_NOT_USE');assert.equal(run('typeof WorkBuddyCloud'),'undefined');assert.equal(run('IslandSync.getCode()'),'本机 Demo');});
+check('production storage is preserved and seeded family data is separate',()=>{assert.equal(mem.get('acnh_homework_v1'),'PRODUCTION_SENTINEL');assert.equal(mem.get('acnh_family_code'),'DO_NOT_USE');assert.ok(run('getData().homework.length')>0);assert.equal(run('DemoCore.key'),'homework_island_integrated_demo_v2:family:KAIXIN');});
 check('default ten companions, legacy custom rewards and material counts',()=>{assert.equal(get().rewardItems.filter(x=>x.type==='mate').length,10);assert.equal(get().materials.shell,2);assert.equal(get().points,128);});
 run('var testData=DemoCore.ensure(getData()); var first=DemoCore.finish(testData,"demo_math");saveData(testData)');
 check('completion uses legacy streak bonus and new construction',()=>{assert.equal(get().points,144);assert.equal(get().demoGrowth.construction,20);assert.equal(get().materials.wood,4);assert.equal(get().homework[0].earnedPoints,16);});
@@ -23,7 +23,7 @@ check('invalid backup rejected without overwriting current data',()=>{let before
 check('new schema survives import/export roundtrip',()=>{run('var full=getData();full.demoGrowth.buildings=["garden"];full.demoGrowth.room={0:"wood"};DemoCore.importData(full)');assert.deepEqual(get().demoGrowth.buildings,['garden']);assert.equal(get().demoGrowth.room[0],'wood');});
 check('production keys never changed across all operations',()=>{assert.equal(mem.get('acnh_homework_v1'),'PRODUCTION_SENTINEL');assert.equal(mem.get('acnh_family_code'),'DO_NOT_USE');});
 const pages=['child.html','parent.html'].map(p=>fs.readFileSync(path.join(root,p),'utf8'));
-check('production sync script and SDK not shipped in demo pages',()=>{for(const s of pages){assert.ok(!s.includes('workbuddy-cloud-sdk'));assert.ok(!s.includes('cloud-sync.js'));}assert.ok(!fs.existsSync(path.join(root,'cloud-sync.js')));});
+check('production sync script and SDK are shipped in both app pages',()=>{for(const s of pages){assert.ok(s.includes('@supabase/supabase-js@2'));assert.ok(s.includes('cloud-sync.js'));}assert.ok(fs.existsSync(path.join(root,'cloud-sync.js')));});
 run('var flowData=DemoCore.ensure(DemoCore.seed())');
 check('unfinished homework keeps construction and decoration locked',()=>{assert.equal(run('DemoCore.homeworkProgress(flowData).complete'),false);assert.equal(run('DemoCore.homeworkProgress(flowData).next.id'),'demo_math');});
 check('next homework advances after completion',()=>{run('DemoCore.finish(flowData,"demo_math")');assert.equal(run('DemoCore.homeworkProgress(flowData).next.id'),'demo_cn');assert.equal(run('DemoCore.homeworkProgress(flowData).complete'),false);});
