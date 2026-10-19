@@ -1,7 +1,7 @@
 /* 家庭码仅用于本机 Demo 数据分区；不同设备暂不共享数据。 */
 (() => {
   const CODE_KEY='homework_island_family_code_v1';
-  const cleanCode=value=>String(value||'').replace(/\D/g,'').slice(0,8);
+  const cleanCode=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
   const style=document.createElement('style');
   style.textContent=`
     .family-access-backdrop{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;padding:20px;background:#243b3688;backdrop-filter:blur(5px);font-family:inherit}
@@ -22,10 +22,10 @@
     <div class="family-access-backdrop" id="family-code-gate" role="dialog" aria-modal="true" aria-labelledby="family-code-title">
       <form class="family-access-card" id="family-code-form">
         <div style="font-size:32px">🏝️</div><h2 id="family-code-title">进入家庭小岛</h2>
-        <p>输入 4–8 位数字家庭码。第一次使用时自设一个；家长端和儿童端输入同一码，就会使用同一份家庭记录。</p>
+        <p>输入 4–8 位字母或数字家庭码。第一次使用时自设一个；家长端和儿童端输入同一码，就会使用同一份家庭记录。</p>
         <p>不同家庭的数据分别保存在这台设备的浏览器中。当前 Demo 暂不支持跨设备同步。</p>
         <p class="family-code-current" id="family-code-current" hidden></p>
-        <input id="family-code-input" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="例如：2468" aria-label="4到8位家庭码">
+        <input id="family-code-input" inputmode="text" autocapitalize="characters" autocomplete="off" maxlength="8" placeholder="例如：KAIXIN" aria-label="4到8位字母或数字家庭码">
         <p class="family-access-error" id="family-code-error" aria-live="polite"></p>
         <div class="family-access-actions"><button type="submit">进入小岛</button></div>
       </form>
@@ -63,7 +63,7 @@
   document.getElementById('family-code-form').addEventListener('submit',event=>{
     event.preventDefault();
     const code=cleanCode(codeInput.value);
-    if(code.length<4){document.getElementById('family-code-error').textContent='请输入至少 4 位数字家庭码';return;}
+    if(code.length<4){document.getElementById('family-code-error').textContent='请输入 4–8 位字母或数字家庭码';return;}
     if(code===activeCode){codeGate.style.display='none';return;}
     localStorage.setItem(CODE_KEY,code);
     location.reload();
