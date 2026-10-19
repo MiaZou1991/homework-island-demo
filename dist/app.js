@@ -393,14 +393,11 @@ function checkinClass(classId, day) {
     cur.completedAt = new Date().toISOString();
     cur.pointsAwarded = gain;
     setClassCheckin(data, classId, cur, d);
+    grantMaterialRewards(data);
     saveData(data);
-
-    // 上课也会掉落收集品，激励孩子坚持去上课
-    const gained = grantMaterialRewards(data);
     refreshAfterChange();
     fireConfetti();
-    const matText = gained.length ? `，捡到 ${gained.map(m => m.emoji + m.name).join(' ')}` : '';
-    showToast(`${c.name} 完成！+${gain} 分${matText}`);
+    showToast(`${c.name} 完成！+${gain} 分`);
     return true;
 }
 
@@ -2091,10 +2088,7 @@ function completeHomework(id) {
     refreshAfterChange();
 
     fireConfetti();
-    const matText = gainedMaterials.length > 0
-        ? `，捡到 ${gainedMaterials.map(m => m.emoji + m.name).join(' ')}`
-        : '';
-    showToast(`完成！获得 ${hw.earnedPoints} 积分（连击 x${data.currentStreak}）${matText}`);
+    showToast(`完成！获得 ${hw.earnedPoints} 积分（连击 x${data.currentStreak}）`);
     checkNewRewards(data);
 
     // 水果雨庆祝
@@ -3878,11 +3872,6 @@ function renderChildWeek(data) {
 function countSubjectDone(data, subject) {
     return data.homework.filter(h => h.done && h.subject === subject).length;
 }
-function materialKinds(data) {
-    const mats = data.materials || {};
-    return MATERIALS.filter(m => (mats[m.id] || 0) > 0).length;
-}
-
 const BADGES = [
     { ico: '🌱', name: '初次登场', desc: '完成第 1 项作业', done: c => c.completed >= 1 },
     { ico: '🔥', name: '连续 3 天', desc: '连续打卡 3 天', done: c => c.streak >= 3 },
@@ -3891,7 +3880,7 @@ const BADGES = [
     { ico: '🔤', name: '单词高手', desc: '完成 5 项英语', done: c => c.english >= 5 },
     { ico: '🐾', name: '好伙伴', desc: '解锁第 2 个伙伴', done: c => c.unlocked >= 2 },
     { ico: '⭐', name: '积分 100', desc: '当前积分达到 100 分', done: c => c.points >= 100 },
-    { ico: '🏝️', name: '小岛主人', desc: `收集全部 ${MATERIALS.length} 种宝贝`, done: c => c.kinds >= MATERIALS.length },
+    { ico: '🏝️', name: '小岛主人', desc: '建好小岛花园、海边码头和森林书屋', done: c => c.buildings >= 3 },
     { ico: '👑', name: '作业之王', desc: '累计完成 50 项', done: c => c.completed >= 50 }
 ];
 
@@ -3907,7 +3896,7 @@ function renderChildAchieve(data) {
         english: countSubjectDone(data, '英语'),
         unlocked: new Set(data.rewardsUnlocked || []).size,
         points: data.points || 0,
-        kinds: materialKinds(data)
+        buildings: data.demoGrowth?.buildings?.length || 0
     };
 
     let lit = 0;
@@ -4003,24 +3992,6 @@ function renderShop(data) {
     }
     setText('shop-mine-count', `${redemptions.length} 次`);
 
-    const matGrid = $('shop-materials');
-    if (matGrid) {
-        const mats = data.materials || {};
-        const owned = MATERIALS.filter(m => (mats[m.id] || 0) > 0);
-        const palette = ['', ' warm', ' leaf', ' rose'];
-        if (!owned.length) {
-            matGrid.innerHTML = '<p class="wall-empty-tip">还没有捡到宝贝，完成作业就会掉落了～</p>';
-        } else {
-            matGrid.innerHTML = owned.map((m, i) => `
-                <div class="shop-card${palette[i % palette.length]}">
-                    <span class="sc-img">${m.emoji}</span>
-                    <b>${escapeHtml(m.name)}</b>
-                    <span class="sc-price">× ${mats[m.id]} 个</span>
-                    <span class="sc-btn owned">已拥有</span>
-                </div>`).join('');
-        }
-    }
-    setText('shop-mat-count', `${Object.values(data.materials || {}).reduce((a, b) => a + b, 0)} 件`);
 }
 
 // 兑换清单里的一张卡片（mode: 'redeem' 可兑换 / 'locked' 还差分）
@@ -4517,21 +4488,6 @@ function renderParentReward(data) {
     }
     setText('p-redeem-count', pendings.length ? `${pendings.length} 项待兑现` : '都兑现了');
 
-    // 家长端也用展示墙那套格子（renderMaterialWall），不再用列表行：
-    // 两边共用一个渲染函数，以后改样式只改一处，不会出现儿童端一个样、家长端另一个样。
-    const matEl = $('p-reward-materials');
-    if (matEl) {
-        const mats = data.materials || {};
-        const total = Object.values(mats).reduce((a, b) => a + b, 0);
-        matEl.innerHTML = '';
-        if (!total) {
-            matEl.innerHTML = '<p class="wall-empty-tip">孩子还没捡到宝贝，完成作业就会掉落～</p>';
-            setText('p-mat-count', `0 / ${MATERIALS.length} 种`);
-        } else {
-            renderMaterialWall(matEl, data, { newIds: [], hideEmpty: true });
-            setText('p-mat-count', `${materialKinds(data)} / ${MATERIALS.length} 种 · ${total} 件`);
-        }
-    }
 }
 
 // ================= 家长端：奖励清单的增删改 =================
