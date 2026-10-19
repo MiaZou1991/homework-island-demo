@@ -41,3 +41,20 @@
 .up-family-code-card b{display:block;margin:4px 0;font-size:18px;letter-spacing:1.5px;color:var(--up-ink)}
 .up-family-code-card p{max-width:230px;color:var(--up-muted);font-size:11px!important}
 .up-family-code-card .up-button{flex:none}
+
+/* 家长首页：把常用操作和近期回顾收进清晰的两层布局。 */
+.up-parent-actions{grid-template-columns:1fr 1fr;margin:16px 0 4px}
+.up-parent-actions .up-primary,.up-parent-actions .up-secondary{min-height:58px;line-height:1.35}
+.up-import-link{display:block;margin:2px 0 18px;color:#806c50;text-align:center}
+.up-inbox{margin:14px 0 10px;padding:10px 15px}
+.up-inbox summary{font-size:13px;font-weight:700;color:#6d6845;cursor:pointer;padding:5px 0}
+.up-today-list{border:1px solid #eee3cb;border-radius:18px;padding:0 14px;background:#fffdf6}
+.up-today-list .up-row:last-child{border-bottom:0}
+.up-recent-review{margin-top:18px;padding:2px 15px 12px;border:1px solid #e7dfc6;border-radius:18px;background:#f8f7e9}
+.up-recent-review .up-section{margin:9px 0 3px}
+.up-recent-review>.up-muted{padding:9px 0}
+.up-review-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #e9e4d1}
+.up-review-mark{width:27px;height:27px;flex:none;display:grid;place-items:center;border-radius:50%;background:#e2ebc8;color:#628344;font-size:15px}
+.up-review-row b{display:block;font-size:12px;font-weight:600;color:#534630;line-height:1.5}
+.up-review-row small{display:block;font-size:10px;color:#897b64;margin-top:3px}
+
