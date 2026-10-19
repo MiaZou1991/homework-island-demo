@@ -6,12 +6,12 @@ const projects=[{id:'garden',name:'小岛花园',cost:20,desc:'在家门前种�
 const cast=Object.fromEntries(DemoCore.companions.map(m=>[m.emoji,[m.id,m.name,m.line,m.src]]));
 const roomSlots=DemoCore.roomSlots;
 const e=escapeHtml,attr=v=>e(String(v)).replace(/'/g,'&#39;');
-const image=(name,cls='',alt='')=>`<img class="${cls}" src="assets/characters/${name==='house'?'logo_house':'icon_'+name}.png" alt="${alt}">`;
+const image=(name,cls='',alt='')=>`<img class="${cls}" src="assets/characters/${name==='house'?'logo_house':'icon_'+name}.png" alt="${alt}" loading="lazy" decoding="async">`;
 const button=(text,action,cls='up-button',extra='')=>`<button type="button" class="${cls}" data-up="${action}" ${extra}>${text}</button>`;
 let root,nav,header,ready=false;
 function data(){return DemoCore.ensure(getData());}
 function companion(d){const owned=d.rewardsUnlocked||['🐻'];const emo=owned.includes(d.todayMate)?d.todayMate:owned[0];const c=cast[emo];const item=(d.rewardItems||[]).find(x=>x.type==='mate'&&x.emoji===emo);return {emoji:emo,name:item?.name||c?.[1]||'我的伙伴',line:c?.[2]||'今天也和你一起加油。',src:c?c[3]:null};}
-function buddy(d,cls='up-buddy'){const b=companion(d);return b.src?`<img class="${cls}" src="${b.src}" alt="${e(b.name)}">`:`<span class="${cls} up-emoji-buddy" role="img" aria-label="${e(b.name)}">${e(b.name.slice(0,1))}</span>`;}
+function buddy(d,cls='up-buddy'){const b=companion(d);return b.src?`<img class="${cls}" src="${b.src}" alt="${e(b.name)}" loading="lazy" decoding="async" fetchpriority="${ui.route==='today'?'high':'auto'}">`:`<span class="${cls} up-emoji-buddy" role="img" aria-label="${e(b.name)}">${e(b.name.slice(0,1))}</span>`;}
 function sceneBuddy(d,kind){return `<span class="up-scene-buddy ${kind}" aria-hidden="true">${buddy(d,'up-scene-character')}</span>`;}
 function companionStrip(d){const b=companion(d);return `<div class="up-companion-strip">${buddy(d)}<div><b>${e(b.name)}陪我写作业</b><small>${e(b.line)}</small></div>${button('更换伙伴','mate-picker','up-link','aria-label="选择陪写伙伴"')}</div>`;}
 function matePicker(task=null){ui.mateReturnTask=task;modal(`<div class="up-eyebrow">一起写作业的小岛伙伴</div><h1>今天想和谁一起？</h1><p class="up-muted">选择已经解锁的伙伴，它会出现在作业里，陪你完成每一件事。</p>${mateCards(data(),true)}`);}
@@ -19,7 +19,7 @@ function earnedPreview(d,h){const streak=d.lastCompletedDate===todayStr()?(d.cur
 function dayItems(d,day=ui.date){return buildDayTimeline(d,new Date(day+'T12:00:00')).items;}
 function nextProject(d){return projects.find(p=>!d.demoGrowth.buildings.includes(p.id));}
 function stage(d){return projects.filter(p=>d.demoGrowth.buildings.includes(p.id)).length;}
-function scene(d,cls=''){return `<img class="up-scene-image ${cls}" src="assets/island-stage-${stage(d)}.png" alt="${stage(d)===0?'等待建设的海岛':`已完成 ${stage(d)} 处建设的海岛`}" fetchpriority="${ui.route==='island'?'high':'auto'}">`;}
+function scene(d,cls=''){return `<img class="up-scene-image ${cls}" src="assets/island-stage-${stage(d)}.png" alt="${stage(d)===0?'等待建设的海岛':`已完成 ${stage(d)} 处建设的海岛`}" fetchpriority="${ui.route==='island'?'high':'auto'}" loading="lazy" decoding="async">`;}
 function dateLabel(day){const dt=new Date(day+'T12:00:00');return `${dt.getMonth()+1} 月 ${dt.getDate()} 日 · ${['周日','周一','周二','周三','周四','周五','周六'][dt.getDay()]}`;}
 function row(it){let title,sub,icon,tag='',act;if(it.kind==='homework'){let h=it.hw;title=h.content;sub=h.subject+(h.duration?' · 预计 '+h.duration+' 分钟':'');icon=(h.subject||'作').slice(0,1);tag=h.pendingApproval?'待确认':it.done?'已完成':`+${earnedPreview(data(),h)} 分`;act='task';}else if(it.kind==='class'){title=it.cls.name;sub=(it.cls.start||'')+' · '+(it.cls.place||'固定课程');icon='课';act='class';tag=it.done?'已打卡':'';}else{title=it.ev.title;sub=(it.ev.start||'时间自定')+' · '+(it.ev.owner==='child'?'自己安排的':'家长安排');icon='自';act='event';tag=it.done?'已完成':'';}return `<button type="button" class="up-row ${it.done?'is-done':''}" data-up="${act}" data-id="${attr(it.id)}"><span class="up-subject">${e(icon)}</span><span class="up-row-main"><b>${e(title)}</b><small>${e(sub)}</small></span><span class="up-row-state">${e(tag)}</span><span class="up-chevron">›</span></button>`;}
 function journalCard(d){const entry=d.journalEntries.find(x=>x.date===todayStr()),mood=DemoCore.journalMoods.find(m=>m.id===entry?.mood);return `<section class="up-journal-card"><button type="button" class="up-journal-open" data-up="journal-edit"><span class="up-journal-emoji" aria-hidden="true">${mood?.emoji||'🍃'}</span><span><b>我今天的心情</b><small>${entry?e(entry.text||mood?.name||'给今天留了一个小记号'):'今天过得怎么样？留一句话，记住一件小事。'}</small></span><span aria-hidden="true">›</span></button>${button('翻翻以前的小记录 ›','journal','up-link')}</section>`;}
