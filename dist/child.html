@@ -9,10 +9,30 @@
     <meta name="apple-mobile-web-app-title" content="小岛日历">
     <link rel="manifest" href="manifest.json">
     <title>作业岛·小岛日历</title>
-    <link rel="stylesheet" href="style.css?v=20261018-demo-integrated">
+    <link rel="stylesheet" href="style.css?v=20261019-loader">
 <link rel="stylesheet" href="upgrade.css?v=20261019f">
 </head>
-<body data-mode="child">
+<body data-mode="child"><style>
+#island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;background:linear-gradient(180deg,#9bdcff 0%,#dff5ff 53%,#fdf7eb 100%);opacity:1;transition:opacity .55s ease,visibility .55s ease}
+#island-loader.is-ready{opacity:0;visibility:hidden;pointer-events:none}
+.island-loader-card{width:min(390px,88vw);padding:30px 24px 26px;text-align:center;color:#5b432c}
+.island-loader-title{margin:0;font-size:27px;font-weight:900;letter-spacing:.04em}
+.island-loader-sub{margin:9px 0 0;color:#7e735f;font-size:13px;line-height:1.7}
+.island-loader-art{position:relative;height:180px;margin:-4px auto 8px}
+.loader-sun{position:absolute;top:7px;right:26px;width:54px;height:54px;border-radius:50%;background:#ffd66e;box-shadow:0 0 0 12px #ffe9a455,0 0 34px #fff2a8}
+.loader-cloud{position:absolute;width:72px;height:18px;border-radius:18px;background:#fffdf8aa;filter:blur(.2px);animation:loader-drift 5s ease-in-out infinite}
+.loader-cloud:before,.loader-cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.loader-cloud:before{width:28px;height:28px;left:13px;bottom:4px}.loader-cloud:after{width:36px;height:36px;left:34px;bottom:0}.loader-cloud.one{top:40px;left:16px}.loader-cloud.two{top:78px;right:12px;transform:scale(.7);animation-delay:-2s}
+.loader-sea{position:absolute;left:0;right:0;bottom:20px;height:72px;border-radius:50%;background:repeating-linear-gradient(0deg,#55c9e7 0 13px,#8fe0ed 14px 20px);box-shadow:0 -8px 0 #b6edf3aa;animation:loader-wave 2.6s ease-in-out infinite}
+.loader-island{position:absolute;left:50%;bottom:52px;width:190px;height:70px;transform:translateX(-50%) rotate(-3deg);border-radius:52% 48% 45% 55%;background:#8dcc62;box-shadow:inset 0 -12px 0 #6caf4d,inset 18px 9px 0 #b4df79,0 11px 0 #e5c68e}
+.loader-house{position:absolute;left:50%;bottom:91px;width:58px;height:48px;transform:translateX(-50%);border-radius:8px;background:#fff4d8;border:3px solid #b77e4e;box-shadow:0 4px 0 #a86e45}
+.loader-house:before{content:"";position:absolute;left:-8px;top:-25px;border-left:37px solid transparent;border-right:37px solid transparent;border-bottom:31px solid #4f9dcc}
+.loader-tree{position:absolute;bottom:91px;width:22px;height:45px;border-radius:15px 15px 7px 7px;background:#6d9f4f}.loader-tree:before{content:"";position:absolute;left:-10px;top:-22px;width:42px;height:42px;border-radius:50%;background:#77bd59;box-shadow:15px 5px 0 #8dcc62}
+.loader-tree.left{left:calc(50% - 88px)}.loader-tree.right{right:calc(50% - 88px)}
+.loader-boat{position:absolute;bottom:42px;left:calc(50% + 74px);width:28px;height:13px;border-radius:0 0 15px 15px;background:#f2b34f;animation:loader-float 2s ease-in-out infinite}
+.loader-boat:before{content:"";position:absolute;left:13px;bottom:9px;width:2px;height:26px;background:#8a6239}.loader-boat:after{content:"";position:absolute;left:15px;bottom:18px;border-right:18px solid #fff4ce;border-top:9px solid transparent;border-bottom:9px solid transparent}
+.loader-dots{display:flex;justify-content:center;gap:7px;margin-top:18px}.loader-dots i{width:8px;height:8px;border-radius:50%;background:#e6ad43;animation:loader-bounce 1s ease-in-out infinite}.loader-dots i:nth-child(2){animation-delay:.14s}.loader-dots i:nth-child(3){animation-delay:.28s}
+@keyframes loader-drift{50%{transform:translateX(12px)}}@keyframes loader-wave{50%{transform:translateY(4px) scaleX(1.03)}}@keyframes loader-float{50%{transform:translateY(-6px)}}@keyframes loader-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
+</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><i class="loader-sun"></i><i class="loader-cloud one"></i><i class="loader-cloud two"></i><i class="loader-sea"></i><i class="loader-island"></i><i class="loader-house"></i><i class="loader-tree left"></i><i class="loader-tree right"></i><i class="loader-boat"></i></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},650)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
 <!-- 内联图标库（纯路径，无 emoji 依赖；规格与设计基准稿一致） -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
