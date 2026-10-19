@@ -3905,7 +3905,7 @@ function renderChildAchieve(data) {
         chinese: countSubjectDone(data, '语文'),
         math: countSubjectDone(data, '数学'),
         english: countSubjectDone(data, '英语'),
-        unlocked: getUnlockedRewards(data).length,
+        unlocked: new Set(data.rewardsUnlocked || []).size,
         points: data.points || 0,
         kinds: materialKinds(data)
     };
@@ -4516,33 +4516,6 @@ function renderParentReward(data) {
         }
     }
     setText('p-redeem-count', pendings.length ? `${pendings.length} 项待兑现` : '都兑现了');
-
-    // ---- 伙伴兑换情况 ----
-    const matesEl = $('p-reward-mates');
-    if (matesEl) {
-        const owned = data.rewardsUnlocked || [];
-        const mates = items.filter(i => i.type === 'mate');
-        matesEl.innerHTML = '';
-        if (!mates.length) {
-            matesEl.innerHTML = '<p class="wall-empty-tip">奖励清单里还没有伙伴项。</p>';
-        } else {
-            mates.forEach(r => {
-                const ok = owned.includes(r.emoji);
-                const row = document.createElement('div');
-                row.className = 'manage-row';
-                row.innerHTML = `
-                    <span class="mr-img">${ok ? r.emoji : '🔒'}</span>
-                    <span class="mr-main">
-                        <b>${escapeHtml(r.name)}</b>
-                        <span>${r.points === 0 ? '初始伙伴' : '需要 ⭐ ' + r.points + ' 积分'}</span>
-                    </span>
-                    <span class="si-val">${ok ? '已兑换' : '未兑换'}</span>
-                `;
-                matesEl.appendChild(row);
-            });
-        }
-        setText('p-mate-count', `${mates.filter(r => owned.includes(r.emoji)).length} / ${mates.length}`);
-    }
 
     // 家长端也用展示墙那套格子（renderMaterialWall），不再用列表行：
     // 两边共用一个渲染函数，以后改样式只改一处，不会出现儿童端一个样、家长端另一个样。
