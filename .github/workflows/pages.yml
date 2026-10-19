@@ -1,4 +1,4 @@
-name: Publish Homework Island Demo
+name: Publish Homework Island
 on:
   push:
     branches: [main]
