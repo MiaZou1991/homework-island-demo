@@ -41,7 +41,7 @@
       </form>
     </div>`;
   document.body.appendChild(root);
-  let activeCode=cleanCode(localStorage.getItem(CODE_KEY)),expected=0;
+  let activeCode=cleanCode(localStorage.getItem(CODE_KEY))||'KAIXIN',expected=0; localStorage.setItem(CODE_KEY,activeCode);
   const codeGate=document.getElementById('family-code-gate'),mathGate=document.getElementById('parent-math-gate');
   const codeInput=document.getElementById('family-code-input'),mathInput=document.getElementById('parent-math-answer');
   function openFamilyCodeDialog(){
