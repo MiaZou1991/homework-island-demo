@@ -1,4 +1,4 @@
-/* 家庭码仅用于本机 Demo 数据分区；不同设备暂不共享数据。 */
+/* 家庭码用于云端家庭数据分区；同一家庭的成员共享同一份数据。 */
 (() => {
   const CODE_KEY='homework_island_family_code_v1';
   const cleanCode=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
@@ -23,7 +23,7 @@
       <form class="family-access-card" id="family-code-form">
         <div style="font-size:32px">🏝️</div><h2 id="family-code-title">进入家庭小岛</h2>
         <p>输入 4–8 位字母或数字家庭码。第一次使用时自设一个；家长端和儿童端输入同一码，就会使用同一份家庭记录。</p>
-        <p>家庭码会区分不同家庭的记录。当前设备仍未连接云端，多设备之间还不能同步。</p>
+        <p>家庭码会区分不同家庭的记录。家庭数据会保存到云端，同一家庭的成员可以在不同设备上同步。</p>
         <p class="family-code-current" id="family-code-current" hidden></p>
         <input id="family-code-input" inputmode="text" autocapitalize="characters" autocomplete="off" maxlength="8" placeholder="例如：KAIXIN" aria-label="4到8位字母或数字家庭码">
         <p class="family-access-error" id="family-code-error" aria-live="polite"></p>
