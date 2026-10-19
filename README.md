@@ -42,7 +42,7 @@ python3 -m http.server 8178 --bind 127.0.0.1 --directory dist
 
 1. 将本目录内容上传至 `homework-island-demo` 仓库的 `main` 分支，保留隐藏目录 `.github/`。
 2. 在仓库 Settings → Pages → Build and deployment 中，Source 选择 GitHub Actions。
-3. 在 Actions 运行 Publish Homework Island Demo；之后每次推送 main 都会自动检查并发布 `dist/`。
+3. 在 Actions 运行 Publish Homework Island；之后每次推送 main 都会自动检查并发布 `dist/`。
 4. 成功后在 Pages 或部署记录中取得实际访问地址。
 
 本仓库未预设用户名、域名或 CNAME。可先使用 GitHub 分配的网址；购买域名后在 Pages 的 Custom domain 配置，并按 GitHub 文档添加 DNS 记录。
