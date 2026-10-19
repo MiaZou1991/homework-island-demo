@@ -30,6 +30,10 @@ const BUILD_VERSION = '20261018-demo-integrated';
 })();
 
 const STORAGE_KEY = 'homework_island_integrated_demo_v2';
+function activeStorageKey() {
+    try { return typeof DEMO_KEY !== 'undefined' && DEMO_KEY ? DEMO_KEY : STORAGE_KEY; }
+    catch (_) { return STORAGE_KEY; }
+}
 
 // 默认奖励（小动物伙伴）
 const REWARDS = [
@@ -103,7 +107,7 @@ function materialGroup(g) {
 // ================= 数据层 =================
 function getData() {
     try {
-        const raw = localStorage.getItem(STORAGE_KEY);
+        const raw = localStorage.getItem(activeStorageKey());
         if (!raw) return createDefaultData();
         const parsed = JSON.parse(raw);
         return { ...createDefaultData(), ...parsed };
@@ -169,7 +173,7 @@ function createDefaultData() {
 }
 
 function saveData(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(activeStorageKey(), JSON.stringify(data));
     // 保存到本地后再同步到云端（跨设备共享同一份作业数据）
     if (typeof IslandSync !== 'undefined') IslandSync.schedulePush(data);
 }
@@ -2500,7 +2504,7 @@ function saveRecurEdit() {
         saveData(data);
 
         // 立刻回读，确认真的落盘了（避免"看着保存了其实没写进去"）
-        const written = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const written = JSON.parse(localStorage.getItem(activeStorageKey()) || '{}');
         const back = (written.recurringTasks || []).find(t => t.id === task.id);
         if (!back || back.content !== task.content) throw new Error('写入后回读校验不一致');
     } catch (err) {
@@ -3388,7 +3392,7 @@ function saveMeProfile() {
         data.kidAvatar = mePickedAvatar || data.kidAvatar || '👦';
         saveData(data);
 
-        const back = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const back = JSON.parse(localStorage.getItem(activeStorageKey()) || '{}');
         if (back.kidName !== data.kidName || back.kidAvatar !== data.kidAvatar) {
             throw new Error('回读校验不一致');
         }
@@ -4028,7 +4032,7 @@ function doRedeem(itemId) {
 
         saveData(data);
 
-        const back = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const back = JSON.parse(localStorage.getItem(activeStorageKey()) || '{}');
         if (typeof back.points !== 'number' || back.points !== data.points) {
             throw new Error('兑换后回读校验不一致');
         }
@@ -4622,7 +4626,7 @@ function saveRewardItem() {
         }
         saveData(data);
 
-        const back = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+        const back = JSON.parse(localStorage.getItem(activeStorageKey()) || '{}');
         if (!(back.rewardItems || []).some(i => i.name === name)) throw new Error('回读校验不一致');
     } catch (err) {
         console.warn('[奖励清单] 保存失败：', err);
