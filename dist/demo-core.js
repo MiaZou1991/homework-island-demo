@@ -1,5 +1,5 @@
 /* Integrated local demo; the entered family code scopes each household to its own browser storage. */
-const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'').trim();
+const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 const LEGACY_DEMO_KEY='homework_island_integrated_demo_v2';
 const DEMO_KEY=FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
 const DemoCore=(()=>{
