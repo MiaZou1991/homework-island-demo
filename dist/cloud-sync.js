@@ -14,6 +14,12 @@
   let pushTimer = null;
   let pollTimer = null;
   let busy = false;
+  let syncState = { cloudRecord: 'unknown', current: 'unknown', message: '正在核对云端数据' };
+
+  function setSyncState(change) {
+    syncState = { ...syncState, ...change };
+    window.dispatchEvent(new CustomEvent('island-sync-state', { detail: { ...syncState } }));
+  }
 
   function code() {
     return String(localStorage.getItem(CODE_KEY) || 'KAIXIN')
@@ -51,8 +57,12 @@
     const { data, error } = await client.rpc('family_load', { p_family_code: code() });
     if (error) throw error;
     if (data && data.ok === false) throw new Error(data.error || '家庭数据读取失败');
-    if (!data || !data.exists) return null;
+    if (!data || !data.exists) {
+      setSyncState({ cloudRecord: 'no', message: '云端暂无家庭记录' });
+      return null;
+    }
     if (!validPayload(data.payload)) throw new Error('云端家庭数据格式不正确');
+    setSyncState({ cloudRecord: 'yes', message: '云端有有效记录，正在核对当前数据' });
     return data.payload;
   }
 
@@ -72,8 +82,17 @@
     try {
       const remote = await loadRemote();
       // A local edit may have happened while the request was in flight.
-      if (remote) applyRemote(remote);
+      if (remote) {
+        applyRemote(remote);
+        if (!pending && localStorage.getItem(localKey()) === JSON.stringify(remote))
+          setSyncState({ current: 'synced', message: '云端有记录，当前数据已同步' });
+      } else if (!pending) {
+        setSyncState({ current: 'unknown', message: '云端暂无记录，当前数据只在本机' });
+      }
       return remote;
+    } catch (error) {
+      setSyncState({ current: pending ? 'pending' : 'unknown', message: '云端读取失败，当前数据未确认' });
+      throw error;
     } finally {
       busy = false;
       if (pending) scheduleFlush(0);
@@ -105,10 +124,13 @@
       if (pending === snapshot) {
         pending = null;
         localStorage.removeItem(pendingKey());
+        if (localStorage.getItem(localKey()) === JSON.stringify(snapshot))
+          setSyncState({ cloudRecord: 'yes', current: 'synced', message: '云端有记录，当前数据已同步' });
       }
     } catch (error) {
       console.warn('[作业岛云端同步] 保存失败', error);
       notify('云端保存失败，已暂存本机；稍后自动重试');
+      setSyncState({ current: 'pending', message: '当前数据待上传，稍后自动重试' });
       scheduleFlush(RETRY_MS);
     } finally {
       busy = false;
@@ -124,6 +146,7 @@
     // Keep the newest full snapshot until the server confirms the save.
     pending = data;
     localStorage.setItem(pendingKey(), JSON.stringify(data));
+    setSyncState({ current: 'pending', message: '当前数据待上传' });
     scheduleFlush();
   }
 
@@ -141,6 +164,8 @@
       if (!window.supabase || typeof window.supabase.createClient !== 'function') {
         console.warn('[作业岛云端同步] Supabase 客户端未加载');
         notify('云端暂时不可用，当前使用本机缓存');
+        setSyncState({ current: 'unknown', message: '云端未加载，当前使用本机数据' });
+        window.dispatchEvent(new Event('island-ready'));
         return;
       }
       client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -150,6 +175,7 @@
         // Startup may have generated today's tasks in the local copy.
         pending = validPayload(local) ? local : savedPending;
         localStorage.setItem(pendingKey(), JSON.stringify(pending));
+        setSyncState({ current: 'pending', message: '本机有待上传的改动' });
       }
       let initialUploadFailed = false;
       try {
@@ -159,11 +185,17 @@
           notify('本机有新改动，正在同步');
         } else if (remote) {
           applyRemote(remote);
-          notify('已连接云端家庭数据');
+          if (!pending && localStorage.getItem(localKey()) === JSON.stringify(remote)) {
+            setSyncState({ current: 'synced', message: '云端有记录，当前数据已同步' });
+            notify('当前数据已同步');
+          }
         } else if (validPayload(local)) {
           try {
             await push(local);
-            notify('已将本机家庭数据同步到云端');
+            if (!pending && localStorage.getItem(localKey()) === JSON.stringify(local)) {
+              setSyncState({ cloudRecord: 'yes', current: 'synced', message: '已创建云端记录，当前数据已同步' });
+              notify('当前数据已同步');
+            }
           } catch (error) {
             initialUploadFailed = true;
             throw error;
@@ -172,6 +204,7 @@
       } catch (error) {
         console.warn('[作业岛云端同步] 初始化失败', error);
         notify('云端暂时不可用，当前使用本机缓存');
+        setSyncState({ current: pending ? 'pending' : 'unknown', message: pending ? '本机改动待上传' : '云端读取失败，当前使用本机数据' });
         // Retry only an upload that was actually attempted. A failed read
         // must not let an old local copy overwrite an existing family.
         if (initialUploadFailed && validPayload(local) && !pending) schedulePush(local);
@@ -192,5 +225,6 @@
     else notify('请先设置家庭码');
   }
 
-  window.IslandSync = { start, schedulePush, pull, push, getCode: code, setCode: () => {}, openPanel };
+  window.IslandSync = { start, schedulePush, pull, push, getCode: code, getStatus: () => ({ ...syncState }), setCode: () => {}, openPanel };
 })();
+
