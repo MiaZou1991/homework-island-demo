@@ -26,3 +26,12 @@
 .up-profile-name{display:flex;align-items:center;gap:8px}.up-profile-name h2{margin:0}.up-profile-name .up-link{font-size:11px;padding:5px 9px;white-space:nowrap}.up-today-companion{margin:16px 0;padding:3px 15px 13px;border:1px solid var(--up-line);border-radius:18px;background:#fffdf6}.up-today-companion .up-companion-strip{margin:0;padding:10px 0 0;border:0}.up-today-companion .up-companion-strip b{font-size:13px;color:var(--up-ink)}.up-homework-zone{margin-top:18px}
 
 .up-profile-name{display:flex;align-items:center;gap:8px}.up-profile-name h2{margin:0}.up-profile-name .up-link{font-size:11px;padding:5px 9px;white-space:nowrap}.up-today-companion{margin:16px 0;padding:3px 15px 13px;border:1px solid var(--up-line);border-radius:18px;background:#fffdf6}.up-today-companion .up-companion-strip{margin:0;padding:10px 0 0;border:0}.up-today-companion .up-companion-strip b{font-size:13px;color:var(--up-ink)}.up-homework-zone{margin-top:18px}
+
+/* 事项图标选择：可点选的大按钮，并显示对应活动名称。 */
+.ev-emo-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+.ev-emo-row .ev-emo{min-height:64px;border:1px solid #e6dcc3;border-radius:14px;background:#fffdf7;color:#604731;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;touch-action:manipulation}
+.ev-emo-row .ev-emo.on{border-color:#86a85d;background:#edf3df;box-shadow:0 0 0 2px #86a85d33}
+.ev-emo-row .ev-emoji-icon{font-size:22px;line-height:1}
+.ev-emo-row .ev-emo small{font-size:10px;color:#8c7b5e}
+.ev-emo-row .ev-emo:focus-visible{outline:3px solid #7f9b53;outline-offset:2px}
+#ev-datetime{width:100%;min-height:46px;padding:8px 10px;border:1px solid #e6dcc3;border-radius:12px;background:#fffdf7;color:#604731}
