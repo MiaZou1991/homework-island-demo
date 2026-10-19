@@ -10,7 +10,7 @@
   let onRemoteUpdate = null;
 
   function code() {
-    return String(localStorage.getItem(CODE_KEY) || '')
+    return String(localStorage.getItem(CODE_KEY) || 'KAIXIN')
       .toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 32);
   }
 
