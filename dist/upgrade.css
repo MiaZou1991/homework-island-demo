@@ -100,3 +100,28 @@
 .up-review-row b{display:block;font-size:12px;font-weight:600;color:#534630;line-height:1.5}
 .up-review-row small{display:block;font-size:10px;color:#897b64;margin-top:3px}
 
+/* Learning history is organized by subject in the home preview and full review. */
+.up-page-back{display:inline-flex;align-items:center;min-height:36px;margin:0 0 14px;padding:6px 10px;border:1px solid var(--up-line);border-radius:11px;background:#fffdf6;color:var(--up-muted);font-size:12px}
+.up-review-groups,.up-subject-archive{display:grid;gap:10px;margin-top:12px}
+.up-subject-group{min-width:0;padding:11px 13px;border:1px solid var(--up-line);border-radius:15px;background:#fffdf6}
+.up-subject-head{display:flex;align-items:center;gap:9px;min-height:30px;color:var(--up-ink)}
+.up-subject-head h3,.up-subject-head strong{margin:0;font-size:14px;font-weight:600;line-height:1.4}
+.up-subject-head small{margin-left:auto;font-size:11px;color:var(--up-muted);white-space:nowrap}
+.up-subject-icon{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:9px;background:#e8edcf;color:#637e46;font-size:12px}
+.up-subject-list{margin-top:6px}
+.up-subject-record{display:flex;align-items:flex-start;gap:9px;padding:10px 0}
+.up-subject-record+.up-subject-record{border-top:1px solid #eee7d4}
+.up-subject-record .up-review-mark{width:23px;height:23px;font-size:13px}
+.up-subject-record>div{min-width:0;flex:1}
+.up-subject-record b{display:block;font-size:12px;font-weight:500;line-height:1.55;overflow-wrap:anywhere}
+.up-subject-record small{display:block;margin-top:4px;font-size:10px;color:var(--up-muted)}
+.up-recent-review .up-subject-record b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.up-subject-archive{margin-top:2px}
+.up-subject-archive .up-subject-group{padding:0}
+.up-subject-archive summary{list-style:none;cursor:pointer;padding:12px 13px}
+.up-subject-archive summary::-webkit-details-marker{display:none}
+.up-subject-archive .up-subject-list{margin:0 13px 4px;border-top:1px solid var(--up-line)}
+.up-subject-chevron{font-size:18px;color:#ab9a7a;transition:transform .18s ease}
+.up-subject-archive details[open] .up-subject-chevron{transform:rotate(180deg)}
+.up-subject-archive>.up-muted{padding:15px 0}
+
