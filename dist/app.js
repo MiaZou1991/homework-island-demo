@@ -1089,28 +1089,68 @@ function openEventEditor(id) {
     editingEventId = id || null;
     const ev = id ? getEvent(id) : null;
     const isChild = document.body.getAttribute('data-mode') === 'child';
-    const preset = ['📚', '🎹', '🏃', '🎨', '💡', '📖', '🎵', '⚽', '🏊', '🚴', '✏️', '🌟'];
     const emo = ev ? ev.emoji : (isChild ? '📚' : '📅');
+    const preset = EVENT_PRESETS[emo] || { label: '安排', checklist: [] };
     const pick = $('ev-emo-row');
-    if (pick) pick.innerHTML = preset.map(e =>
-        `<button type="button" class="ev-emo ${e === emo ? 'on' : ''}" onclick="pickEventEmoji(${JSON.stringify(e).replace(/"/g, '&quot;')})">${e}</button>`).join('');
+    if (pick) pick.innerHTML = Object.entries(EVENT_PRESETS).map(([emoji, item]) =>
+        `<button type="button" class="ev-emo ${emoji === emo ? 'on' : ''}" data-event-emoji="${escapeHtml(emoji)}" aria-label="${escapeHtml(item.label)}" aria-pressed="${emoji === emo}"><span class="ev-emoji-icon">${emoji}</span><small>${escapeHtml(item.label)}</small></button>`).join('');
     $('ev-emo').value = emo;
-    $('ev-title').value = ev ? ev.title : '';
+    $('ev-title').value = ev ? ev.title : preset.label;
     const defDate = (isChild && typeof childDay === 'string') ? childDay : todayStr();
-    $('ev-date').value = ev ? ev.date : defDate;
-    $('ev-start').value = ev && ev.start ? ev.start : '';
-    $('ev-end').value = ev && ev.end ? ev.end : '';
-    window.__evChecklist = ev && Array.isArray(ev.checklist) ? ev.checklist.map(c => ({ name: c.name, done: !!c.done })) : [];
+    $('ev-datetime').value = ev && ev.date ? `${ev.date}T${ev.start || '17:30'}` : `${defDate}T17:30`;
+    window.__evChecklist = ev && Array.isArray(ev.checklist)
+        ? ev.checklist.map(c => ({ name: c.name, done: !!c.done }))
+        : preset.checklist.map(name => ({ name, done: false }));
     renderEventChecklistEditor();
     const del = $('ev-del'); if (del) del.style.display = ev ? '' : 'none';
     setText('ev-title-label', (ev ? '编辑安排' : (isChild ? '我想做点什么' : '添加安排')));
     showOverlay('ovl-event');
 }
 
-function pickEventEmoji(e) {
-    $('ev-emo').value = e;
-    document.querySelectorAll('#ev-emo-row .ev-emo').forEach(b => b.classList.toggle('on', b.textContent === e));
+const EVENT_PRESETS = {
+    '📚': { label: '阅读', checklist: ['绘本', '书签'] },
+    '🎹': { label: '钢琴', checklist: ['琴谱', '练习册'] },
+    '🏃': { label: '运动', checklist: ['运动服', '水壶'] },
+    '🎨': { label: '画画', checklist: ['画纸', '画笔'] },
+    '💡': { label: '手工', checklist: ['材料包', '剪刀'] },
+    '📖': { label: '阅读', checklist: ['绘本', '书签'] },
+    '🎵': { label: '音乐', checklist: ['乐谱', '练习册'] },
+    '⚽': { label: '足球', checklist: ['足球', '水壶'] },
+    '🏊': { label: '游泳', checklist: ['泳衣', '泳镜', '毛巾'] },
+    '🚴': { label: '骑行', checklist: ['头盔', '水壶'] },
+    '✏️': { label: '写字', checklist: ['练习册', '铅笔'] },
+    '🌟': { label: '活动', checklist: ['水壶'] },
+    '📅': { label: '安排', checklist: [] }
+};
+function pickEventEmoji(emoji) {
+    const previousEmoji = $('ev-emo').value;
+    const previousLabel = (EVENT_PRESETS[previousEmoji] || {}).label;
+    const title = $('ev-title');
+    $('ev-emo').value = emoji;
+    document.querySelectorAll('#ev-emo-row .ev-emo').forEach(button => {
+        const selected = button.dataset.eventEmoji === emoji;
+        button.classList.toggle('on', selected);
+        button.setAttribute('aria-pressed', String(selected));
+    });
+    const preset = EVENT_PRESETS[emoji] || { label: '安排', checklist: [] };
+    if (!title.value.trim() || title.value.trim() === previousLabel || Object.values(EVENT_PRESETS).some(item => item.label === title.value.trim())) {
+        title.value = preset.label;
+    }
+    const list = window.__evChecklist || (window.__evChecklist = []);
+    const previousDefaults = (EVENT_PRESETS[previousEmoji] || {}).checklist || [];
+    previousDefaults.forEach(name => {
+        const index = list.findIndex(item => item.name === name && !item.done);
+        if (index >= 0) list.splice(index, 1);
+    });
+    preset.checklist.forEach(name => {
+        if (!list.some(item => item.name === name)) list.push({ name, done: false });
+    });
+    renderEventChecklistEditor();
 }
+document.getElementById('ev-emo-row')?.addEventListener('click', event => {
+    const button = event.target.closest('[data-event-emoji]');
+    if (button) pickEventEmoji(button.dataset.eventEmoji);
+});
 
 function renderEventChecklistEditor() {
     const host = $('ev-checklist');
@@ -1133,12 +1173,16 @@ function addEvChip() {
 function saveEventEditor() {
     const title = $('ev-title').value.trim();
     if (!title) { showToast('给安排起个名字吧'); return; }
+    const pickedDateTime = $('ev-datetime').value;
+    if (!pickedDateTime) { showToast('请选择日期和具体时间'); return; }
+    const [date, start] = pickedDateTime.split('T');
+    const existing = editingEventId ? getEvent(editingEventId) : null;
     const payload = {
         title,
         emoji: $('ev-emo').value || '📚',
-        date: $('ev-date').value || todayStr(),
-        start: $('ev-start').value || null,
-        end: $('ev-end').value || null,
+        date: date || todayStr(),
+        start: start || null,
+        end: existing?.end || null,
         checklist: (window.__evChecklist || []).map(c => ({ name: c.name, done: !!c.done })),
         note: ''
     };
