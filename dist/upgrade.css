@@ -102,6 +102,7 @@
 
 /* Learning history is organized by subject in the home preview and full review. */
 .up-page-back{display:inline-flex;align-items:center;min-height:36px;margin:0 0 14px;padding:6px 10px;border:1px solid var(--up-line);border-radius:11px;background:#fffdf6;color:var(--up-muted);font-size:12px}
+.up-recurring-list{display:grid;gap:12px;margin-top:22px}.up-recurring-card{padding:17px;background:#fffdf3;border:1px solid var(--up-line);border-radius:18px;box-shadow:0 2px 0 #efe3c8}.up-recurring-card.is-paused{opacity:.7}.up-recurring-card h2{margin:0}.up-recurring-card p{margin:12px 0 6px;overflow-wrap:anywhere}.up-recurring-card small{color:var(--up-muted);font-size:11px}.up-recurring-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:15px}.up-recurring-actions .up-chip:last-child{color:#9d6040;background:#faece0;border-color:#ebd0ba}
 .up-review-groups,.up-subject-archive{display:grid;gap:10px;margin-top:12px}
 .up-subject-group{min-width:0;padding:11px 13px;border:1px solid var(--up-line);border-radius:15px;background:#fffdf6}
 .up-subject-head{display:flex;align-items:center;gap:9px;min-height:30px;color:var(--up-ink)}

@@ -1223,59 +1223,8 @@ function showToast(message) {
 // ================= 家长端 =================
 function renderParent() {
     const data = getData();
-
-    // 生成今天的周期任务实例
     generateRecurringTasks();
-
-    // 每个区块独立容错，和儿童端一致。
-    // 这里是"保存后页面没反应"的元凶：以前任何一行抛错都会中断整个 renderParent，
-    // 排在后面的作业列表 / 定时作业看板就一起不刷新了，而外层 catch 只写 console。
-    const step = (name, fn) => {
-        try { fn(); } catch (err) { console.warn('[家长端] ' + name + ' 渲染失败：', err); }
-    };
-
-    step('概览统计', () => {
-        const todayHomework = data.homework.filter(isTaskToday);
-        const todayDone = todayHomework.filter(h => h.done).length;
-
-        $('p-total').textContent = todayHomework.length;
-        $('p-done').textContent = todayDone;
-        $('p-points').textContent = data.points;
-        setText('kid-points', data.points);
-
-        // 欢迎语：按今天的实际进度说一句，别让家长看到写死的占位文案
-        const restCount = todayHomework.length - todayDone;
-        const allDone = todayHomework.length > 0 && restCount === 0;
-        let welcome;
-        if (todayHomework.length === 0) {
-            welcome = '今天还没布置作业，点下面的「布置作业」让小岛热闹起来吧。';
-        } else if (allDone) {
-            welcome = `今天 ${todayHomework.length} 项作业全部完成啦，去「奖励」给小岛主加点分吧 🎉`;
-        } else {
-            welcome = `今天有 ${todayHomework.length} 项作业，已完成 ${todayDone} 项，还有 ${restCount} 项等小岛主挑战。`;
-        }
-        setText('p-welcome', welcome);
-
-        // 概览卡角标：今天是否全部完成
-        const pTag = $('p-tag');
-        if (pTag) {
-            pTag.textContent = allDone ? '全部完成 🎉' : (todayHomework.length ? '进行中' : '暂无作业');
-            pTag.classList.toggle('all-done', allDone);
-        }
-    });
-
-    step('作业日历', () => renderParentList());
-    step('定时作业看板', () => renderParentRecurring(data));
-    step('待确认角标', () => updateReviewBadge(data));
-
-    // 今日时间线：作业 + 兴趣班混排。没课也不占地方，整块隐藏。
-    step('今日时间线', () => {
-        const hasClasses = (data.classes || []).some(c => c.active !== false);
-        const board = $('p-timeline-board');
-        const r = renderTimeline('p-timeline', data, new Date(), 'parent');
-        if (board) board.style.display = (hasClasses || r.total > 0) ? '' : 'none';
-        setText('p-timeline-count', r.total ? `${r.done} / ${r.total} 项` : '暂无');
-    });
+    updateReviewBadge(data);
 }
 
 // 顶部铃铛与底栏角标：不管当前在哪个页面都要显示“有几项待确认”
@@ -2567,11 +2516,10 @@ function saveRecurEdit() {
     }
 }
 
-// 全量修改后，把被改到的行闪一下（首页作业列表里的实例 + 定时作业看板里的模板行）
+// 全量修改后，提示当前周期作业卡片已经更新。
 function highlightRecurChanges(taskId, instIds) {
     requestAnimationFrame(() => {
-        const sel = instIds.map(id => `#parent-homework-list .hw-row[data-hw-id="${id}"]`);
-        sel.push(`#p-recur-list .hw-row[data-recur-id="${taskId}"]`);
+        const sel = [`#upgrade-root .up-recurring-card[data-recur-id="${taskId}"]`];
         let nodes = [];
         try { nodes = Array.prototype.slice.call(document.querySelectorAll(sel.join(','))); } catch (e) { return; }
         nodes.forEach(n => {
