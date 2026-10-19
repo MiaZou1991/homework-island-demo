@@ -9,8 +9,8 @@
     <meta name="apple-mobile-web-app-title" content="小岛日历">
     <link rel="manifest" href="manifest.json">
     <title>作业岛·小岛日历</title>
-    <link rel="stylesheet" href="style.css?v=20261019j">
-<link rel="stylesheet" href="upgrade.css?v=20261019j">
+    <link rel="stylesheet" href="style.css?v=20261019q">
+<link rel="stylesheet" href="upgrade.css?v=20261019q">
 </head>
 <body data-mode="child"><style>
 #island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 15%,#fff5d7 0,#f9efd9 42%,#edf0d9 100%);opacity:1;transition:opacity .45s ease,visibility .45s ease}
@@ -289,7 +289,6 @@
                 <span class="b-num"><span id="shop-points">0</span> <small>积分</small></span>
                 <span class="b-sub" id="shop-sub">完成作业就能攒积分</span>
             </span>
-            <span class="b-act" onclick="openMatePicker(event)">选伙伴</span>
         </div>
 
         <section class="board">
@@ -321,16 +320,6 @@
             </div>
             <div class="shop-grid" id="shop-mine"></div>
             <p class="hint">兑换好的奖励会记在这里，记得找爸爸妈妈兑现哦。</p>
-        </section>
-
-        <section class="board">
-            <div class="board-head">
-                <span class="b-ico">🏝️</span>
-                <h2>我捡到的宝贝</h2>
-                <span class="b-badge" id="shop-mat-count">—</span>
-            </div>
-            <div class="shop-grid" id="shop-materials"></div>
-            <p class="hint">完成作业发现的宝贝会留在这里，也能带到我的房间布置。</p>
         </section>
 
         <div class="tail-space"></div>
@@ -413,11 +402,11 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261019j"></script>
+<script src="app.js?v=20261019q"></script>
 <script src="demo-core.js?v=20261019f"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cloud-sync.js?v=20261019j"></script>
-<script src="upgrade.js?v=20261019j"></script>
+<script src="cloud-sync.js?v=20261019q"></script>
+<script src="upgrade.js?v=20261019q"></script>
 <script src="family-access.js?v=20261019f"></script>
 </body>
 </html>

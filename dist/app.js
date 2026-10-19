@@ -393,14 +393,11 @@ function checkinClass(classId, day) {
     cur.completedAt = new Date().toISOString();
     cur.pointsAwarded = gain;
     setClassCheckin(data, classId, cur, d);
+    grantMaterialRewards(data);
     saveData(data);
-
-    // 上课也会掉落收集品，激励孩子坚持去上课
-    const gained = grantMaterialRewards(data);
     refreshAfterChange();
     fireConfetti();
-    const matText = gained.length ? `，捡到 ${gained.map(m => m.emoji + m.name).join(' ')}` : '';
-    showToast(`${c.name} 完成！+${gain} 分${matText}`);
+    showToast(`${c.name} 完成！+${gain} 分`);
     return true;
 }
 
@@ -1226,59 +1223,8 @@ function showToast(message) {
 // ================= 家长端 =================
 function renderParent() {
     const data = getData();
-
-    // 生成今天的周期任务实例
     generateRecurringTasks();
-
-    // 每个区块独立容错，和儿童端一致。
-    // 这里是"保存后页面没反应"的元凶：以前任何一行抛错都会中断整个 renderParent，
-    // 排在后面的作业列表 / 定时作业看板就一起不刷新了，而外层 catch 只写 console。
-    const step = (name, fn) => {
-        try { fn(); } catch (err) { console.warn('[家长端] ' + name + ' 渲染失败：', err); }
-    };
-
-    step('概览统计', () => {
-        const todayHomework = data.homework.filter(isTaskToday);
-        const todayDone = todayHomework.filter(h => h.done).length;
-
-        $('p-total').textContent = todayHomework.length;
-        $('p-done').textContent = todayDone;
-        $('p-points').textContent = data.points;
-        setText('kid-points', data.points);
-
-        // 欢迎语：按今天的实际进度说一句，别让家长看到写死的占位文案
-        const restCount = todayHomework.length - todayDone;
-        const allDone = todayHomework.length > 0 && restCount === 0;
-        let welcome;
-        if (todayHomework.length === 0) {
-            welcome = '今天还没布置作业，点下面的「布置作业」让小岛热闹起来吧。';
-        } else if (allDone) {
-            welcome = `今天 ${todayHomework.length} 项作业全部完成啦，去「奖励」给小岛主加点分吧 🎉`;
-        } else {
-            welcome = `今天有 ${todayHomework.length} 项作业，已完成 ${todayDone} 项，还有 ${restCount} 项等小岛主挑战。`;
-        }
-        setText('p-welcome', welcome);
-
-        // 概览卡角标：今天是否全部完成
-        const pTag = $('p-tag');
-        if (pTag) {
-            pTag.textContent = allDone ? '全部完成 🎉' : (todayHomework.length ? '进行中' : '暂无作业');
-            pTag.classList.toggle('all-done', allDone);
-        }
-    });
-
-    step('作业日历', () => renderParentList());
-    step('定时作业看板', () => renderParentRecurring(data));
-    step('待确认角标', () => updateReviewBadge(data));
-
-    // 今日时间线：作业 + 兴趣班混排。没课也不占地方，整块隐藏。
-    step('今日时间线', () => {
-        const hasClasses = (data.classes || []).some(c => c.active !== false);
-        const board = $('p-timeline-board');
-        const r = renderTimeline('p-timeline', data, new Date(), 'parent');
-        if (board) board.style.display = (hasClasses || r.total > 0) ? '' : 'none';
-        setText('p-timeline-count', r.total ? `${r.done} / ${r.total} 项` : '暂无');
-    });
+    updateReviewBadge(data);
 }
 
 // 顶部铃铛与底栏角标：不管当前在哪个页面都要显示“有几项待确认”
@@ -2091,10 +2037,7 @@ function completeHomework(id) {
     refreshAfterChange();
 
     fireConfetti();
-    const matText = gainedMaterials.length > 0
-        ? `，捡到 ${gainedMaterials.map(m => m.emoji + m.name).join(' ')}`
-        : '';
-    showToast(`完成！获得 ${hw.earnedPoints} 积分（连击 x${data.currentStreak}）${matText}`);
+    showToast(`完成！获得 ${hw.earnedPoints} 积分（连击 x${data.currentStreak}）`);
     checkNewRewards(data);
 
     // 水果雨庆祝
@@ -2573,11 +2516,10 @@ function saveRecurEdit() {
     }
 }
 
-// 全量修改后，把被改到的行闪一下（首页作业列表里的实例 + 定时作业看板里的模板行）
+// 全量修改后，提示当前周期作业卡片已经更新。
 function highlightRecurChanges(taskId, instIds) {
     requestAnimationFrame(() => {
-        const sel = instIds.map(id => `#parent-homework-list .hw-row[data-hw-id="${id}"]`);
-        sel.push(`#p-recur-list .hw-row[data-recur-id="${taskId}"]`);
+        const sel = [`#upgrade-root .up-recurring-card[data-recur-id="${taskId}"]`];
         let nodes = [];
         try { nodes = Array.prototype.slice.call(document.querySelectorAll(sel.join(','))); } catch (e) { return; }
         nodes.forEach(n => {
@@ -3878,11 +3820,6 @@ function renderChildWeek(data) {
 function countSubjectDone(data, subject) {
     return data.homework.filter(h => h.done && h.subject === subject).length;
 }
-function materialKinds(data) {
-    const mats = data.materials || {};
-    return MATERIALS.filter(m => (mats[m.id] || 0) > 0).length;
-}
-
 const BADGES = [
     { ico: '🌱', name: '初次登场', desc: '完成第 1 项作业', done: c => c.completed >= 1 },
     { ico: '🔥', name: '连续 3 天', desc: '连续打卡 3 天', done: c => c.streak >= 3 },
@@ -3891,7 +3828,7 @@ const BADGES = [
     { ico: '🔤', name: '单词高手', desc: '完成 5 项英语', done: c => c.english >= 5 },
     { ico: '🐾', name: '好伙伴', desc: '解锁第 2 个伙伴', done: c => c.unlocked >= 2 },
     { ico: '⭐', name: '积分 100', desc: '当前积分达到 100 分', done: c => c.points >= 100 },
-    { ico: '🏝️', name: '小岛主人', desc: `收集全部 ${MATERIALS.length} 种宝贝`, done: c => c.kinds >= MATERIALS.length },
+    { ico: '🏝️', name: '小岛主人', desc: '建好小岛花园、海边码头和森林书屋', done: c => c.buildings >= 3 },
     { ico: '👑', name: '作业之王', desc: '累计完成 50 项', done: c => c.completed >= 50 }
 ];
 
@@ -3905,9 +3842,9 @@ function renderChildAchieve(data) {
         chinese: countSubjectDone(data, '语文'),
         math: countSubjectDone(data, '数学'),
         english: countSubjectDone(data, '英语'),
-        unlocked: getUnlockedRewards(data).length,
+        unlocked: new Set(data.rewardsUnlocked || []).size,
         points: data.points || 0,
-        kinds: materialKinds(data)
+        buildings: data.demoGrowth?.buildings?.length || 0
     };
 
     let lit = 0;
@@ -4003,24 +3940,6 @@ function renderShop(data) {
     }
     setText('shop-mine-count', `${redemptions.length} 次`);
 
-    const matGrid = $('shop-materials');
-    if (matGrid) {
-        const mats = data.materials || {};
-        const owned = MATERIALS.filter(m => (mats[m.id] || 0) > 0);
-        const palette = ['', ' warm', ' leaf', ' rose'];
-        if (!owned.length) {
-            matGrid.innerHTML = '<p class="wall-empty-tip">还没有捡到宝贝，完成作业就会掉落了～</p>';
-        } else {
-            matGrid.innerHTML = owned.map((m, i) => `
-                <div class="shop-card${palette[i % palette.length]}">
-                    <span class="sc-img">${m.emoji}</span>
-                    <b>${escapeHtml(m.name)}</b>
-                    <span class="sc-price">× ${mats[m.id]} 个</span>
-                    <span class="sc-btn owned">已拥有</span>
-                </div>`).join('');
-        }
-    }
-    setText('shop-mat-count', `${Object.values(data.materials || {}).reduce((a, b) => a + b, 0)} 件`);
 }
 
 // 兑换清单里的一张卡片（mode: 'redeem' 可兑换 / 'locked' 还差分）
@@ -4517,48 +4436,6 @@ function renderParentReward(data) {
     }
     setText('p-redeem-count', pendings.length ? `${pendings.length} 项待兑现` : '都兑现了');
 
-    // ---- 伙伴兑换情况 ----
-    const matesEl = $('p-reward-mates');
-    if (matesEl) {
-        const owned = data.rewardsUnlocked || [];
-        const mates = items.filter(i => i.type === 'mate');
-        matesEl.innerHTML = '';
-        if (!mates.length) {
-            matesEl.innerHTML = '<p class="wall-empty-tip">奖励清单里还没有伙伴项。</p>';
-        } else {
-            mates.forEach(r => {
-                const ok = owned.includes(r.emoji);
-                const row = document.createElement('div');
-                row.className = 'manage-row';
-                row.innerHTML = `
-                    <span class="mr-img">${ok ? r.emoji : '🔒'}</span>
-                    <span class="mr-main">
-                        <b>${escapeHtml(r.name)}</b>
-                        <span>${r.points === 0 ? '初始伙伴' : '需要 ⭐ ' + r.points + ' 积分'}</span>
-                    </span>
-                    <span class="si-val">${ok ? '已兑换' : '未兑换'}</span>
-                `;
-                matesEl.appendChild(row);
-            });
-        }
-        setText('p-mate-count', `${mates.filter(r => owned.includes(r.emoji)).length} / ${mates.length}`);
-    }
-
-    // 家长端也用展示墙那套格子（renderMaterialWall），不再用列表行：
-    // 两边共用一个渲染函数，以后改样式只改一处，不会出现儿童端一个样、家长端另一个样。
-    const matEl = $('p-reward-materials');
-    if (matEl) {
-        const mats = data.materials || {};
-        const total = Object.values(mats).reduce((a, b) => a + b, 0);
-        matEl.innerHTML = '';
-        if (!total) {
-            matEl.innerHTML = '<p class="wall-empty-tip">孩子还没捡到宝贝，完成作业就会掉落～</p>';
-            setText('p-mat-count', `0 / ${MATERIALS.length} 种`);
-        } else {
-            renderMaterialWall(matEl, data, { newIds: [], hideEmpty: true });
-            setText('p-mat-count', `${materialKinds(data)} / ${MATERIALS.length} 种 · ${total} 件`);
-        }
-    }
 }
 
 // ================= 家长端：奖励清单的增删改 =================
