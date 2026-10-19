@@ -1,5 +1,5 @@
 /* Integrated local demo; the entered family code scopes each household to its own browser storage. */
-const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'KAIXIN').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 const LEGACY_DEMO_KEY='homework_island_integrated_demo_v2';
 const DEMO_KEY=FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
 const DemoCore=(()=>{
@@ -89,5 +89,4 @@ const DemoCore=(()=>{
  return {init,ensure,seed,finish,undo,validate,importData,homeworkProgress,journalMoods,saveJournal,companions,roomSlots,roomUsage,editRoom,date,key:DEMO_KEY};
 })();
 DemoCore.init();
-const IslandSync={start:async()=>{},schedulePush(){},pull:async()=>null,push:async()=>{},getCode:()=> '本机 Demo',setCode(){},openPanel(){showToast('这是隔离 Demo，记录仅保存在本机，不连接线上家庭。');}};
 startIslandEvents=function(){};
