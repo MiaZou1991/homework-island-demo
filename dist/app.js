@@ -3890,8 +3890,8 @@ const BADGES = [
     { ico: '🔢', name: '计算达人', desc: '完成 5 项数学', done: c => c.math >= 5 },
     { ico: '🔤', name: '单词高手', desc: '完成 5 项英语', done: c => c.english >= 5 },
     { ico: '🐾', name: '好伙伴', desc: '解锁第 2 个伙伴', done: c => c.unlocked >= 2 },
-    { ico: '⭐', name: '积分 100', desc: '累计获得 100 分', done: c => c.points >= 100 },
-    { ico: '🏝️', name: '小岛主人', desc: '摆满整面展示墙', done: c => c.kinds >= MATERIALS.length },
+    { ico: '⭐', name: '积分 100', desc: '当前积分达到 100 分', done: c => c.points >= 100 },
+    { ico: '🏝️', name: '小岛主人', desc: `收集全部 ${MATERIALS.length} 种宝贝`, done: c => c.kinds >= MATERIALS.length },
     { ico: '👑', name: '作业之王', desc: '累计完成 50 项', done: c => c.completed >= 50 }
 ];
 
@@ -3915,7 +3915,7 @@ function renderChildAchieve(data) {
         const ok = !!b.done(ctx);
         if (ok) lit++;
         return `<span class="medal${ok ? '' : ' locked'}">`
-             + `<span class="m-ico">${b.ico}</span><b>${b.name}</b><span>${b.desc}</span></span>`;
+             + `<span class="m-ico">${b.ico}</span><b>${b.name}</b><span class="m-state">${ok ? '已解锁' : '未解锁'}</span><span class="m-condition">条件：${b.desc}</span></span>`;
     }).join('');
 
     setText('badge-count', `${lit} / ${BADGES.length} 已点亮`);
@@ -3924,17 +3924,31 @@ function renderChildAchieve(data) {
         : '完成作业就能点亮第一枚徽章啦～');
 }
 
-// ---- 积分商城：伙伴解锁 + 已捡到的宝贝 ----
+// 家庭奖励使用站内图片；旧奖励没有 imageId 时继续显示原图标。
+const REWARD_IMAGE_CHOICES = [
+    { id: 'gift', name: '礼物', file: 'icon_chest.png' },
+    { id: 'book', name: '图书', file: 'icon_book.png' },
+    { id: 'star', name: '星星', file: 'icon_star.png' },
+    { id: 'boat', name: '小船', file: 'icon_boat.png' },
+    { id: 'house', name: '小屋', file: 'icon_house.png' },
+    { id: 'leaf', name: '树叶', file: 'icon_leaf.png' },
+    { id: 'fish', name: '小鱼', file: 'icon_fish.png' },
+    { id: 'medal', name: '奖牌', file: 'icon_medal.png' }
+];
+function rewardArt(item) {
+    const chosen = REWARD_IMAGE_CHOICES.find(x => x.id === item?.imageId);
+    return chosen
+        ? `<img class="reward-art" src="assets/characters/${chosen.file}" alt="${chosen.name}">`
+        : escapeHtml(item?.emoji || '🎁');
+}
+
+// ---- 家庭奖励与已捡到的宝贝；伙伴在“小岛伙伴”单独解锁 ----
 function renderShop(data) {
     setText('shop-points', data.points);
 
-    const items = (data.rewardItems || []).filter(i => i.active);
-    const ownedMates = data.rewardsUnlocked || [];
-    const redemptions = data.redemptions || [];
-
-    // 已经拥有的伙伴不再重复出现在「可兑换」里
-    const alreadyOwned = i => i.type === 'mate' && ownedMates.includes(i.emoji);
-    const affordable = items.filter(i => !alreadyOwned(i) && data.points >= i.points);
+    const items = (data.rewardItems || []).filter(i => i.active && i.type === 'prize');
+    const redemptions = (data.redemptions || []).filter(r => r.type === 'prize');
+    const affordable = items.filter(i => data.points >= i.points);
     const locked = items.filter(i => data.points < i.points);
 
     setText('shop-sub', affordable.length
@@ -3978,7 +3992,7 @@ function renderShop(data) {
                 const card = document.createElement('div');
                 card.className = 'shop-card' + (r.fulfilled ? '' : ' warm');
                 card.innerHTML = `
-                    <span class="sc-img">${r.emoji || '🎁'}</span>
+                    <span class="sc-img">${rewardArt(r)}</span>
                     <b>${escapeHtml(r.name)}</b>
                     <span class="sc-price">⭐ ${r.points} 分</span>
                     <span class="sc-btn${r.fulfilled ? ' owned' : ''}">${r.fulfilled ? '已到手 ✅' : '等兑现'}</span>
@@ -4015,9 +4029,9 @@ function buildRewardCard(data, item, mode) {
     const card = document.createElement('div');
     card.className = 'shop-card' + (locked ? '' : ' leaf');
     card.innerHTML = `
-        <span class="sc-img">${locked ? '🔒' : item.emoji}</span>
+        <span class="sc-img">${locked ? '🔒' : rewardArt(item)}</span>
         <b>${escapeHtml(item.name)}</b>
-        <span class="sc-price${locked ? ' gold' : ''}">${item.type === 'mate' ? '伙伴 · ' : ''}⭐ ${item.points} 分</span>
+        <span class="sc-price${locked ? ' gold' : ''}">⭐ ${item.points} 分</span>
         <span class="sc-btn${locked ? ' owned' : ''}">${locked ? `还差 ${item.points - data.points} 分` : '兑换'}</span>
     `;
     if (!locked) {
@@ -4066,6 +4080,7 @@ function doRedeem(itemId) {
             itemId: item.id,
             name: item.name,
             emoji: item.emoji,
+            imageId: item.imageId || null,
             points: item.points,
             type: item.type,
             at: new Date().toISOString(),
@@ -4437,8 +4452,8 @@ function renderParentReport(data) {
 function renderParentReward(data) {
     setText('p-balance-num', data.points);
 
-    const items = data.rewardItems || [];
-    const redemptions = data.redemptions || [];
+    const items = (data.rewardItems || []).filter(i => i.type === 'prize');
+    const redemptions = (data.redemptions || []).filter(r => r.type === 'prize');
     const pendings = redemptions.filter(r => !r.fulfilled);
     const activeCount = items.filter(i => i.active).length;
 
@@ -4457,10 +4472,10 @@ function renderParentReward(data) {
                 const row = document.createElement('div');
                 row.className = 'manage-row' + (item.active ? '' : ' off');
                 row.innerHTML = `
-                    <span class="mr-img">${item.emoji || '🎁'}</span>
+                    <span class="mr-img">${rewardArt(item)}</span>
                     <span class="mr-main">
                         <b>${escapeHtml(item.name)}</b>
-                        <span>${item.type === 'mate' ? '伙伴' : '奖励'} · ⭐ ${item.points} 分${item.repeatable ? ' · 可重复' : ''}${item.desc ? ' · ' + escapeHtml(item.desc) : ''}</span>
+                        <span>⭐ ${item.points} 分${item.repeatable ? ' · 可重复' : ''}${item.desc ? ' · ' + escapeHtml(item.desc) : ''}</span>
                     </span>
                     <span class="mr-act">
                         <button class="hw-btn" onclick="openRewardItemEditor('${item.id}')">编辑</button>
@@ -4485,10 +4500,10 @@ function renderParentReward(data) {
                 const row = document.createElement('div');
                 row.className = 'manage-row';
                 row.innerHTML = `
-                    <span class="mr-img">${r.emoji || '🎁'}</span>
+                    <span class="mr-img">${rewardArt(r)}</span>
                     <span class="mr-main">
                         <b>${escapeHtml(r.name)}</b>
-                        <span>${r.points} 分 · ${formatDateTime(r.at)}${r.type === 'mate' ? ' · 伙伴已上岛' : ''}</span>
+                        <span>${r.points} 分 · ${formatDateTime(r.at)}</span>
                     </span>
                     <span class="mr-act">
                         ${r.fulfilled
@@ -4548,19 +4563,13 @@ function renderParentReward(data) {
 
 // ================= 家长端：奖励清单的增删改 =================
 
-// 可选图标（不画图，直接选 emoji）
-const REWARD_EMOJI_CHOICES = [
-    '🎡', '🍦', '🍿', '🎮', '🎬', '🎀',
-    '📚', '🚲', '🏊', '⚽', '🎨', '🎁',
-    '🍕', '🍫', '🎢', '🏕️', '🐻', '🐰'
-];
-
-let rewardEmojiPick = '🎁';
+let rewardImagePick = 'gift';
 let editingRewardId = null;
 
 function openRewardItemEditor(itemId) {
     const data = getData();
     const item = itemId ? (data.rewardItems || []).find(i => i.id === itemId) : null;
+    if (item && item.type !== 'prize') return;
 
     // 顺序很重要：closeRewardItemEditor() 会把 editingRewardId 清成 null，
     // 之前是先赋值再 close，等于编辑一次就被降级成「新增」，
@@ -4568,7 +4577,7 @@ function openRewardItemEditor(itemId) {
     // 所以先拆旧弹层，再确定这次是编辑还是新增。
     closeRewardItemEditor();
     editingRewardId = item ? item.id : null;
-    rewardEmojiPick = item ? (item.emoji || '🎁') : '🎁';
+    rewardImagePick = item?.imageId || 'gift';
 
     const mask = document.createElement('div');
     mask.id = 'reward-item-mask';
@@ -4588,26 +4597,17 @@ function openRewardItemEditor(itemId) {
                 <label>奖励名称</label>
                 <input type="text" id="ri-name" maxlength="20" value="${item ? escapeHtml(item.name) : ''}" placeholder="例如：游乐场玩一次">
             </div>
-            <div class="form-row two-col">
-                <div>
-                    <label>需要积分</label>
-                    <input type="number" id="ri-points" min="0" value="${item ? item.points : 50}">
-                </div>
-                <div>
-                    <label>类型</label>
-                    <select id="ri-type">
-                        <option value="prize"${!item || item.type === 'prize' ? ' selected' : ''}>实物 / 活动奖励</option>
-                        <option value="mate"${item && item.type === 'mate' ? ' selected' : ''}>小动物伙伴</option>
-                    </select>
-                </div>
+            <div class="form-row">
+                <label>需要积分</label>
+                <input type="number" id="ri-points" min="0" value="${item ? item.points : 50}">
             </div>
             <div class="form-row">
                 <label>说明（可留空）</label>
                 <input type="text" id="ri-desc" maxlength="30" value="${item ? escapeHtml(item.desc || '') : ''}" placeholder="例如：周末去游乐场玩半天">
             </div>
             <div class="form-row">
-                <label>换一个图标</label>
-                <div class="avatar-grid" id="reward-emoji-grid"></div>
+                <label>选择内置图片</label>
+                <div class="reward-image-grid" id="reward-image-grid" role="group" aria-label="奖励图片"></div>
             </div>
             <div class="form-row">
                 <label class="switch-row">
@@ -4615,7 +4615,7 @@ function openRewardItemEditor(itemId) {
                     <span>可以重复兑换</span>
                 </label>
             </div>
-            <p class="hw-editor-tip">「小动物伙伴」兑换后可以让孩子选它陪写作业；「实物 / 活动奖励」兑换后会进入你的「待兑现」清单。</p>
+            <p class="hw-editor-tip">图片从作业岛内置素材中选择。兑换后的奖励会进入你的“待兑现”清单。</p>
             <div class="hw-editor-actions">
                 <button class="btn-primary" onclick="saveRewardItem()">保存</button>
                 <button class="btn-secondary" onclick="closeRewardItemEditor()">取消</button>
@@ -4624,19 +4624,21 @@ function openRewardItemEditor(itemId) {
     `;
     document.body.appendChild(mask);
     document.body.appendChild(sheet);
-    renderRewardEmojiGrid();
+    renderRewardImageGrid();
 }
 
-function renderRewardEmojiGrid() {
-    const grid = document.getElementById('reward-emoji-grid');
+function renderRewardImageGrid() {
+    const grid = document.getElementById('reward-image-grid');
     if (!grid) return;
     grid.innerHTML = '';
-    REWARD_EMOJI_CHOICES.forEach(e => {
+    REWARD_IMAGE_CHOICES.forEach(choice => {
         const b = document.createElement('button');
         b.type = 'button';
-        b.className = 'avatar-opt' + (e === rewardEmojiPick ? ' on' : '');
-        b.textContent = e;
-        b.onclick = () => { rewardEmojiPick = e; renderRewardEmojiGrid(); };
+        b.className = 'reward-image-opt' + (choice.id === rewardImagePick ? ' on' : '');
+        b.setAttribute('aria-pressed', String(choice.id === rewardImagePick));
+        b.setAttribute('aria-label', choice.name);
+        b.innerHTML = `<img src="assets/characters/${choice.file}" alt=""><small>${choice.name}</small>`;
+        b.onclick = () => { rewardImagePick = choice.id; renderRewardImageGrid(); };
         grid.appendChild(b);
     });
 }
@@ -4648,7 +4650,6 @@ function saveRewardItem() {
     if (!name) { showToast('给奖励起个名字吧'); return; }
 
     const points = Math.max(0, parseInt(val('ri-points'), 10) || 0);
-    const type = val('ri-type') === 'mate' ? 'mate' : 'prize';
     const desc = (val('ri-desc') || '').trim();
     const repEl = document.getElementById('ri-repeatable');
     const repeatable = !!(repEl && repEl.checked);
@@ -4659,12 +4660,14 @@ function saveRewardItem() {
         if (isEdit) {
             const item = data.rewardItems.find(i => i.id === editingRewardId);
             if (!item) { closeRewardItemEditor(); return; }
-            Object.assign(item, { name, points, type, desc, repeatable, emoji: rewardEmojiPick });
+            if (item.type !== 'prize') { closeRewardItemEditor(); return; }
+            Object.assign(item, { name, points, desc, repeatable, imageId: rewardImagePick });
         } else {
             data.rewardItems.push({
                 id: generateId(),
-                name, points, type, desc, repeatable,
-                emoji: rewardEmojiPick,
+                name, points, type: 'prize', desc, repeatable,
+                imageId: rewardImagePick,
+                emoji: '🎁',
                 active: true
             });
         }
@@ -4936,3 +4939,4 @@ document.addEventListener('DOMContentLoaded', () => {
         IslandSync.start({ onRemoteUpdate: refreshCurrentView });
     }
 });
+
