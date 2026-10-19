@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <title>作业岛·小岛日历</title>
     <link rel="stylesheet" href="style.css?v=20261018-demo-integrated">
-<link rel="stylesheet" href="upgrade.css?v=20261019c">
+<link rel="stylesheet" href="upgrade.css?v=20261019d">
 </head>
 <body data-mode="child">
 <!-- 内联图标库（纯路径，无 emoji 依赖；规格与设计基准稿一致） -->
@@ -384,19 +384,9 @@
                 <label>这是什么</label>
                 <input type="text" id="ev-title" maxlength="20" placeholder="阅读 / 运动 / 练琴…">
             </div>
-            <div class="form-row two-col">
-                <div>
-                    <label>日期</label>
-                    <input type="date" id="ev-date">
-                </div>
-                <div>
-                    <label>开始时间</label>
-                    <input type="time" id="ev-start">
-                </div>
-            </div>
             <div class="form-row">
-                <label>结束时间（可选）</label>
-                <input type="time" id="ev-end">
+                <label for="ev-datetime">日期和具体时间</label>
+                <input type="datetime-local" id="ev-datetime">
             </div>
             <div class="form-row">
                 <label>准备清单（可选）</label>
@@ -423,9 +413,9 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261019c"></script>
-<script src="demo-core.js?v=20261019c"></script>
-<script src="upgrade.js?v=20261019c"></script>
-<script src="family-access.js?v=20261019c"></script>
+<script src="app.js?v=20261019d"></script>
+<script src="demo-core.js?v=20261019d"></script>
+<script src="upgrade.js?v=20261019d"></script>
+<script src="family-access.js?v=20261019d"></script>
 </body>
 </html>
