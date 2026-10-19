@@ -92,6 +92,7 @@
       notify('云端暂时不可用，当前使用本机缓存');
     } finally {
       syncing = false;
+      window.dispatchEvent(new Event('island-ready'));
     }
   }
 
