@@ -9,30 +9,21 @@
     <meta name="apple-mobile-web-app-title" content="小岛日历">
     <link rel="manifest" href="manifest.json">
     <title>作业岛·小岛日历 · 家长端</title>
-    <link rel="stylesheet" href="style.css?v=20261019-loader">
-<link rel="stylesheet" href="upgrade.css?v=20261019f">
+    <link rel="stylesheet" href="style.css?v=20261019j">
+<link rel="stylesheet" href="upgrade.css?v=20261019j">
 </head>
 <body data-mode="parent"><style>
-#island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;background:linear-gradient(180deg,#9bdcff 0%,#dff5ff 53%,#fdf7eb 100%);opacity:1;transition:opacity .55s ease,visibility .55s ease}
+#island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 15%,#fff5d7 0,#f9efd9 42%,#edf0d9 100%);opacity:1;transition:opacity .45s ease,visibility .45s ease}
 #island-loader.is-ready{opacity:0;visibility:hidden;pointer-events:none}
-.island-loader-card{width:min(390px,88vw);padding:30px 24px 26px;text-align:center;color:#5b432c}
-.island-loader-title{margin:0;font-size:27px;font-weight:900;letter-spacing:.04em}
-.island-loader-sub{margin:9px 0 0;color:#7e735f;font-size:13px;line-height:1.7}
-.island-loader-art{position:relative;height:180px;margin:-4px auto 8px}
-.loader-sun{position:absolute;top:7px;right:26px;width:54px;height:54px;border-radius:50%;background:#ffd66e;box-shadow:0 0 0 12px #ffe9a455,0 0 34px #fff2a8}
-.loader-cloud{position:absolute;width:72px;height:18px;border-radius:18px;background:#fffdf8aa;filter:blur(.2px);animation:loader-drift 5s ease-in-out infinite}
-.loader-cloud:before,.loader-cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.loader-cloud:before{width:28px;height:28px;left:13px;bottom:4px}.loader-cloud:after{width:36px;height:36px;left:34px;bottom:0}.loader-cloud.one{top:40px;left:16px}.loader-cloud.two{top:78px;right:12px;transform:scale(.7);animation-delay:-2s}
-.loader-sea{position:absolute;left:0;right:0;bottom:20px;height:72px;border-radius:50%;background:repeating-linear-gradient(0deg,#55c9e7 0 13px,#8fe0ed 14px 20px);box-shadow:0 -8px 0 #b6edf3aa;animation:loader-wave 2.6s ease-in-out infinite}
-.loader-island{position:absolute;left:50%;bottom:52px;width:190px;height:70px;transform:translateX(-50%) rotate(-3deg);border-radius:52% 48% 45% 55%;background:#8dcc62;box-shadow:inset 0 -12px 0 #6caf4d,inset 18px 9px 0 #b4df79,0 11px 0 #e5c68e}
-.loader-house{position:absolute;left:50%;bottom:91px;width:58px;height:48px;transform:translateX(-50%);border-radius:8px;background:#fff4d8;border:3px solid #b77e4e;box-shadow:0 4px 0 #a86e45}
-.loader-house:before{content:"";position:absolute;left:-8px;top:-25px;border-left:37px solid transparent;border-right:37px solid transparent;border-bottom:31px solid #4f9dcc}
-.loader-tree{position:absolute;bottom:91px;width:22px;height:45px;border-radius:15px 15px 7px 7px;background:#6d9f4f}.loader-tree:before{content:"";position:absolute;left:-10px;top:-22px;width:42px;height:42px;border-radius:50%;background:#77bd59;box-shadow:15px 5px 0 #8dcc62}
-.loader-tree.left{left:calc(50% - 88px)}.loader-tree.right{right:calc(50% - 88px)}
-.loader-boat{position:absolute;bottom:42px;left:calc(50% + 74px);width:28px;height:13px;border-radius:0 0 15px 15px;background:#f2b34f;animation:loader-float 2s ease-in-out infinite}
-.loader-boat:before{content:"";position:absolute;left:13px;bottom:9px;width:2px;height:26px;background:#8a6239}.loader-boat:after{content:"";position:absolute;left:15px;bottom:18px;border-right:18px solid #fff4ce;border-top:9px solid transparent;border-bottom:9px solid transparent}
-.loader-dots{display:flex;justify-content:center;gap:7px;margin-top:18px}.loader-dots i{width:8px;height:8px;border-radius:50%;background:#e6ad43;animation:loader-bounce 1s ease-in-out infinite}.loader-dots i:nth-child(2){animation-delay:.14s}.loader-dots i:nth-child(3){animation-delay:.28s}
-@keyframes loader-drift{50%{transform:translateX(12px)}}@keyframes loader-wave{50%{transform:translateY(4px) scaleX(1.03)}}@keyframes loader-float{50%{transform:translateY(-6px)}}@keyframes loader-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
-</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><i class="loader-sun"></i><i class="loader-cloud one"></i><i class="loader-cloud two"></i><i class="loader-sea"></i><i class="loader-island"></i><i class="loader-house"></i><i class="loader-tree left"></i><i class="loader-tree right"></i><i class="loader-boat"></i></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},650)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
+.island-loader-card{width:min(390px,90vw);padding:18px 18px 24px;text-align:center;color:#5e4933;background:#fffaf0;border:1px solid #ecdfc4;border-radius:28px;box-shadow:0 18px 52px #7f66402c,0 3px 0 #e8d9bd}
+.island-loader-art{height:180px;margin-bottom:18px;border-radius:21px;overflow:hidden;background:#dcebd0}
+.island-loader-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 54%}
+.island-loader-title{margin:0;font-size:25px;font-weight:750;letter-spacing:.02em}
+.island-loader-sub{margin:8px 0 0;color:#8a785f;font-size:13px;line-height:1.7}
+.loader-dots{display:flex;justify-content:center;gap:7px;margin-top:17px}.loader-dots i{width:8px;height:8px;border-radius:50%;background:#d6a44e;animation:loader-bounce 1s ease-in-out infinite}.loader-dots i:nth-child(2){animation-delay:.14s}.loader-dots i:nth-child(3){animation-delay:.28s}
+@keyframes loader-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
+@media(prefers-reduced-motion:reduce){.loader-dots i{animation:none}#island-loader{transition:none}}
+</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><img src="assets/island-stage-1.png" alt="" decoding="async"></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},500)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
 <!--
   家长端 · 小岛日历
   视图（底部 tab 或 gotoParentView() 切换）
@@ -289,7 +280,7 @@
         <section class="welcome">
             <h1>
                 <em>小岛的</em>
-                <b>积分与伙伴
+                <b>积分与奖励
                     <svg class="scribble" viewBox="0 0 200 14" preserveAspectRatio="none" aria-hidden="true">
                         <path d="M3 9 C 42 2.5, 78 12, 116 5.5 S 176 3, 197 8"/>
                     </svg>
@@ -341,7 +332,7 @@
             <div class="review-act" style="margin-top:10px">
                 <span class="btn btn-ok" onclick="openRewardItemEditor()">＋ 添加奖励</span>
             </div>
-            <p class="hint">这里是你给孩子准备的兑换清单：既能放小动物伙伴，也能放「游乐场玩一次」这类实物奖励。孩子攒够积分就能在儿童端自己兑换。</p>
+            <p class="hint">这里设置家庭奖励的名称、积分和内置图片。孩子攒够积分后，可以在儿童端兑换；小岛伙伴在“我的小岛”里单独解锁。</p>
         </section>
 
         <section class="board">
@@ -352,15 +343,6 @@
             </div>
             <div id="p-redemptions"></div>
             <p class="hint">孩子兑换的奖励会记在这里，兑现完点「已兑现」留个记录。</p>
-        </section>
-
-        <section class="board">
-            <div class="board-head">
-                <span class="b-ico">🐾</span>
-                <h2>伙伴兑换情况</h2>
-                <span class="b-badge" id="p-mate-count">—</span>
-            </div>
-            <div id="p-reward-mates"></div>
         </section>
 
         <section class="board">
@@ -703,11 +685,12 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261019f"></script>
+<script src="app.js?v=20261019j"></script>
 <script src="demo-core.js?v=20261019f"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cloud-sync.js?v=20261019i"></script>
-<script src="upgrade.js?v=20261019f"></script>
+<script src="cloud-sync.js?v=20261019j"></script>
+<script src="upgrade.js?v=20261019j"></script>
 <script src="family-access.js?v=20261019f"></script>
 </body>
 </html>
+
