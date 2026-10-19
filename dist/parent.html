@@ -637,6 +637,47 @@
 
 </div>
 
+    <!-- ===== 弹层 · 添加 / 编辑自由安排（孩子与家长共用） ===== -->
+    <div class="ovl" id="ovl-event">
+        <div class="scrim" onclick="closeEventEditor()"></div>
+        <div class="sheet">
+            <div class="sheet-grip"></div>
+            <div class="sheet-head">
+                <span class="sh-ico">🗓️</span>
+                <h2 id="ev-title-label">我想做点什么</h2>
+                <span class="x" onclick="closeEventEditor()">✕</span>
+            </div>
+
+            <div class="form-row">
+                <label>选个图标</label>
+                <input type="hidden" id="ev-emo">
+                <div class="ev-emo-row" id="ev-emo-row"></div>
+            </div>
+            <div class="form-row">
+                <label>这是什么</label>
+                <input type="text" id="ev-title" maxlength="20" placeholder="阅读 / 运动 / 练琴…">
+            </div>
+            <div class="form-row">
+                <label for="ev-datetime">日期和具体时间</label>
+                <input type="datetime-local" id="ev-datetime">
+            </div>
+            <div class="form-row">
+                <label>准备清单（可选）</label>
+                <div class="ev-checklist" id="ev-checklist"></div>
+                <div class="ev-add-row">
+                    <input type="text" id="ev-new-item" maxlength="20" placeholder="比如：选一本绘本" onkeydown="if(event.key==='Enter')addEvChip()">
+                    <button class="btn btn-ok" type="button" onclick="addEvChip()">＋ 添加准备物品</button>
+                </div>
+            </div>
+
+            <div class="review-act">
+                <button class="btn btn-ok" type="button" onclick="saveEventEditor()">保存</button>
+                <button class="btn btn-ghost" type="button" id="ev-del" onclick="deleteEventFromEditor()">删除</button>
+                <button class="btn btn-back" type="button" onclick="closeEventEditor()">取消</button>
+            </div>
+        </div>
+    </div>
+
 <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
 <script async src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
