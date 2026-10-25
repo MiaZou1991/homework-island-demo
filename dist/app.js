@@ -2023,7 +2023,7 @@ function completeHomework(id) {
     }
     data.lastCompletedDate = today;
 
-    const streakBonus = Math.min(data.currentStreak * 2, 20);
+    const streakBonus = 0; // V2: only the configured homework points.
     hw.earnedPoints = hw.points + streakBonus;
     data.points += hw.earnedPoints;
     data.totalCompleted += 1;

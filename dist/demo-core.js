@@ -33,14 +33,15 @@ const DemoCore=(()=>{
  function credit(d,n){let debt=Math.min(d.demoGrowth.pointDebt||0,n);d.demoGrowth.pointDebt-=debt;d.points=(Number(d.points)||0)+n-debt;}
  function debit(d,n){let available=Number(d.points)||0;d.points=Math.max(0,available-n);d.demoGrowth.pointDebt=(d.demoGrowth.pointDebt||0)+Math.max(0,n-available);}
  function finish(d,id,kind='homework',day=date(0)){
+  if(kind!=='homework')return null;
   ensure(d);let item=kind==='homework'?d.homework.find(h=>h.id===id):(d.classes||[]).find(c=>c.id===id);if(!item)return null;
   const key=kind==='homework'?'homework|'+id:'class|'+day+'|'+id,g=d.demoGrowth;
   const target=kind==='homework'?item:((d.classCheckins ||= {})[day+'|'+id] ||= {items:{}});if(target.done)return null;
   target.done=true;target.completedAt=new Date().toISOString();target.pendingApproval=false;
   let r=g.receipts[key];
-  if(r){if(r.reversed){credit(d,r.points||0);r.reversed=false;}if(kind==='homework'){item.earnedPoints=r.points||0;d.totalCompleted=(d.totalCompleted||0)+1;}else target.pointsAwarded=r.points||0;return {...r,replayed:true,title:kind==='homework'?item.content:item.name};}
+  if(r){if(r.reversed){r.points=Number(item.points)||0;r.base=r.points;r.bonus=0;credit(d,r.points);r.reversed=false;}if(kind==='homework'){item.earnedPoints=r.points||0;d.totalCompleted=(d.totalCompleted||0)+1;}else target.pointsAwarded=r.points||0;return {...r,replayed:true,title:kind==='homework'?item.content:item.name};}
   let base=Number.isFinite(Number(item.points))?Number(item.points):(kind==='class'?10:0),bonus=0;
-  if(kind==='homework'){const today=date(0);if(d.lastCompletedDate!==today){d.currentStreak=d.lastCompletedDate===date(-1)?(d.currentStreak||0)+1:1;d.lastCompletedDate=today;}bonus=Math.min((d.currentStreak||1)*2,20);d.totalCompleted=(d.totalCompleted||0)+1;}
+  if(kind==='homework'){const today=date(0);if(d.lastCompletedDate!==today){d.currentStreak=d.lastCompletedDate===date(-1)?(d.currentStreak||0)+1:1;d.lastCompletedDate=today;}bonus=0;d.totalCompleted=(d.totalCompleted||0)+1;}
   const drops=grantMaterialRewards(d).map(m=>m.id),construction=kind==='homework'?10:0;
   r={id:key,points:base+bonus,base,bonus,drops,construction,at:target.completedAt,reversed:false};g.receipts[key]=r;credit(d,r.points);g.construction+=construction;
   if(kind==='homework')item.earnedPoints=r.points;else target.pointsAwarded=r.points;

@@ -1,20 +1,20 @@
 {
-  "passed": 33,
+  "passed": 37,
   "results": [
-    "isolated storage and no cloud SDK",
+    "production storage is preserved and seeded family data is separate",
     "default ten companions, legacy custom rewards and material counts",
-    "completion uses legacy streak bonus and new construction",
+    "completion uses only configured points and preserves construction",
     "same completion cannot settle twice",
     "undo and re-complete preserve fixed drops and construction",
-    "class score and drop persist atomically",
-    "course re-completion does not reroll drops",
+    "classes cannot award points or drops",
+    "repeated course attempts cannot award points or drops",
     "recurring generation is idempotent",
     "old backup retains stable ids, points, unknown fields and all owned mates",
     "repeat import does not re-award history",
     "invalid backup rejected without overwriting current data",
     "new schema survives import/export roundtrip",
     "production keys never changed across all operations",
-    "production sync script and SDK not shipped in demo pages",
+    "production sync script and SDK are shipped in both app pages",
     "unfinished homework keeps construction and decoration locked",
     "next homework advances after completion",
     "only completing all of todays homework unlocks island activities",
@@ -33,6 +33,10 @@
     "moving onto another collectible swaps without losing either item",
     "replacing and removing a display returns objects to the available collection",
     "invalid positions and incomplete homework cannot change the room",
-    "all ten default companions have an existing illustrated asset"
+    "all ten default companions have an existing illustrated asset",
+    "seven configured points remain seven after preview settlement undo and replay",
+    "course and event reminders ignore historical completion flags",
+    "reminder rendering contains a shared read-only packing list",
+    "missing course end time never implies the course has ended"
   ]
 }
