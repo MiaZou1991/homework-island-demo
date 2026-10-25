@@ -1,0 +1,236 @@
+[
+  {
+    "width": 375,
+    "dpr": 2,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          375,
+          270
+        ],
+        "ratio": 3.8613333333333335
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  },
+  {
+    "width": 375,
+    "dpr": 3,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          375,
+          270
+        ],
+        "ratio": 3.8613333333333335
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 2,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          390,
+          270
+        ],
+        "ratio": 3.712820512820513
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  },
+  {
+    "width": 390,
+    "dpr": 3,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          390,
+          270
+        ],
+        "ratio": 3.712820512820513
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  },
+  {
+    "width": 430,
+    "dpr": 2,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          430,
+          270
+        ],
+        "ratio": 3.3674418604651164
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  },
+  {
+    "width": 430,
+    "dpr": 3,
+    "overflow": false,
+    "density": [
+      {
+        "src": "assets/hd/island.webp",
+        "natural": [
+          1448,
+          1086
+        ],
+        "css": [
+          430,
+          270
+        ],
+        "ratio": 3.3674418604651164
+      },
+      {
+        "src": "assets/hd/raccoon.webp",
+        "natural": [
+          1254,
+          1254
+        ],
+        "css": [
+          128,
+          150
+        ],
+        "ratio": 8.36
+      }
+    ],
+    "errors": [],
+    "flows": [
+      "read-only course",
+      "week/month",
+      "mood save",
+      "complete/undo exact points",
+      "island navigation"
+    ]
+  }
+]
