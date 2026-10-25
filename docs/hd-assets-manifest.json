@@ -1,0 +1,74 @@
+[
+  {
+    "path": "dist/assets/hd/magic-lucky-stone.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 60209
+  },
+  {
+    "path": "dist/assets/hd/shell-scallop.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 50288
+  },
+  {
+    "path": "dist/assets/hd/island.webp",
+    "size": [
+      1448,
+      1086
+    ],
+    "mode": "RGB",
+    "bytes": 490376
+  },
+  {
+    "path": "dist/assets/hd/nature-tree-branch.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 47263
+  },
+  {
+    "path": "dist/assets/hd/flower-cosmos.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 55047
+  },
+  {
+    "path": "dist/assets/hd/raccoon.webp",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 324284
+  },
+  {
+    "path": "dist/assets/hd/nature-wood-piece.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 47816
+  },
+  {
+    "path": "dist/assets/hd/plant-four-leaf-clover.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 54147
+  }
+]

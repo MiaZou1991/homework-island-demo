@@ -1,5 +1,5 @@
 {
-  "passed": 37,
+  "passed": 39,
   "results": [
     "production storage is preserved and seeded family data is separate",
     "default ten companions, legacy custom rewards and material counts",
@@ -37,6 +37,8 @@
     "seven configured points remain seven after preview settlement undo and replay",
     "course and event reminders ignore historical completion flags",
     "reminder rendering contains a shared read-only packing list",
-    "missing course end time never implies the course has ended"
+    "missing course end time never implies the course has ended",
+    "historical points reverse exactly before replay uses configured points",
+    "preview uses isolated seed storage and bypasses cloud and family access scripts"
   ]
 }

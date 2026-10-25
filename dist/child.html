@@ -11,6 +11,7 @@
     <title>作业岛·小岛日历</title>
     <link rel="stylesheet" href="style.css?v=20261019r">
 <link rel="stylesheet" href="upgrade.css?v=20261019r">
+<link rel="stylesheet" href="child-hd.css?v=20261025">
 </head>
 <body data-mode="child"><style>
 #island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 15%,#fff5d7 0,#f9efd9 42%,#edf0d9 100%);opacity:1;transition:opacity .45s ease,visibility .45s ease}
@@ -23,7 +24,7 @@
 .loader-dots{display:flex;justify-content:center;gap:7px;margin-top:17px}.loader-dots i{width:8px;height:8px;border-radius:50%;background:#d6a44e;animation:loader-bounce 1s ease-in-out infinite}.loader-dots i:nth-child(2){animation-delay:.14s}.loader-dots i:nth-child(3){animation-delay:.28s}
 @keyframes loader-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
 @media(prefers-reduced-motion:reduce){.loader-dots i{animation:none}#island-loader{transition:none}}
-</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><img src="assets/island-stage-1.png" alt="" decoding="async"></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},500)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
+</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><img src="assets/hd/island.webp" alt="" decoding="async"></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},500)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
 <!-- 内联图标库（纯路径，无 emoji 依赖；规格与设计基准稿一致） -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -402,13 +403,13 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261019r"></script>
-<script src="demo-core.js?v=20261019f"></script>
+<script src="app.js?v=20261025hd1"></script>
+<script src="demo-core.js?v=20261025hd1"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cloud-sync.js?v=20261019r"></script>
-<script src="v2-reminders.js?v=20261024"></script>
-<script src="upgrade.js?v=20261019r"></script>
-<script src="family-access.js?v=20261019f"></script>
+<script src="cloud-sync.js?v=20261025hd1"></script>
+<script src="v2-reminders.js?v=20261025hd1"></script>
+<script src="upgrade.js?v=20261025hd1"></script>
+<script src="family-access.js?v=20261025hd1"></script>
 </body>
 </html>
 

@@ -1,7 +1,8 @@
 /* Integrated local demo; the entered family code scopes each household to its own browser storage. */
-const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'KAIXIN').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+const ISLAND_PREVIEW=new URLSearchParams(location.search).get('preview')==='1';
+const FAMILY_CODE=ISLAND_PREVIEW?'PREVIEW':(localStorage.getItem('homework_island_family_code_v1')||'KAIXIN').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 const LEGACY_DEMO_KEY='homework_island_integrated_demo_v2';
-const DEMO_KEY=FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
+const DEMO_KEY=ISLAND_PREVIEW?'homework_island_hd_preview_v1':FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
 const DemoCore=(()=>{
  const clone=x=>JSON.parse(JSON.stringify(x));
  const date=n=>{const d=new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
@@ -15,7 +16,7 @@ const DemoCore=(()=>{
  events:[{id:'demo_event',owner:'child',title:'睡前看绘本',emoji:'📚',date:day,start:'20:30',end:'20:50',checklist:[{name:'选一本喜欢的绘本',done:false}],note:'留一点时间给自己',done:false,createdAt:now}],
  rewardItems:d.rewardItems.concat([{id:'demo_movie',type:'prize',emoji:'🎬',name:'家庭电影夜',points:80,desc:'和家人一起选一部电影',repeatable:true,active:true}])};}
  function ensure(d){d.journalEntries ||= [];if(!d.demoGrowth){d.demoGrowth={version:1,construction:10,buildings:[],room:{},receipts:{},archives:[],pointDebt:0,reviewDefault:false};for(const h of d.homework||[])if(h.done)d.demoGrowth.receipts['homework|'+h.id]={historical:true,points:h.earnedPoints??h.points??0,drops:[],construction:0};}const g=d.demoGrowth;g.receipts ||= {};g.room ||= {};g.buildings ||= [];g.archives ||= [];g.pointDebt ||=0;return d;}
- function init(){let d;try{d=JSON.parse(localStorage.getItem(DEMO_KEY)||'null');if(!d&&FAMILY_CODE&&!localStorage.getItem('homework_island_family_migrated_v1')){const legacy=localStorage.getItem(LEGACY_DEMO_KEY);if(legacy){d=JSON.parse(legacy);localStorage.setItem(DEMO_KEY,legacy);}localStorage.setItem('homework_island_family_migrated_v1','1');}}catch{}if(!d||!Array.isArray(d.homework))d=seed();ensure(d);localStorage.setItem(DEMO_KEY,JSON.stringify(d));}
+ function init(){let d;try{d=JSON.parse(localStorage.getItem(DEMO_KEY)||'null');if(!d&&!ISLAND_PREVIEW&&FAMILY_CODE&&!localStorage.getItem('homework_island_family_migrated_v1')){const legacy=localStorage.getItem(LEGACY_DEMO_KEY);if(legacy){d=JSON.parse(legacy);localStorage.setItem(DEMO_KEY,legacy);}localStorage.setItem('homework_island_family_migrated_v1','1');}}catch{}if(!d||!Array.isArray(d.homework))d=seed();ensure(d);localStorage.setItem(DEMO_KEY,JSON.stringify(d));}
  const journalMoods=[{id:'happy',emoji:'😊',name:'开心'},{id:'calm',emoji:'😌',name:'平静'},{id:'excited',emoji:'🤩',name:'期待'},{id:'tired',emoji:'😴',name:'有点累'},{id:'sad',emoji:'🌧️',name:'有点难过'},{id:'angry',emoji:'😤',name:'有点生气'}];
  function saveJournal(d,{day=date(0),mood='',text=''}){
   ensure(d);

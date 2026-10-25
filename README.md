@@ -1,3 +1,36 @@
+# 作业岛儿童端高清开发预览
+
+当前开发分支：`feat/child-ui-hd-assets`。本轮交付 P0 首页、V2 积分与只读提醒规则，未发布 main 或线上 Pages。
+
+## 查看本轮预览
+
+在仓库目录启动：
+
+```sh
+python3 -m http.server 8178 --bind 127.0.0.1 --directory dist
+```
+
+打开 [儿童端独立示例预览](http://127.0.0.1:8178/child.html?preview=1)。务必保留 `preview=1`，它使用独立示例数据并禁用家庭云端同步；家长/孩子切换会保留参数。本机服务需要持续运行，链接不是公开托管站点。
+
+- [本轮变更、验收与未完成范围](docs/child-ui-phase1-review.md)
+- [素材逐项尺寸盘点](docs/hd-source-inventory.csv)
+- [新资源尺寸与体积](docs/hd-assets-manifest.json)
+- [手机宽度与 DPR 测试结果](checks/hd/mobile-results.json)
+
+规则：作业仅结算设置积分，不增加连击分；课程和携带物品只作提醒，不打卡。历史流水不追溯重算；撤销按原值扣回，再次完成按当前配置结算。建设力和固定掉落保持既有机制。
+
+## 检查
+
+```sh
+node checks/domain.test.cjs
+```
+
+移动端检查需要可用的 Playwright 与 Chrome。运行 `node checks/hd/mobile-qa.cjs`，或通过 `PLAYWRIGHT_MODULE` 指定 Playwright 包路径。脚本隔离示例数据并阻止非本机请求，覆盖 375/390/430 宽度、DPR2/3、心情保存、课程详情、日程、完成/撤销和导航。
+
+以下为原版本说明，关于连击和课程打卡的描述已由上述 V2 规则取代；云端能力以仓库代码和实际环境为准。
+
+---
+
 # 作业岛 · 小岛日历
 
 在线体验：https://miazou1991.github.io/homework-island-demo/
