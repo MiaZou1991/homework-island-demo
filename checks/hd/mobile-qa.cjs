@@ -35,8 +35,19 @@ const fs=require('node:fs');const path=require('node:path');
   await page.locator('.up-island-scene img').evaluateAll(imgs=>Promise.all(imgs.map(i=>i.decode())));
   await page.locator('.toast').waitFor({state:'detached'});
   await page.screenshot({path:path.join(__dirname,`island-${width}-${dpr}.png`),fullPage:true});
+  for(const [name,file] of [['小岛花园','garden.jpg'],['海边码头','dock.jpg'],['森林书屋','library.jpg']]){
+   await page.locator('.up-hotspot').filter({hasText:name}).click();
+   const img=page.locator('.hd-area-preview img');await img.evaluate(el=>el.decode());
+   const asset=await img.evaluate(el=>({src:el.getAttribute('src'),ratio:Math.min(el.naturalWidth/el.width,el.naturalHeight/el.height)}));
+   if(!asset.src.endsWith(file)||asset.ratio<dpr)throw Error(`Scene density failure ${file} ${width}@${dpr}`);
+  }
+  await page.locator('.up-hotspot.house').click();
+  const room=page.locator('.up-room-bg');await room.evaluate(el=>el.decode());
+  const roomRatio=await room.evaluate(el=>Math.min(el.naturalWidth/el.width,el.naturalHeight/el.height));
+  if(roomRatio<dpr)throw Error(`Room density failure ${width}@${dpr}`);
+  if(width===430&&dpr===3)await page.screenshot({path:path.join(__dirname,'room-430-3.png'),fullPage:true});
   if(errors.length)throw Error(errors.join('\n'));
-  results.push({width,dpr,overflow,density,errors,flows:['read-only course','week/month','mood save','complete/undo exact points','island navigation']});await context.close();
+  results.push({width,dpr,overflow,density,errors,flows:['read-only course','week/month','mood save','complete/undo exact points','island navigation','three area previews and room image density']});await context.close();
  }
  await browser.close();fs.writeFileSync(path.join(__dirname,'mobile-results.json'),JSON.stringify(results,null,2));console.log('PASS 6 mobile viewport/DPR combinations and interaction flows');
 })().catch(e=>{console.error(e);process.exit(1)});

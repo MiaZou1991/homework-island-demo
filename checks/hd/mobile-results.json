@@ -12,7 +12,7 @@
         ],
         "css": [
           375,
-          270
+          205
         ],
         "ratio": 3.8613333333333335
       },
@@ -23,10 +23,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -35,7 +35,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   },
   {
@@ -51,7 +52,7 @@
         ],
         "css": [
           375,
-          270
+          205
         ],
         "ratio": 3.8613333333333335
       },
@@ -62,10 +63,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -74,7 +75,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   },
   {
@@ -90,7 +92,7 @@
         ],
         "css": [
           390,
-          270
+          205
         ],
         "ratio": 3.712820512820513
       },
@@ -101,10 +103,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -113,7 +115,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   },
   {
@@ -129,7 +132,7 @@
         ],
         "css": [
           390,
-          270
+          205
         ],
         "ratio": 3.712820512820513
       },
@@ -140,10 +143,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -152,7 +155,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   },
   {
@@ -168,7 +172,7 @@
         ],
         "css": [
           430,
-          270
+          205
         ],
         "ratio": 3.3674418604651164
       },
@@ -179,10 +183,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -191,7 +195,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   },
   {
@@ -207,7 +212,7 @@
         ],
         "css": [
           430,
-          270
+          205
         ],
         "ratio": 3.3674418604651164
       },
@@ -218,10 +223,10 @@
           1254
         ],
         "css": [
-          128,
-          150
+          85,
+          105
         ],
-        "ratio": 8.36
+        "ratio": 11.942857142857143
       }
     ],
     "errors": [],
@@ -230,7 +235,8 @@
       "week/month",
       "mood save",
       "complete/undo exact points",
-      "island navigation"
+      "island navigation",
+      "three area previews and room image density"
     ]
   }
 ]
