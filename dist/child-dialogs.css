@@ -1,0 +1,102 @@
+/* Approved A: Chill Round Gothic. Shared by all child screens and dialogs. */
+@font-face{font-family:IslandRound;src:url('assets/font-candidates/chill.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap}
+body[data-mode=child]{--font-round:IslandRound,'PingFang SC',sans-serif}
+body[data-mode=child],body[data-mode=child] *{font-family:IslandRound,'PingFang SC','Microsoft YaHei',sans-serif!important}
+.tf-generated-icon{object-fit:contain}
+.tf-quick>.tf-generated-icon{width:11cqw;height:11cqw;flex:none;filter:drop-shadow(0 1px 1px #966b2420)}
+.tf-card-head>.tf-generated-icon{transform:none;width:12cqw;height:12cqw}
+.tf-course-icon .tf-generated-icon{width:12cqw;height:12cqw}
+.tf-bring-icon .tf-icon{width:11cqw;height:12cqw}
+
+/* One reusable wooden title treatment; the title stays live DOM text. */
+body[data-mode=child] .island-dialog{width:min(390px,calc(100vw - 24px));max-height:calc(100dvh - 32px);border:3px solid #fffdf3;border-radius:30px;background:#fffbee;color:#633e26;box-shadow:0 0 0 2px #b8dba1,0 16px 55px #244f4755;scrollbar-width:thin;scrollbar-color:#d9c49e #fff9ec}
+body[data-mode=child] .island-dialog::backdrop{background:#16473f75;backdrop-filter:blur(3px)}
+.island-dialog .up-dialog-header{position:sticky;top:0;min-height:98px;display:flex;align-items:center;justify-content:center;padding:8px 36px 0 4px;background:#fffbee;z-index:5}
+.island-dialog .island-dialog-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:86px;margin:0;padding:23px 46px 19px 57px;background:url('assets/hd/today-icons/dialog-title-v1.png') center/100% auto no-repeat;font-size:22px;line-height:1.2;font-weight:700;text-align:center;color:#613817;text-shadow:0 1px #fff6d9;overflow-wrap:anywhere}
+.island-dialog .up-close{position:absolute;right:5px;top:26px;width:36px;height:40px;min-height:40px;padding:0;border:1px solid #ead7aa;border-radius:50%;background:#fff4d6;color:#987148;font-size:25px;line-height:1}
+.island-dialog .up-dialog-body{padding:0 18px 20px}
+.island-dialog .island-dialog-question{text-align:center;margin:0 0 14px;font-size:16px;line-height:1.5;font-weight:700;color:#744027}
+.island-dialog .up-moods{gap:9px;margin:0 0 17px}
+.island-dialog .up-mood{min-height:94px;padding:6px 2px 9px;gap:0;background:linear-gradient(145deg,#fffaf0,#f7ead9);border:1px solid #f0e2cc;border-radius:21px;color:#725034}
+.island-dialog .up-mood small{font-size:13px;line-height:1.4}
+.island-mood-face{display:block;width:56px;height:56px;flex:none}
+.island-dialog .up-mood[aria-pressed=true]{background:#ffedb4;border:2px solid #ffbb36;box-shadow:inset 0 0 0 2px #fff8dd;color:#6b421e;padding:5px 1px 8px}
+.island-journal-note{background:#f9efd9;padding:12px 10px 6px;border-radius:18px}
+.island-dialog .up-journal-label{font-size:13px;color:#8a6544;line-height:1.5;margin-bottom:8px}
+.island-dialog .up-journal-text{min-height:100px;resize:vertical;border:1px solid #eddfc7;border-radius:14px;background:#fffdfa;padding:10px;font-size:16px;line-height:1.65;color:#6c4a33;box-shadow:0 2px 0 #e8d9bd}
+.island-dialog .up-journal-count{font-size:10px;color:#9c805f;margin-top:7px}
+.island-dialog .up-journal-error:empty{display:none}
+.island-dialog .up-journal-error{margin:8px 0 0;min-height:0}
+.island-dialog .island-save{display:flex;width:75%;margin:18px auto 0;min-height:44px;border:1px solid #62b52b;border-radius:24px;background:linear-gradient(#a3ef5f 0%,#69d52d 47%,#42bb19 100%);color:white;font-size:18px;text-shadow:0 1px 1px #41851c;box-shadow:inset 0 2px 0 #d4ffac,0 3px 0 #389c1f;padding:8px 15px}
+.island-dialog .up-link{margin-top:10px;color:#8a775b;font-size:11px}
+.island-mate-tabs{display:flex;gap:5px;padding:3px;border-radius:20px;background:#f7ecd6;margin:0 0 9px}
+.island-mate-tabs button{flex:1;min-height:36px;border:0;border-radius:18px;background:transparent;font-size:14px;color:#886747}
+.island-mate-tabs button[aria-pressed=true]{background:linear-gradient(#9ee750,#4cc42b);color:#fff;box-shadow:inset 0 1px #d3ffb2,0 1px 0 #64ac35}
+.island-dialog .island-mate-hint{text-align:center;font-size:12px;color:#9a7854;line-height:1.7;margin:7px 0 12px}
+.island-mate-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.island-mate-tile{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-width:0;min-height:130px;padding:6px 3px 9px;border:1px solid #efdfc3;border-radius:17px;background:linear-gradient(#fffaf0,#f9ecd8);color:#6c482b;cursor:pointer}
+.island-mate-tile img{width:100%;height:80px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 2px 1px #af8a3620)}
+.island-mate-tile b{font-size:13px;line-height:1.4;margin:4px 0 2px}
+.island-mate-tile small{font-size:10px;color:#987044;line-height:1.4}
+.island-mate-tile[aria-pressed=true]{border:2px solid #63bd34;background:#eef8da;padding:5px 2px 8px;opacity:1}
+.island-mate-tile[aria-pressed=true] small{color:#469824}
+.island-mate-check{position:absolute;top:4px;right:4px;border:1px solid white;border-radius:50%;background:#65c339;color:white;width:19px;height:19px;line-height:17px;font-size:13px}
+.island-current-mate{display:flex;align-items:center;gap:8px;margin-top:15px;border:1px solid #edd7a1;border-radius:20px;background:linear-gradient(125deg,#fff5d2,#ffedb8);padding:8px 11px;min-height:100px}
+.island-current-mate>.up-buddy{height:96px;width:76px;object-fit:contain;flex:none}
+.island-current-mate b{font-size:14px;line-height:1.6;color:#875126}
+.island-dialog .island-current-mate p{font-size:11px;line-height:1.8;margin:5px 0 0;color:#997346}
+.island-mate-letter{font-size:30px;height:80px;display:grid;place-items:center}
+@media(max-width:359px){.island-dialog .up-dialog-body{padding:0 13px 18px}.island-dialog .island-dialog-title{font-size:20px;padding-left:48px;padding-right:39px}.island-mate-tile img{height:67px}.island-mate-tile{min-height:116px}.island-dialog .up-mood small{font-size:12px}}
+
+body[data-mode=child] .up-subject .tf-generated-icon{width:28px;height:28px;object-fit:contain}
+body[data-mode=child] .confirm-body{display:flex;flex-direction:column;align-items:center;background:#fffbee;border-radius:26px}
+body[data-mode=child] .confirm-body h3{order:-1;width:100%;min-height:90px;display:flex;align-items:center;justify-content:center;padding:22px 52px 17px 62px;background:url('assets/hd/today-icons/dialog-title-v1.png') center/100% auto no-repeat;font-size:19px;line-height:1.3;color:#633e26}
+body[data-mode=child] .confirm-body .hw-editor-actions{width:100%}
+
+/* Hand-drawn panel silhouette; plaque straddles the upper arc. */
+body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-height:calc(100dvh - 12px);padding:43px 0 0;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible}
+.island-dialog-surface{position:relative;isolation:isolate;padding:0 3px 8px;filter:drop-shadow(0 10px 18px #25463845)}
+.island-dialog-surface:before{content:'';position:absolute;inset:0;z-index:-1;background:url('assets/hd/today-icons/dialog-panel-v1.svg') center/100% 100% no-repeat;pointer-events:none}
+.island-dialog .up-dialog-header{position:absolute;top:-45px;left:5%;right:5%;min-height:100px;padding:0 24px 0 0;background:transparent;z-index:5;pointer-events:none}
+.island-dialog .island-dialog-title{min-height:100px;padding-top:27px;padding-bottom:22px;font-size:22px}
+.island-dialog .up-close{pointer-events:auto;top:51px;right:-7px;background:#fff8dfcc;border-color:#e8d6ae;width:33px;height:35px;min-height:35px;font-size:23px}
+.island-dialog .up-dialog-body{padding:63px 25px 25px;max-height:calc(100dvh - 94px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#e2cfa9 transparent}
+@media(max-width:359px){.island-dialog .up-dialog-body{padding:60px 23px 23px}.island-dialog .island-dialog-title{font-size:20px}}
+
+.island-dialog .up-dialog-body{border-radius:45px 45px 42px 42px;clip-path:inset(0 0 16px round 0 0 30px 30px);padding-bottom:41px}
+
+/* Center the DOM title inside the visible wood grain, then soften the action button. */
+.island-dialog .island-dialog-title{min-height:100px;padding:16px 50px 0 59px;background-position:center calc(50% + 9px);line-height:1.1}
+.island-dialog .island-save{position:relative;isolation:isolate;width:76%;min-height:51px;margin-top:19px;border:2.5px solid #3aa31e;border-radius:54% 48% 50% 46% / 68% 63% 65% 69%;background:linear-gradient(169deg,#a8ef73 0%,#72dc41 39%,#43c426 77%,#36ad20 100%);box-shadow:inset 0 3px 0 #e4ffce,inset 0 -3px 4px #248f2455,0 3px 0 #279520,0 5px 0 #f7e6b9,0 7px 10px #427f2c30;outline:1px solid #f8ffea;outline-offset:1px;color:white;font-size:19px;font-weight:700;letter-spacing:.09em;text-shadow:0 1px 1px #317321;transform:rotate(-.8deg)}
+.island-dialog .island-save:before{content:'';position:absolute;left:16%;right:16%;top:5px;height:8px;border-top:2px solid #f6ffe1;border-radius:50%;transform:rotate(-2deg);pointer-events:none}
+.island-dialog .island-save:after{content:'';position:absolute;left:22px;top:13px;width:13px;height:13px;background:#fff8c2;clip-path:polygon(50% 0%,61% 39%,100% 50%,61% 60%,50% 100%,39% 60%,0% 50%,39% 39%);transform:rotate(16deg);filter:drop-shadow(0 0 3px #e9ff96);pointer-events:none}
+.island-dialog .island-save:active{transform:rotate(-.8deg) translateY(2px);box-shadow:inset 0 2px 0 #d9ffbd,0 1px 0 #279520,0 3px 8px #427f2c30}
+
+/* The homework receipt uses the same illustrated panel and plaque as other dialogs. */
+.island-dialog.up-success .up-dialog-body{padding-top:72px}
+.island-dialog.up-success .up-celebrate{margin:5px 0 12px}
+.island-dialog.up-success .up-receipt-slogan{font-size:14px;color:#84603b;line-height:1.5;margin:0 0 5px}
+.island-dialog.up-success .up-loot{margin-top:19px}
+.island-dialog.up-success .up-primary{border-radius:51% 49% 47% 53% / 56% 54% 50% 52%;box-shadow:inset 0 2px 0 #d9ffbe,0 3px 0 #2c9a25,0 5px 8px #477c2c30}
+
+body[data-mode=child] .up-row .up-subject{width:32px;height:34px;background:transparent;border:0;box-shadow:none}
+body[data-mode=child] .up-row .up-subject img,body[data-mode=child] .up-row .up-subject .tf-icon{width:32px;height:32px;object-fit:contain}
+
+/* Shared title placement and detached bottom-center close control. */
+.island-dialog .up-dialog-header{left:5%;right:5%;padding:0;pointer-events:none;transform:translate(10px,-20px)}
+.island-dialog .island-dialog-title{font-size:var(--island-title-font-size,18px);font-weight:900}
+.island-dialog .island-dialog-surface>.up-close{position:absolute;top:calc(100% + 12px);right:auto;left:50%;transform:translateX(-50%);margin:0;padding:0;width:44px;height:44px;min-height:44px;z-index:8;display:grid;place-items:center;pointer-events:auto;border:2px solid #bd9668;border-radius:48% 52% 49% 51%;background:#fffaf0;color:#87613c;font-size:30px;line-height:1;box-shadow:inset 0 2px 0 #fff,0 2px 0 #8c6b4740}
+.island-dialog .up-dialog-body,.island-dialog.up-success .up-dialog-body{padding-top:76px}
+body[data-mode=child] .island-dialog.island-legacy-dialog{position:fixed;left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);margin:0;z-index:65;max-width:402px}
+body[data-mode=child] .island-dialog.island-family-dialog{position:relative;left:auto;top:auto;transform:none;z-index:auto}
+body[data-mode=child] .island-dialog .confirm-body{display:block;padding:0;background:none;border-radius:0}
+body[data-mode=child] .island-dialog .hw-editor-body{padding:0}
+body[data-mode=child] .island-dialog .confirm-emo{display:none}
+body[data-mode=child] :is(.scrim,.hw-editor-mask){background:#16473f75;backdrop-filter:blur(3px)}
+body[data-mode=child] .island-dialog :is(.up-primary,.btn-primary,.btn-ok,.family-access-actions button){background:linear-gradient(169deg,#a8ef73,#72dc41 39%,#43c426 77%,#36ad20);border:2px solid #3aa31e;border-radius:17px 15px 18px 14px;box-shadow:inset 0 2px 0 #e4ffce,0 3px 0 #279520;color:#fff;min-height:44px}
+
+/* Reserve space for the plaque above and the detached close below on short screens. */
+body[data-mode=child] .island-dialog{padding:65px 0 calc(56px + env(safe-area-inset-bottom));max-height:calc(100dvh - 24px);box-sizing:border-box}
+.island-dialog .up-dialog-body{max-height:calc(100dvh - 153px - env(safe-area-inset-bottom));box-sizing:border-box}
+.island-dialog .island-dialog-surface>.up-close:focus-visible{outline:3px solid #4a9f76;outline-offset:3px}
+.island-dialog .island-dialog-surface>.up-close:active{transform:translateX(-50%) translateY(1px);box-shadow:inset 0 1px 2px #b68d5730}

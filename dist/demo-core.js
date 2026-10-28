@@ -1,11 +1,13 @@
 /* Integrated local demo; the entered family code scopes each household to its own browser storage. */
-const FAMILY_CODE=(localStorage.getItem('homework_island_family_code_v1')||'KAIXIN').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
+const ISLAND_PREVIEW=new URLSearchParams(location.search).get('preview')==='1';
+const ISLAND_REFERENCE_PREVIEW=ISLAND_PREVIEW&&new URLSearchParams(location.search).get('design')==='original';
+const FAMILY_CODE=ISLAND_PREVIEW?'PREVIEW':(localStorage.getItem('homework_island_family_code_v1')||'KAIXIN').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
 const LEGACY_DEMO_KEY='homework_island_integrated_demo_v2';
-const DEMO_KEY=FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
+const DEMO_KEY=ISLAND_REFERENCE_PREVIEW?'homework_island_original_reference_v1':ISLAND_PREVIEW?'homework_island_hd_preview_v1':FAMILY_CODE?LEGACY_DEMO_KEY+':family:'+FAMILY_CODE:LEGACY_DEMO_KEY;
 const DemoCore=(()=>{
  const clone=x=>JSON.parse(JSON.stringify(x));
  const date=n=>{const d=new Date();d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;};
- function seed(){const d=createDefaultData(),now=new Date().toISOString(),day=date(0);return {...d,kidName:'小满',points:128,totalCompleted:7,currentStreak:2,lastCompletedDate:date(-1),rewardsUnlocked:['🐻'],todayMate:'🐻',mateDate:day,materials:{wood:3,shell:2,flower:1,fish:1},homework:[
+ function seedDefault(){const d=createDefaultData(),now=new Date().toISOString(),day=date(0);return {...d,kidName:'小满',points:128,totalCompleted:7,currentStreak:2,lastCompletedDate:date(-1),rewardsUnlocked:['🐻'],todayMate:'🐻',mateDate:day,materials:{wood:3,shell:2,flower:1,fish:1},homework:[
  {id:'demo_math',subject:'数学',content:'练习册第 3 页，完成后检查一遍',deadline:day+'T20:30:00',duration:20,points:10,done:false,createdAt:now,attachments:[]},
  {id:'demo_cn',subject:'语文',content:'朗读课文两遍，选一句喜欢的话读给家人听',deadline:day+'T20:00:00',duration:15,points:7,done:false,createdAt:now,attachments:[]},
  {id:'demo_en',subject:'英语',content:'复习 Unit 3 的单词',deadline:day+'T19:30:00',duration:10,points:5,done:true,completedAt:now,earnedPoints:9,createdAt:now,attachments:[]},
@@ -14,8 +16,17 @@ const DemoCore=(()=>{
  classes:[{id:'demo_swim',name:'游泳课',emoji:'🏊',days:[new Date().getDay()],start:'17:30',end:'18:30',place:'区游泳馆',bring:['泳衣','泳镜','毛巾'],wear:'出门前换好泳衣',points:10,active:true}],
  events:[{id:'demo_event',owner:'child',title:'睡前看绘本',emoji:'📚',date:day,start:'20:30',end:'20:50',checklist:[{name:'选一本喜欢的绘本',done:false}],note:'留一点时间给自己',done:false,createdAt:now}],
  rewardItems:d.rewardItems.concat([{id:'demo_movie',type:'prize',emoji:'🎬',name:'家庭电影夜',points:80,desc:'和家人一起选一部电影',repeatable:true,active:true}])};}
+ // Reference-only fixture has its own storage key; existing preview and family data remain intact.
+ function seed(){const d=seedDefault();if(!ISLAND_REFERENCE_PREVIEW)return d;
+  d.homework=d.homework.filter(h=>h.id!=='demo_tomorrow');
+  Object.assign(d.homework[0],{content:'练习第3页',done:true,completedAt:new Date().toISOString(),earnedPoints:10});
+  d.homework[1].content='朗读《春天来了》';
+  d.recurringTasks=[];d.events=[];
+  Object.assign(d.classes[0],{start:'16:30',end:'17:30',bring:['泳衣','泳帽','水杯']});
+  return d;
+ }
  function ensure(d){d.journalEntries ||= [];if(!d.demoGrowth){d.demoGrowth={version:1,construction:10,buildings:[],room:{},receipts:{},archives:[],pointDebt:0,reviewDefault:false};for(const h of d.homework||[])if(h.done)d.demoGrowth.receipts['homework|'+h.id]={historical:true,points:h.earnedPoints??h.points??0,drops:[],construction:0};}const g=d.demoGrowth;g.receipts ||= {};g.room ||= {};g.buildings ||= [];g.archives ||= [];g.pointDebt ||=0;return d;}
- function init(){let d;try{d=JSON.parse(localStorage.getItem(DEMO_KEY)||'null');if(!d&&FAMILY_CODE&&!localStorage.getItem('homework_island_family_migrated_v1')){const legacy=localStorage.getItem(LEGACY_DEMO_KEY);if(legacy){d=JSON.parse(legacy);localStorage.setItem(DEMO_KEY,legacy);}localStorage.setItem('homework_island_family_migrated_v1','1');}}catch{}if(!d||!Array.isArray(d.homework))d=seed();ensure(d);localStorage.setItem(DEMO_KEY,JSON.stringify(d));}
+ function init(){let d;try{d=JSON.parse(localStorage.getItem(DEMO_KEY)||'null');if(!d&&!ISLAND_PREVIEW&&FAMILY_CODE&&!localStorage.getItem('homework_island_family_migrated_v1')){const legacy=localStorage.getItem(LEGACY_DEMO_KEY);if(legacy){d=JSON.parse(legacy);localStorage.setItem(DEMO_KEY,legacy);}localStorage.setItem('homework_island_family_migrated_v1','1');}}catch{}if(!d||!Array.isArray(d.homework))d=seed();if(ISLAND_REFERENCE_PREVIEW){for(const h of d.homework)if(["demo_math","demo_cn","demo_en"].includes(h.id)){h.deadline=date(0)+h.deadline.slice(10);if(h.done)h.completedAt=new Date().toISOString();}const swim=(d.classes||[]).find(c=>c.id==="demo_swim");if(swim)swim.days=[new Date().getDay()];}ensure(d);localStorage.setItem(DEMO_KEY,JSON.stringify(d));}
  const journalMoods=[{id:'happy',emoji:'😊',name:'开心'},{id:'calm',emoji:'😌',name:'平静'},{id:'excited',emoji:'🤩',name:'期待'},{id:'tired',emoji:'😴',name:'有点累'},{id:'sad',emoji:'🌧️',name:'有点难过'},{id:'angry',emoji:'😤',name:'有点生气'}];
  function saveJournal(d,{day=date(0),mood='',text=''}){
   ensure(d);
@@ -33,14 +44,15 @@ const DemoCore=(()=>{
  function credit(d,n){let debt=Math.min(d.demoGrowth.pointDebt||0,n);d.demoGrowth.pointDebt-=debt;d.points=(Number(d.points)||0)+n-debt;}
  function debit(d,n){let available=Number(d.points)||0;d.points=Math.max(0,available-n);d.demoGrowth.pointDebt=(d.demoGrowth.pointDebt||0)+Math.max(0,n-available);}
  function finish(d,id,kind='homework',day=date(0)){
+  if(kind!=='homework')return null;
   ensure(d);let item=kind==='homework'?d.homework.find(h=>h.id===id):(d.classes||[]).find(c=>c.id===id);if(!item)return null;
   const key=kind==='homework'?'homework|'+id:'class|'+day+'|'+id,g=d.demoGrowth;
   const target=kind==='homework'?item:((d.classCheckins ||= {})[day+'|'+id] ||= {items:{}});if(target.done)return null;
   target.done=true;target.completedAt=new Date().toISOString();target.pendingApproval=false;
   let r=g.receipts[key];
-  if(r){if(r.reversed){credit(d,r.points||0);r.reversed=false;}if(kind==='homework'){item.earnedPoints=r.points||0;d.totalCompleted=(d.totalCompleted||0)+1;}else target.pointsAwarded=r.points||0;return {...r,replayed:true,title:kind==='homework'?item.content:item.name};}
+  if(r){if(r.reversed){r.points=Number(item.points)||0;r.base=r.points;r.bonus=0;credit(d,r.points);r.reversed=false;}if(kind==='homework'){item.earnedPoints=r.points||0;d.totalCompleted=(d.totalCompleted||0)+1;}else target.pointsAwarded=r.points||0;return {...r,replayed:true,title:kind==='homework'?item.content:item.name};}
   let base=Number.isFinite(Number(item.points))?Number(item.points):(kind==='class'?10:0),bonus=0;
-  if(kind==='homework'){const today=date(0);if(d.lastCompletedDate!==today){d.currentStreak=d.lastCompletedDate===date(-1)?(d.currentStreak||0)+1:1;d.lastCompletedDate=today;}bonus=Math.min((d.currentStreak||1)*2,20);d.totalCompleted=(d.totalCompleted||0)+1;}
+  if(kind==='homework'){const today=date(0);if(d.lastCompletedDate!==today){d.currentStreak=d.lastCompletedDate===date(-1)?(d.currentStreak||0)+1:1;d.lastCompletedDate=today;}bonus=0;d.totalCompleted=(d.totalCompleted||0)+1;}
   const drops=grantMaterialRewards(d).map(m=>m.id),construction=kind==='homework'?10:0;
   r={id:key,points:base+bonus,base,bonus,drops,construction,at:target.completedAt,reversed:false};g.receipts[key]=r;credit(d,r.points);g.construction+=construction;
   if(kind==='homework')item.earnedPoints=r.points;else target.pointsAwarded=r.points;

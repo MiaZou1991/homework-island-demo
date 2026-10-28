@@ -1068,6 +1068,16 @@ function deleteEvent(id) {
     if (!data.events) return;
     const ev = getEvent(id);
     if (!ev) return;
+    if (document.body.dataset.mode === 'child') {
+        openConfirm({ title: '删除日程', sub: `确定删除「${ev.title}」吗？`, okText: '确认删除', onOk: () => {
+            const current = getData();
+            current.events = (current.events || []).filter(x => x.id !== id);
+            saveData(current);
+            refreshAfterChange();
+            showToast('已删除');
+        }});
+        return;
+    }
     if (!window.confirm(`删除「${ev.title}」？`)) return;
     data.events = data.events.filter(x => x.id !== id);
     saveData(data);
@@ -2023,7 +2033,7 @@ function completeHomework(id) {
     }
     data.lastCompletedDate = today;
 
-    const streakBonus = Math.min(data.currentStreak * 2, 20);
+    const streakBonus = 0; // V2: only the configured homework points.
     hw.earnedPoints = hw.points + streakBonus;
     data.points += hw.earnedPoints;
     data.totalCompleted += 1;
