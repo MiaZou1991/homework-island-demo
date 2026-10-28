@@ -759,5 +759,17 @@
     "src": "assets/hd/today-icons/dialog-panel-v1.svg",
     "name": "弹窗通用 · 手绘微不规则面板",
     "featured": true
+  },
+  {
+    "path": "dist/assets/hd/calendar-coast-v1.png",
+    "size": [
+      852,
+      1846
+    ],
+    "mode": "RGB",
+    "bytes": 1902898,
+    "src": "assets/hd/calendar-coast-v1.png",
+    "name": "小岛日程 · 蓝绿海湾背景 V1",
+    "featured": true
   }
 ]

@@ -82,9 +82,10 @@ body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-hei
 body[data-mode=child] .up-row .up-subject{width:32px;height:34px;background:transparent;border:0;box-shadow:none}
 body[data-mode=child] .up-row .up-subject img,body[data-mode=child] .up-row .up-subject .tf-icon{width:32px;height:32px;object-fit:contain}
 
-/* Shared placement: the close control is inside the panel, 25px from both edges. */
-.island-dialog .up-dialog-header{left:5%;right:5%;padding:0;pointer-events:none}
-.island-dialog .island-dialog-surface>.up-close{position:absolute;top:25px;right:25px;left:auto;margin:0;width:34px;height:34px;min-height:34px;z-index:8;display:grid;place-items:center;pointer-events:auto}
+/* Shared title placement and detached bottom-center close control. */
+.island-dialog .up-dialog-header{left:5%;right:5%;padding:0;pointer-events:none;transform:translate(10px,-20px)}
+.island-dialog .island-dialog-title{font-size:var(--island-title-font-size,18px);font-weight:900}
+.island-dialog .island-dialog-surface>.up-close{position:absolute;top:calc(100% + 12px);right:auto;left:50%;transform:translateX(-50%);margin:0;padding:0;width:44px;height:44px;min-height:44px;z-index:8;display:grid;place-items:center;pointer-events:auto;border:2px solid #bd9668;border-radius:48% 52% 49% 51%;background:#fffaf0;color:#87613c;font-size:30px;line-height:1;box-shadow:inset 0 2px 0 #fff,0 2px 0 #8c6b4740}
 .island-dialog .up-dialog-body,.island-dialog.up-success .up-dialog-body{padding-top:76px}
 body[data-mode=child] .island-dialog.island-legacy-dialog{position:fixed;left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);margin:0;z-index:65;max-width:402px}
 body[data-mode=child] .island-dialog.island-family-dialog{position:relative;left:auto;top:auto;transform:none;z-index:auto}
@@ -93,3 +94,9 @@ body[data-mode=child] .island-dialog .hw-editor-body{padding:0}
 body[data-mode=child] .island-dialog .confirm-emo{display:none}
 body[data-mode=child] :is(.scrim,.hw-editor-mask){background:#16473f75;backdrop-filter:blur(3px)}
 body[data-mode=child] .island-dialog :is(.up-primary,.btn-primary,.btn-ok,.family-access-actions button){background:linear-gradient(169deg,#a8ef73,#72dc41 39%,#43c426 77%,#36ad20);border:2px solid #3aa31e;border-radius:17px 15px 18px 14px;box-shadow:inset 0 2px 0 #e4ffce,0 3px 0 #279520;color:#fff;min-height:44px}
+
+/* Reserve space for the plaque above and the detached close below on short screens. */
+body[data-mode=child] .island-dialog{padding:65px 0 calc(56px + env(safe-area-inset-bottom));max-height:calc(100dvh - 24px);box-sizing:border-box}
+.island-dialog .up-dialog-body{max-height:calc(100dvh - 153px - env(safe-area-inset-bottom));box-sizing:border-box}
+.island-dialog .island-dialog-surface>.up-close:focus-visible{outline:3px solid #4a9f76;outline-offset:3px}
+.island-dialog .island-dialog-surface>.up-close:active{transform:translateX(-50%) translateY(1px);box-shadow:inset 0 1px 2px #b68d5730}

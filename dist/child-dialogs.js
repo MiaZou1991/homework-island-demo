@@ -2,6 +2,12 @@
 (() => {
   if (document.body.dataset.mode !== 'child') return;
   let titleNumber = 0;
+  function matchHomeTitle() {
+    const title = document.querySelector('.tf-card-head h1');
+    const phone = document.querySelector('.phone');
+    const size = title ? getComputedStyle(title).fontSize : phone ? (phone.clientWidth * .048) + 'px' : '18px';
+    document.body.style.setProperty('--island-title-font-size', size);
+  }
   function decorate(panel) {
     if (panel.classList.contains('island-dialog')) return;
     const title = panel.querySelector('.sheet-head h2,.hw-editor-head h3,.confirm-body h3,h2,h3');
@@ -42,8 +48,11 @@
     panel.append(surface);
   }
   function scan() {
+    matchHomeTitle();
     document.querySelectorAll('.ovl>.sheet,.hw-editor,.family-access-card').forEach(decorate);
   }
   scan();
+  const phone = document.querySelector('.phone');
+  if (phone) new ResizeObserver(matchHomeTitle).observe(phone);
   new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
 })();
