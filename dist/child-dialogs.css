@@ -71,3 +71,10 @@ body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-hei
 .island-dialog .island-save:before{content:'';position:absolute;left:16%;right:16%;top:5px;height:8px;border-top:2px solid #f6ffe1;border-radius:50%;transform:rotate(-2deg);pointer-events:none}
 .island-dialog .island-save:after{content:'';position:absolute;left:22px;top:13px;width:13px;height:13px;background:#fff8c2;clip-path:polygon(50% 0%,61% 39%,100% 50%,61% 60%,50% 100%,39% 60%,0% 50%,39% 39%);transform:rotate(16deg);filter:drop-shadow(0 0 3px #e9ff96);pointer-events:none}
 .island-dialog .island-save:active{transform:rotate(-.8deg) translateY(2px);box-shadow:inset 0 2px 0 #d9ffbd,0 1px 0 #279520,0 3px 8px #427f2c30}
+
+/* The homework receipt uses the same illustrated panel and plaque as other dialogs. */
+.island-dialog.up-success .up-dialog-body{padding-top:72px}
+.island-dialog.up-success .up-celebrate{margin:5px 0 12px}
+.island-dialog.up-success .up-receipt-slogan{font-size:14px;color:#84603b;line-height:1.5;margin:0 0 5px}
+.island-dialog.up-success .up-loot{margin-top:19px}
+.island-dialog.up-success .up-primary{border-radius:51% 49% 47% 53% / 56% 54% 50% 52%;box-shadow:inset 0 2px 0 #d9ffbe,0 3px 0 #2c9a25,0 5px 8px #477c2c30}

@@ -144,7 +144,9 @@ function continueHomework(){const progress=DemoCore.homeworkProgress(data());nav
 function showReceipt(r,h){
  if(!r){modal(`<h1>这份努力已经留下了。</h1><p>已完成的任务和积分记录都已保留，不会重复发放。</p>${receiptActions(data())}`);return;}
  const d=data(),b=companion(d);
- modal(`<div class="up-celebrate">${buddy(d)}<span class="up-spark s1">✦</span><span class="up-spark s2">✧</span><span class="up-spark s3">${b.emoji==='🐶'?'♫':'✦'}</span></div><div class="up-eyebrow up-center">${e(b.name)}的完成时刻</div><h1 class="up-center">${r.replayed?'这份努力，我们记得。':'又完成了一件，真好。'}</h1><p class="up-center up-muted">${e(r.title||h?.content||'')}</p><div class="up-loot"><div><span>作业积分</span><b>+${r.points||0}</b></div><div><span>小岛建设力</span><b>${r.replayed?'已经记账':r.construction?'+'+r.construction:'本次不增加'}</b></div></div>${receiptActions(d)}`,'up-success');
+ const slogans=['坚持一点点，成长看得见。','认真做完一件事，就是进步。','今天的坚持，明天会发光。','一步一步来，你做到了！','每一次完成，都让小岛更美。'];
+ const slogan=slogans[Math.floor(Math.random()*slogans.length)];
+ modal(`<h1>我的完成时刻</h1><div class="up-celebrate">${buddy(d)}<span class="up-spark s1">✦</span><span class="up-spark s2">✧</span><span class="up-spark s3">${b.emoji==='🐶'?'♫':'✦'}</span></div><div class="up-eyebrow up-center up-receipt-slogan">${e(slogan)}</div><p class="up-center up-muted">${e(r.title||h?.content||'')}</p><div class="up-loot"><div><span>作业积分</span><b>+${r.points||0}</b></div><div><span>小岛建设力</span><b>${r.replayed?'已经记账':r.construction?'+'+r.construction:'本次不增加'}</b></div></div>${receiptActions(d)}`,'up-success');
 }
 function legacy(view,keepStack=false){
  if(!keepStack){if(ui.legacy&&ui.legacy!==view)(ui.legacyStack||=[]).push(ui.legacy);else if(!ui.legacy)ui.legacyStack=[];}
