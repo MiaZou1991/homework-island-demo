@@ -12,7 +12,7 @@ body[data-mode=child],body[data-mode=child] *{font-family:IslandRound,'PingFang 
 body[data-mode=child] .island-dialog{width:min(390px,calc(100vw - 24px));max-height:calc(100dvh - 32px);border:3px solid #fffdf3;border-radius:30px;background:#fffbee;color:#633e26;box-shadow:0 0 0 2px #b8dba1,0 16px 55px #244f4755;scrollbar-width:thin;scrollbar-color:#d9c49e #fff9ec}
 body[data-mode=child] .island-dialog::backdrop{background:#16473f75;backdrop-filter:blur(3px)}
 .island-dialog .up-dialog-header{position:sticky;top:0;min-height:98px;display:flex;align-items:center;justify-content:center;padding:8px 36px 0 4px;background:#fffbee;z-index:5}
-.island-dialog h1.island-dialog-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:86px;margin:0;padding:23px 46px 19px 57px;background:url('assets/hd/today-icons/dialog-title-v1.png') center/100% auto no-repeat;font-size:22px;line-height:1.2;font-weight:700;text-align:center;color:#613817;text-shadow:0 1px #fff6d9;overflow-wrap:anywhere}
+.island-dialog .island-dialog-title{display:flex;align-items:center;justify-content:center;width:100%;min-height:86px;margin:0;padding:23px 46px 19px 57px;background:url('assets/hd/today-icons/dialog-title-v1.png') center/100% auto no-repeat;font-size:22px;line-height:1.2;font-weight:700;text-align:center;color:#613817;text-shadow:0 1px #fff6d9;overflow-wrap:anywhere}
 .island-dialog .up-close{position:absolute;right:5px;top:26px;width:36px;height:40px;min-height:40px;padding:0;border:1px solid #ead7aa;border-radius:50%;background:#fff4d6;color:#987148;font-size:25px;line-height:1}
 .island-dialog .up-dialog-body{padding:0 18px 20px}
 .island-dialog .island-dialog-question{text-align:center;margin:0 0 14px;font-size:16px;line-height:1.5;font-weight:700;color:#744027}
@@ -46,7 +46,7 @@ body[data-mode=child] .island-dialog::backdrop{background:#16473f75;backdrop-fil
 .island-current-mate b{font-size:14px;line-height:1.6;color:#875126}
 .island-dialog .island-current-mate p{font-size:11px;line-height:1.8;margin:5px 0 0;color:#997346}
 .island-mate-letter{font-size:30px;height:80px;display:grid;place-items:center}
-@media(max-width:359px){.island-dialog .up-dialog-body{padding:0 13px 18px}.island-dialog h1.island-dialog-title{font-size:20px;padding-left:48px;padding-right:39px}.island-mate-tile img{height:67px}.island-mate-tile{min-height:116px}.island-dialog .up-mood small{font-size:12px}}
+@media(max-width:359px){.island-dialog .up-dialog-body{padding:0 13px 18px}.island-dialog .island-dialog-title{font-size:20px;padding-left:48px;padding-right:39px}.island-mate-tile img{height:67px}.island-mate-tile{min-height:116px}.island-dialog .up-mood small{font-size:12px}}
 
 body[data-mode=child] .up-subject .tf-generated-icon{width:28px;height:28px;object-fit:contain}
 body[data-mode=child] .confirm-body{display:flex;flex-direction:column;align-items:center;background:#fffbee;border-radius:26px}
@@ -58,15 +58,15 @@ body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-hei
 .island-dialog-surface{position:relative;isolation:isolate;padding:0 3px 8px;filter:drop-shadow(0 10px 18px #25463845)}
 .island-dialog-surface:before{content:'';position:absolute;inset:0;z-index:-1;background:url('assets/hd/today-icons/dialog-panel-v1.svg') center/100% 100% no-repeat;pointer-events:none}
 .island-dialog .up-dialog-header{position:absolute;top:-45px;left:5%;right:5%;min-height:100px;padding:0 24px 0 0;background:transparent;z-index:5;pointer-events:none}
-.island-dialog h1.island-dialog-title{min-height:100px;padding-top:27px;padding-bottom:22px;font-size:22px}
+.island-dialog .island-dialog-title{min-height:100px;padding-top:27px;padding-bottom:22px;font-size:22px}
 .island-dialog .up-close{pointer-events:auto;top:51px;right:-7px;background:#fff8dfcc;border-color:#e8d6ae;width:33px;height:35px;min-height:35px;font-size:23px}
 .island-dialog .up-dialog-body{padding:63px 25px 25px;max-height:calc(100dvh - 94px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#e2cfa9 transparent}
-@media(max-width:359px){.island-dialog .up-dialog-body{padding:60px 23px 23px}.island-dialog h1.island-dialog-title{font-size:20px}}
+@media(max-width:359px){.island-dialog .up-dialog-body{padding:60px 23px 23px}.island-dialog .island-dialog-title{font-size:20px}}
 
 .island-dialog .up-dialog-body{border-radius:45px 45px 42px 42px;clip-path:inset(0 0 16px round 0 0 30px 30px);padding-bottom:41px}
 
 /* Center the DOM title inside the visible wood grain, then soften the action button. */
-.island-dialog h1.island-dialog-title{min-height:100px;padding:0 50px 0 59px;background-position:center calc(50% + 9px);line-height:1.1}
+.island-dialog .island-dialog-title{min-height:100px;padding:16px 50px 0 59px;background-position:center calc(50% + 9px);line-height:1.1}
 .island-dialog .island-save{position:relative;isolation:isolate;width:76%;min-height:51px;margin-top:19px;border:2.5px solid #3aa31e;border-radius:54% 48% 50% 46% / 68% 63% 65% 69%;background:linear-gradient(169deg,#a8ef73 0%,#72dc41 39%,#43c426 77%,#36ad20 100%);box-shadow:inset 0 3px 0 #e4ffce,inset 0 -3px 4px #248f2455,0 3px 0 #279520,0 5px 0 #f7e6b9,0 7px 10px #427f2c30;outline:1px solid #f8ffea;outline-offset:1px;color:white;font-size:19px;font-weight:700;letter-spacing:.09em;text-shadow:0 1px 1px #317321;transform:rotate(-.8deg)}
 .island-dialog .island-save:before{content:'';position:absolute;left:16%;right:16%;top:5px;height:8px;border-top:2px solid #f6ffe1;border-radius:50%;transform:rotate(-2deg);pointer-events:none}
 .island-dialog .island-save:after{content:'';position:absolute;left:22px;top:13px;width:13px;height:13px;background:#fff8c2;clip-path:polygon(50% 0%,61% 39%,100% 50%,61% 60%,50% 100%,39% 60%,0% 50%,39% 39%);transform:rotate(16deg);filter:drop-shadow(0 0 3px #e9ff96);pointer-events:none}
@@ -78,3 +78,18 @@ body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-hei
 .island-dialog.up-success .up-receipt-slogan{font-size:14px;color:#84603b;line-height:1.5;margin:0 0 5px}
 .island-dialog.up-success .up-loot{margin-top:19px}
 .island-dialog.up-success .up-primary{border-radius:51% 49% 47% 53% / 56% 54% 50% 52%;box-shadow:inset 0 2px 0 #d9ffbe,0 3px 0 #2c9a25,0 5px 8px #477c2c30}
+
+body[data-mode=child] .up-row .up-subject{width:32px;height:34px;background:transparent;border:0;box-shadow:none}
+body[data-mode=child] .up-row .up-subject img,body[data-mode=child] .up-row .up-subject .tf-icon{width:32px;height:32px;object-fit:contain}
+
+/* Shared placement: the close control is inside the panel, 25px from both edges. */
+.island-dialog .up-dialog-header{left:5%;right:5%;padding:0;pointer-events:none}
+.island-dialog .island-dialog-surface>.up-close{position:absolute;top:25px;right:25px;left:auto;margin:0;width:34px;height:34px;min-height:34px;z-index:8;display:grid;place-items:center;pointer-events:auto}
+.island-dialog .up-dialog-body,.island-dialog.up-success .up-dialog-body{padding-top:76px}
+body[data-mode=child] .island-dialog.island-legacy-dialog{position:fixed;left:50%;right:auto;top:50%;bottom:auto;transform:translate(-50%,-50%);margin:0;z-index:65;max-width:402px}
+body[data-mode=child] .island-dialog.island-family-dialog{position:relative;left:auto;top:auto;transform:none;z-index:auto}
+body[data-mode=child] .island-dialog .confirm-body{display:block;padding:0;background:none;border-radius:0}
+body[data-mode=child] .island-dialog .hw-editor-body{padding:0}
+body[data-mode=child] .island-dialog .confirm-emo{display:none}
+body[data-mode=child] :is(.scrim,.hw-editor-mask){background:#16473f75;backdrop-filter:blur(3px)}
+body[data-mode=child] .island-dialog :is(.up-primary,.btn-primary,.btn-ok,.family-access-actions button){background:linear-gradient(169deg,#a8ef73,#72dc41 39%,#43c426 77%,#36ad20);border:2px solid #3aa31e;border-radius:17px 15px 18px 14px;box-shadow:inset 0 2px 0 #e4ffce,0 3px 0 #279520;color:#fff;min-height:44px}
