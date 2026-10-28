@@ -41,3 +41,7 @@ Use case: stylized-concept. Create a reusable blank title plaque asset for child
 弹窗使用独立 dialog-panel-v1.svg 微不规则轮廓，上边缘圆弧，花叶木牌跨在圆弧上方；320px 与 390px 手机宽度已截图检查。长伙伴列表在面板内部滚动，标题与关闭入口固定。素材库入口 `dist/asset-library.html`，目录 `dist/assets/hd/catalog.json`，支持本次更新、全部素材、搜索与逐项下载。
 
 发布范围仅 GitHub feat/child-ui-hd-assets；Pages workflow 只监听 main，本次不合并或上线。
+
+## 2026-10-28 微调
+
+木牌标题按实际可见木纹区域垂直居中。保存按钮增加轻微不对称圆弧、手绘式弧线高光与一点星光，仍为可操作的 DOM 按钮。

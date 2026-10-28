@@ -64,3 +64,10 @@ body[data-mode=child] .island-dialog{width:min(402px,calc(100vw - 12px));max-hei
 @media(max-width:359px){.island-dialog .up-dialog-body{padding:60px 23px 23px}.island-dialog h1.island-dialog-title{font-size:20px}}
 
 .island-dialog .up-dialog-body{border-radius:45px 45px 42px 42px;clip-path:inset(0 0 16px round 0 0 30px 30px);padding-bottom:41px}
+
+/* Center the DOM title inside the visible wood grain, then soften the action button. */
+.island-dialog h1.island-dialog-title{min-height:100px;padding:0 50px 0 59px;background-position:center calc(50% + 9px);line-height:1.1}
+.island-dialog .island-save{position:relative;isolation:isolate;width:76%;min-height:51px;margin-top:19px;border:2.5px solid #3aa31e;border-radius:54% 48% 50% 46% / 68% 63% 65% 69%;background:linear-gradient(169deg,#a8ef73 0%,#72dc41 39%,#43c426 77%,#36ad20 100%);box-shadow:inset 0 3px 0 #e4ffce,inset 0 -3px 4px #248f2455,0 3px 0 #279520,0 5px 0 #f7e6b9,0 7px 10px #427f2c30;outline:1px solid #f8ffea;outline-offset:1px;color:white;font-size:19px;font-weight:700;letter-spacing:.09em;text-shadow:0 1px 1px #317321;transform:rotate(-.8deg)}
+.island-dialog .island-save:before{content:'';position:absolute;left:16%;right:16%;top:5px;height:8px;border-top:2px solid #f6ffe1;border-radius:50%;transform:rotate(-2deg);pointer-events:none}
+.island-dialog .island-save:after{content:'';position:absolute;left:22px;top:13px;width:13px;height:13px;background:#fff8c2;clip-path:polygon(50% 0%,61% 39%,100% 50%,61% 60%,50% 100%,39% 60%,0% 50%,39% 39%);transform:rotate(16deg);filter:drop-shadow(0 0 3px #e9ff96);pointer-events:none}
+.island-dialog .island-save:active{transform:rotate(-.8deg) translateY(2px);box-shadow:inset 0 2px 0 #d9ffbd,0 1px 0 #279520,0 3px 8px #427f2c30}
