@@ -1,0 +1,26 @@
+[
+  {
+    "id": "chill",
+    "repository": "https://github.com/Warren2060/ChillRoundGothic",
+    "fontPath": "ttf/ChillRoundGothic_Medium.ttf",
+    "licensePath": "License.txt"
+  },
+  {
+    "id": "maiyuan",
+    "repository": "https://github.com/maoken-fonts/KNMaiyuan",
+    "fontPath": "fonts/TTF/KNMaiyuan-Regular.ttf",
+    "licensePath": "OFL.txt"
+  },
+  {
+    "id": "kuaile",
+    "repository": "https://github.com/googlefonts/zcool-kuaile",
+    "fontPath": "fonts/ttf/ZCOOLKuaiLe-Regular.ttf",
+    "licensePath": "OFL.txt"
+  },
+  {
+    "id": "huangyou",
+    "repository": "https://github.com/googlefonts/zcool-qingke-huangyou",
+    "fontPath": "fonts/ZCOOLQingKeHuangYou-Regular.ttf",
+    "licensePath": "OFL.txt"
+  }
+]

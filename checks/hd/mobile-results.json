@@ -5,32 +5,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           375,
-          205
+          494
         ],
-        "ratio": 3.8613333333333335
+        "ratio": 2.838056680161943
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          135,
+          120
         ],
-        "ratio": 11.942857142857143
+        "ratio": 9.28888888888889
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          26,
+          26
+        ],
+        "ratio": 5.730769230769231
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          26,
+          26
+        ],
+        "ratio": 5.769230769230769
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          18.75,
+          18.75
+        ],
+        "ratio": 38.61333333333334
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          18.75,
+          18.75
+        ],
+        "ratio": 38.61333333333334
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          50.14869689941406,
+          50.148681640625
+        ],
+        "ratio": 14.437065063767573
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          52.5,
+          48.75
+        ],
+        "ratio": 13.790476190476191
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          37.5,
+          45
+        ],
+        "ratio": 16.08888888888889
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",
@@ -45,32 +136,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           375,
-          205
+          494
         ],
-        "ratio": 3.8613333333333335
+        "ratio": 2.838056680161943
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          135,
+          120
         ],
-        "ratio": 11.942857142857143
+        "ratio": 9.28888888888889
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          26,
+          26
+        ],
+        "ratio": 5.730769230769231
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          26,
+          26
+        ],
+        "ratio": 5.769230769230769
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          18.75,
+          18.75
+        ],
+        "ratio": 38.61333333333334
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          18.75,
+          18.75
+        ],
+        "ratio": 38.61333333333334
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          50.14869689941406,
+          50.148681640625
+        ],
+        "ratio": 14.437065063767573
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          52.5,
+          48.75
+        ],
+        "ratio": 13.790476190476191
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          37.5,
+          45
+        ],
+        "ratio": 16.08888888888889
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          41.25,
+          37.5
+        ],
+        "ratio": 17.55151515151515
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",
@@ -85,32 +267,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           390,
-          205
+          482
         ],
-        "ratio": 3.712820512820513
+        "ratio": 2.876923076923077
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          140,
+          125
         ],
-        "ratio": 11.942857142857143
+        "ratio": 8.957142857142857
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          27,
+          27
+        ],
+        "ratio": 5.518518518518518
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          27,
+          27
+        ],
+        "ratio": 5.555555555555555
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          19.5,
+          19.5
+        ],
+        "ratio": 37.12820512820513
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          19.5,
+          19.5
+        ],
+        "ratio": 37.12820512820513
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          52.15115737915039,
+          52.151153564453125
+        ],
+        "ratio": 13.882721618934756
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          54.59375,
+          50.6875
+        ],
+        "ratio": 13.26159129937035
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          39,
+          46.796875
+        ],
+        "ratio": 15.471118530884809
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",
@@ -125,32 +398,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           390,
-          205
+          482
         ],
-        "ratio": 3.712820512820513
+        "ratio": 2.876923076923077
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          140,
+          125
         ],
-        "ratio": 11.942857142857143
+        "ratio": 8.957142857142857
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          27,
+          27
+        ],
+        "ratio": 5.518518518518518
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          27,
+          27
+        ],
+        "ratio": 5.555555555555555
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          19.5,
+          19.5
+        ],
+        "ratio": 37.12820512820513
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          19.5,
+          19.5
+        ],
+        "ratio": 37.12820512820513
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          52.15115737915039,
+          52.151153564453125
+        ],
+        "ratio": 13.882721618934756
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          54.59375,
+          50.6875
+        ],
+        "ratio": 13.26159129937035
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          39,
+          46.796875
+        ],
+        "ratio": 15.471118530884809
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          42.890625,
+          39
+        ],
+        "ratio": 16.88014571948998
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",
@@ -165,32 +529,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           430,
-          205
+          446
         ],
-        "ratio": 3.3674418604651164
+        "ratio": 2.609302325581395
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          155,
+          138
         ],
-        "ratio": 11.942857142857143
+        "ratio": 8.09032258064516
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          30,
+          30
+        ],
+        "ratio": 4.966666666666667
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          30,
+          30
+        ],
+        "ratio": 5
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          21.5,
+          21.5
+        ],
+        "ratio": 33.674418604651166
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          21.5,
+          21.5
+        ],
+        "ratio": 33.674418604651166
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          57.49687194824219,
+          57.49688720703125
+        ],
+        "ratio": 12.591986021661754
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          60.1875,
+          55.890625
+        ],
+        "ratio": 12.02907580477674
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          43,
+          51.59375
+        ],
+        "ratio": 14.032707450030285
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",
@@ -205,32 +660,123 @@
     "overflow": false,
     "density": [
       {
-        "src": "assets/hd/island.webp",
+        "src": "assets/hd/today-portrait-scene.webp",
         "natural": [
-          1448,
-          1086
+          1122,
+          1402
         ],
         "css": [
           430,
-          205
+          446
         ],
-        "ratio": 3.3674418604651164
+        "ratio": 2.609302325581395
       },
       {
-        "src": "assets/hd/raccoon.webp",
+        "src": "assets/hd/library-v2/raccoon-wave.webp",
         "natural": [
           1254,
           1254
         ],
         "css": [
-          85,
-          105
+          155,
+          138
         ],
-        "ratio": 11.942857142857143
+        "ratio": 8.09032258064516
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-math.png",
+        "natural": [
+          151,
+          149
+        ],
+        "css": [
+          30,
+          30
+        ],
+        "ratio": 4.966666666666667
+      },
+      {
+        "src": "assets/hd/library-v2/subjects/subject-chinese.png",
+        "natural": [
+          156,
+          150
+        ],
+        "css": [
+          30,
+          30
+        ],
+        "ratio": 5
+      }
+    ],
+    "spriteDensity": [
+      {
+        "src": "utilities.webp",
+        "css": [
+          21.5,
+          21.5
+        ],
+        "ratio": 33.674418604651166
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          21.5,
+          21.5
+        ],
+        "ratio": 33.674418604651166
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          57.49687194824219,
+          57.49688720703125
+        ],
+        "ratio": 12.591986021661754
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          60.1875,
+          55.890625
+        ],
+        "ratio": 12.02907580477674
+      },
+      {
+        "src": "utilities.webp",
+        "css": [
+          43,
+          51.59375
+        ],
+        "ratio": 14.032707450030285
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
+      },
+      {
+        "src": "tabs-clean.webp",
+        "css": [
+          47.296875,
+          43
+        ],
+        "ratio": 15.30756524611827
       }
     ],
     "errors": [],
     "flows": [
+      "original reference layout and isolated fixture",
       "read-only course",
       "week/month",
       "mood save",

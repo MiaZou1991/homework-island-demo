@@ -1,0 +1,137 @@
+/* Original approved Today composition. UI is DOM/CSS/SVG; scenic layers are independent. */
+body[data-mode=child]:has(.up-main[data-route=today]){background:#e7f8ff;color:#4e291a;padding:16px 0}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{container-type:inline-size;width:min(100%,430px);max-width:430px;min-height:0;height:auto;border:4px solid #fff;border-radius:28px;overflow:hidden;background:#63d7f7;box-shadow:0 0 0 1px #bee8f5,0 10px 35px #4b9dbe25}
+body[data-mode=child]:has(.up-main[data-route=today]) .up-chrome{display:none!important}
+body[data-mode=child] .up-main[data-route=today]{padding:0!important}
+body[data-mode=child]:has(.up-main[data-route=today]) .stage{min-height:0;flex:none}
+.tf-today{position:relative;isolation:isolate;font-family:'PingFang SC','Hiragino Sans GB',sans-serif;background:linear-gradient(0deg,#5ad3ef,#8ee7f8 12%,#31c9f0 45%,#55cffe);padding-bottom:2cqw}
+.tf-today:after{content:'';position:absolute;inset:50% 0 0;z-index:-1;background:repeating-linear-gradient(174deg,transparent 0 22px,#c6f8ff70 23px 25px,transparent 26px 48px)}
+.tf-today button,.tf-today a{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tf-today button:focus-visible,.tf-today a:focus-visible{outline:3px solid #197cb5;outline-offset:2px}
+.tf-icon{display:block;flex:none;filter:drop-shadow(0 2px 1px #9b6b3530)}
+.tf-hero{position:relative;height:51cqw;overflow:hidden}
+.tf-hero-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.tf-status{position:absolute;z-index:3;top:2cqw;left:7cqw;right:6cqw;display:flex;justify-content:space-between;color:white;font-size:2.6cqw;font-weight:800;text-shadow:0 1px 1px #5aa5c2}
+.tf-top{position:absolute;z-index:4;top:7cqw;left:7cqw;right:4cqw;display:flex;align-items:center;gap:1.5cqw}
+.tf-brand{position:relative;display:flex;align-items:center;gap:0;border:1px solid #e4ac4f;border-radius:36% 30% 35% 22%;padding:0 2cqw 0 0;background:linear-gradient(#fff5c9,#ffd98e);box-shadow:0 2px 0 #ad6925,inset 0 0 0 2px #fff4c6;text-decoration:none;color:#542b0e;height:9cqw;white-space:nowrap}
+.tf-brand .tf-icon{width:10cqw;height:10cqw;margin-left:-1.5cqw}.tf-brand strong{font-size:4.7cqw;font-weight:950;letter-spacing:-.5px;text-shadow:0 1px white}.tf-brand i{position:absolute;right:-2cqw;top:-2.5cqw;color:#57ad25;font-style:normal;font-size:5cqw;z-index:-1}
+.tf-weather,.tf-points{display:flex;align-items:center;gap:.5cqw;background:linear-gradient(#effbff,#caf0ff);border:1.5px solid #f9feff;border-radius:6cqw;box-shadow:0 2px 2px #359ac475;white-space:nowrap;color:#23568a;height:7.5cqw;padding:0 2cqw;font-size:3.1cqw}
+.tf-weather{margin-left:auto;padding-left:1cqw}.tf-weather .tf-icon,.tf-points .tf-icon{width:5cqw;height:5cqw}.tf-points{font-size:3.5cqw;gap:1cqw}
+.tf-mascot{position:absolute;width:36cqw;height:32cqw;bottom:.6cqw;left:32cqw;object-fit:contain;filter:drop-shadow(0 2px 1px #85592135)}
+.tf-panels{position:relative;z-index:2;padding:0 3.5cqw;display:flex;flex-direction:column;gap:2cqw;margin-top:-1cqw}
+.tf-card{position:relative;border:2px solid #fff;border-radius:7cqw;background:linear-gradient(135deg,#fffdf2,#fff9ec 65%,#fff6df);padding:0 2cqw 2cqw;box-shadow:0 2px 0 #b0e5e8,inset 0 0 0 1px #f9edd2}
+.tf-card:before,.tf-card:after{content:'';position:absolute;background:url('assets/hd/today-foliage.png') center/contain no-repeat;width:16cqw;height:12cqw;top:-8cqw;pointer-events:none;z-index:-1}.tf-card:before{left:-6cqw}.tf-card:after{right:-6cqw;transform:scaleX(-1)}
+.tf-card-head{display:flex;gap:2cqw;align-items:center;min-height:11.5cqw;padding:0 1.5cqw}
+.tf-card-head>.tf-icon{width:12cqw;height:12cqw;margin-top:-1.5cqw;transform:rotate(7deg)}
+.tf-card-head h1{font-size:4.8cqw!important;line-height:1.2!important;letter-spacing:0!important;color:#4d291a!important;font-weight:900!important;white-space:nowrap;margin:0!important}
+.tf-progress{font-size:4.2cqw;font-weight:850;color:#42b530;white-space:nowrap}.tf-progress small{color:#573c26;font-size:3.8cqw}
+.tf-all{margin-left:auto;border:1px solid #edcd8a;border-radius:5cqw;background:linear-gradient(#fff2c8,#ffe5a6);color:#896033;font-size:3.1cqw!important;min-height:7.5cqw;padding:0 3cqw;white-space:nowrap;box-shadow:inset 0 1px 0 white,0 1px 0 #e6c792}
+.tf-task-list{display:grid;gap:1.3cqw}.tf-task{display:flex;align-items:center;min-height:14cqw;background:linear-gradient(#fffefa,#fcf7ed);border:1px solid #f0e5d5;border-radius:4.5cqw;box-shadow:0 1px 0 #f5e7d3;padding-left:3cqw}
+.tf-task-main{display:flex;align-items:center;gap:4cqw;min-width:0;flex:1;border:0;background:transparent;text-align:left;padding:1cqw 0;color:#563521;min-height:13cqw}.tf-task-main>span:last-child{display:flex;flex-direction:column;gap:.5cqw;min-width:0}.tf-task-main b{font-size:4.3cqw;font-weight:850;line-height:1.2}.tf-task-main small{font-size:3.6cqw;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tf-subject{display:grid;place-items:center;width:11cqw;height:10cqw;flex:none;border:2px solid #fff;border-radius:3cqw;background:linear-gradient(#ffcc47,#ff9b16);box-shadow:0 0 0 1px #efbd55,inset 0 0 0 1px #ffce66,0 2px 2px #daba6b40;font-size:6.7cqw;color:#fff;font-weight:900;text-shadow:0 1px 1px #bf751d}.tf-subject[data-subject=语文]{background:linear-gradient(#ff8791,#f84b67);box-shadow:0 0 0 1px #ee9b9c,inset 0 0 0 1px #ffa4b0,0 2px 2px #daba6b40}.tf-subject[data-subject=英语]{background:linear-gradient(#76d9ff,#238cdf)}
+.tf-check{position:relative;flex:none;width:13cqw;height:13cqw;min-width:44px;min-height:44px;margin-right:1cqw;border:0;background:transparent;border-radius:50%;font-size:6.3cqw!important;font-weight:900!important;color:#fff;text-shadow:0 1px 1px #47862a;isolation:isolate}.tf-check:before{content:'';position:absolute;inset:2.5cqw;border:1.5px solid #ba9579;border-radius:50%;z-index:-1}.tf-check[aria-pressed=true]:before{background:radial-gradient(circle at 40% 20%,#a6ee76,#4bc72b 55%,#34a71c);border:1px solid #81ce5a;box-shadow:inset 0 1px 1px #d5ffa1,0 1px 1px #d8e5bd}.tf-pending{font-size:3cqw;color:#8c7043;padding:1cqw}
+.tf-quick-actions{display:flex;gap:2cqw;padding:.9cqw 0 0}.tf-quick{display:flex;align-items:center;justify-content:center;gap:2cqw;flex:1;min-width:0;min-height:12.5cqw;border:1px solid #f5e7cd;border-radius:8cqw;background:linear-gradient(#fff7e5,#fcefd8);color:#704523;font-size:4cqw!important;box-shadow:inset 0 1px 0 white,0 1px 0 #e6cfab}.tf-quick b{font-weight:800;white-space:nowrap}.tf-quick>span:last-child{font-size:5.3cqw;line-height:1}
+.tf-sun{position:relative;color:#ffbd0b;font-size:11cqw;line-height:1;width:11cqw;text-align:center;filter:drop-shadow(0 1px 0 #df950f)}.tf-sun i{position:absolute;left:3.2cqw;top:3.2cqw;font-style:normal;color:#673c12;font-size:4.7cqw;line-height:1}.tf-sun:before,.tf-sun:after{content:'';position:absolute;top:4.3cqw;width:.65cqw;height:.8cqw;background:#573923;border-radius:50%;z-index:2}.tf-sun:before{left:4cqw}.tf-sun:after{right:3.5cqw}
+.tf-friends{position:relative;width:13cqw;height:10cqw;flex:none}.tf-friends i{position:absolute;display:grid;place-items:center;width:7cqw;height:7cqw;top:2cqw;left:0;border-radius:50%;background:linear-gradient(#fff266,#ffcc19);box-shadow:0 1px 2px #b9864e66;color:#68501a;font-style:normal;font-size:6cqw;line-height:1}.tf-friends i+ i{left:5.5cqw;background:linear-gradient(#73e4ff,#24acd9);color:#255b79}.tf-friends i:before{content:'··';position:absolute;top:-1.1cqw;font-size:4cqw;font-weight:900}.tf-friends em{position:absolute;top:-1cqw;left:5cqw;font-style:normal;color:#f96a40;font-size:4cqw;transform:rotate(15deg)}
+.tf-reminder{display:flex;align-items:center;gap:2cqw;width:100%;min-height:16.5cqw;border:2px solid #fff;border-radius:5.5cqw;background:linear-gradient(120deg,#e8fcff,#cbf2fc);box-shadow:0 2px 0 #86dce8,inset 0 0 0 1px #b1e5f3;color:#563621;padding:1cqw 3cqw;text-align:left}
+.tf-course-icon .tf-icon{width:14cqw;height:13cqw}.tf-course-copy{display:flex;flex-direction:column;gap:.3cqw;min-width:17cqw}.tf-course-copy time{font-size:5.5cqw;font-weight:900;line-height:1}.tf-course-copy b{font-size:4cqw;line-height:1.2;font-weight:850}.tf-reminder-divider{align-self:stretch;width:1px;background:#a9dce9;margin:1cqw 0}.tf-bring-icon{font-size:10cqw;line-height:1;width:10cqw;flex:none}.tf-bring-copy{display:flex;flex-direction:column;gap:1cqw;flex:1;min-width:0}.tf-bring-copy b{font-size:3.9cqw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:850}.tf-bring-copy small{font-size:3.7cqw;color:#73a13a;white-space:nowrap;font-weight:750}.tf-bring-copy strong{color:#237ce3;margin-left:1cqw}.tf-chevron{font-size:6cqw;line-height:1;color:#7b522d}.tf-no-course .tf-icon{width:12cqw;height:12cqw}.tf-no-course>span{font-size:3.5cqw}.tf-no-course .tf-chevron{margin-left:auto}
+.tf-empty{padding:6cqw 2cqw;text-align:center;font-size:3.6cqw!important;color:#8c7553}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{position:relative!important;bottom:auto;gap:0;padding:1cqw 1cqw calc(1cqw + env(safe-area-inset-bottom));min-height:15cqw;background:linear-gradient(#fff5cc,#ffdda2);border:0;border-radius:45% 45% 0 0 / 20% 20% 0 0;box-shadow:0 -1px 0 #fff9e7;isolation:isolate}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before,body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{content:'';position:absolute;pointer-events:none;background:url('assets/hd/today-foliage.png') center/contain no-repeat;width:22cqw;height:19cqw;left:-3cqw;top:-9cqw;z-index:-1}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{left:auto;right:-3cqw;transform:scaleX(-1)}
+body[data-mode=child]:has(.up-main[data-route=today]) .up-nav-item{min-height:13cqw;gap:0;justify-content:center;color:#674025;font-size:3.4cqw;font-weight:850;background:transparent;border-radius:50%;box-shadow:none}
+body[data-mode=child]:has(.up-main[data-route=today]) .up-nav-item .tf-icon{width:11cqw;height:10cqw;margin-top:-3cqw;margin-bottom:0}
+body[data-mode=child]:has(.up-main[data-route=today]) .up-nav-item[aria-current=page]{background:linear-gradient(#fffef8,#fff8e9);border:1px solid #f0d9a9;box-shadow:0 2px 0 #d5a362}
+@media(max-width:450px){body[data-mode=child]:has(.up-main[data-route=today]){padding:3px;background:#e9f9ff}body[data-mode=child]:has(.up-main[data-route=today]) .phone{border-width:3px;border-radius:26px}}
+
+/* Requested refinement: quiet subject icons and no decorations beside the bottom tabs. */
+.tf-subject,.tf-subject[data-subject=语文],.tf-subject[data-subject=英语]{border:0;border-radius:0;background:transparent;box-shadow:none;text-shadow:none;color:#9b784d}
+.tf-subject .hd-subject-art{width:7cqw;height:7cqw;object-fit:contain;opacity:.9;filter:saturate(.78)}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before,body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{content:none}
+
+.tf-library-tab{background-image:url('assets/hd/library-v2/tabs-clean.webp');background-size:300% 100%;background-repeat:no-repeat;background-position:calc(var(--tf-cell)*50%) center}
+
+.tf-library-utility{background-image:url('assets/hd/library-v2/utilities.webp');background-size:300% 100%;background-repeat:no-repeat;background-position:calc(var(--tf-cell)*50%) center}
+.tf-bring-icon .tf-icon{width:10cqw;height:12cqw}
+
+/* Fill an ordinary phone viewport while retaining the reference composition. */
+body[data-mode=child]:has(.up-main[data-route=today]){--tf-nav-height:clamp(62px,16cqw,70px)}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{box-sizing:border-box;min-height:calc(100dvh - 32px)}
+body[data-mode=child] .up-main[data-route=today]{display:block}
+.tf-today{display:flex;flex-direction:column;min-height:calc(100dvh - 32px - var(--tf-nav-height))}
+.tf-hero{height:auto;min-height:51cqw;flex:1 1 auto}
+.tf-panels{flex:0 0 auto}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{box-sizing:border-box;flex:0 0 var(--tf-nav-height);height:var(--tf-nav-height);min-height:0;margin-top:auto}
+/* Approved V2 wooden wordmark, with the clean house illustration layered separately. */
+.tf-brand{width:32cqw;height:12cqw;min-height:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;overflow:visible}
+.tf-wordmark{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 1px #8e613d55)}
+.tf-logo-house{position:absolute;z-index:1;left:-1cqw;bottom:0;width:10cqw;height:10cqw;background:url('assets/hd/library-v2/tabs-clean.webp') left center/300% 100% no-repeat;filter:drop-shadow(0 2px 1px #8e613d55)}
+@media(max-width:450px){body[data-mode=child]:has(.up-main[data-route=today]){padding:0}body[data-mode=child]:has(.up-main[data-route=today]) .phone{width:100%;max-width:none;min-height:100dvh;border:0;border-radius:0}body[data-mode=child]:has(.up-main[data-route=today]) .tf-today{min-height:calc(100dvh - var(--tf-nav-height))}}
+
+/* On a desktop preview, render the phone at the standard 390×844 portrait size. */
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{width:min(100%,390px);max-width:390px;min-height:max(calc(100dvh - 32px),844px);aspect-ratio:390/844}
+body[data-mode=child]:has(.up-main[data-route=today]) .tf-today{min-height:max(calc(100dvh - 32px - var(--tf-nav-height)),calc(844px - var(--tf-nav-height)))}
+@media(max-width:450px){body[data-mode=child]:has(.up-main[data-route=today]) .phone{width:100%;max-width:none;min-height:100dvh;aspect-ratio:auto}body[data-mode=child]:has(.up-main[data-route=today]) .tf-today{min-height:calc(100dvh - var(--tf-nav-height))}}
+
+/* Keep the bottom navigation quiet and anchor the mascot above the enlarged homework card. */
+body[data-mode=child] .phone>.up-nav{gap:0;align-items:center;justify-content:space-around;padding:2px 8px calc(2px + env(safe-area-inset-bottom));background:linear-gradient(#fff9e9,#ffe7b7);border:0;border-top:1px solid #f2d9a6;border-radius:0;box-shadow:none;backdrop-filter:none}
+.up-nav-item.tf-image-tab{position:relative;display:flex;flex:1 1 0;width:auto;height:100%;min-height:0;padding:2px 0 4px;border:0;border-radius:0;background:transparent!important;box-shadow:none!important;color:#68472d!important;font-size:11px!important;font-weight:750;flex-direction:column;align-items:center;justify-content:center;gap:0;overflow:visible}
+.up-nav-item.tf-image-tab>*{position:static!important;width:auto!important;height:auto!important;padding:0!important;margin:0!important;overflow:visible!important;clip:auto!important;white-space:nowrap!important;border:0!important}
+.up-nav-item.tf-image-tab .tf-tab-art{display:block;width:36px!important;height:34px!important;flex:0 0 36px;background-color:transparent}
+.up-nav-item.tf-image-tab[aria-current=page]{background:transparent!important;border:0!important;box-shadow:none!important;color:#68472d!important}
+.up-nav-item.tf-image-tab[aria-current=page]::after{content:"";position:absolute;bottom:1px;width:20px;height:3px;border-radius:2px;background:#e9a930}
+body[data-mode=child]:has(.up-main[data-route=today]) .tf-hero{min-height:42cqw}
+body[data-mode=child]:has(.up-main[data-route=today]) .tf-panels{padding-left:2cqw;padding-right:2cqw}
+.tf-homework-wrap{position:relative;flex:0 0 91cqw;min-height:91cqw}
+.tf-homework-wrap>.tf-mascot{position:absolute;z-index:3;left:35cqw;right:auto;top:-29cqw;bottom:auto;width:30cqw;height:29cqw;pointer-events:none}
+.tf-homework-wrap>.tf-card{height:100%;display:flex;flex-direction:column;padding:0 2.3cqw 2.5cqw}
+.tf-homework-wrap .tf-card-head{min-height:13cqw}
+.tf-homework-wrap .tf-task-list{flex:1;grid-template-rows:repeat(3,minmax(15cqw,1fr));align-content:stretch;gap:1.3cqw}
+.tf-homework-wrap .tf-card:before,.tf-homework-wrap .tf-card:after{content:none}
+body[data-mode=child] .phone>.up-nav{gap:0;align-items:center;justify-content:space-around;padding:2px 8px calc(2px + env(safe-area-inset-bottom));background:linear-gradient(#fff9e9,#ffe7b7);border:0;border-top:1px solid #f2d9a6;border-radius:0!important;box-shadow:none;backdrop-filter:none}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{border-radius:0!important;background:linear-gradient(#fff9e9,#ffe7b7);box-shadow:none}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before,body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{content:none!important;display:none}
+.tf-homework-wrap .tf-task{min-height:15cqw}
+.tf-homework-wrap .tf-quick{min-height:14cqw}
+@media(max-width:450px){body[data-mode=child] .phone>.up-nav{padding-bottom:calc(2px + env(safe-area-inset-bottom))}.up-nav-item.tf-image-tab{flex-basis:18cqw;width:18cqw;height:14.4cqw;max-width:68px;max-height:56px}}
+
+/* V1.2 independent subject icons and a continuous, warmer shoreline. */
+.tf-subject .hd-subject-art{width:min(6.2cqw,24px);height:min(6.2cqw,24px);opacity:1;filter:none}
+.tf-today{background:linear-gradient(#a9e5ec 35%,#d7efdf 80%,#ffedbe 100%);padding-bottom:5cqw}
+.tf-today:after{display:none}
+.tf-hero-art{object-fit:fill;object-position:center bottom}
+.tf-homework-wrap:before{content:"";position:absolute;z-index:2;pointer-events:none;left:32%;right:30%;top:-2.5cqw;height:3cqw;border-radius:50%;background:radial-gradient(ellipse,#ac7b3566,transparent 70%)}
+.tf-reminder{background:linear-gradient(120deg,#f0fcf7,#def2eb);box-shadow:0 2px 0 #bddbc9,inset 0 0 0 1px #d8ede2}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:#ffedbe;border:0;overflow:visible;isolation:isolate}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before{content:""!important;display:block!important;position:absolute;z-index:-1;pointer-events:none;left:0;right:0;top:-6cqw;width:100%;height:7cqw;transform:none;background:url('assets/hd/shoreline.svg') center bottom/100% 100% no-repeat}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{content:none!important;display:none!important}
+
+/* Let the illustrated shore continue behind the rounded card instead of ending at its top. */
+.tf-today{background:linear-gradient(#b4e6e5 20%,#f2efd5 48%,#f5efd7 80%,#ffedbe 100%)}
+.tf-panels{margin-top:-12cqw}
+.tf-hero-art{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 14cqw),transparent 100%);mask-image:linear-gradient(to bottom,#000 calc(100% - 14cqw),transparent 100%)}
+.tf-homework-wrap>.tf-mascot{left:50%;transform:translateX(-50%);top:-41cqw;width:42cqw;height:41cqw;filter:drop-shadow(0 3px 2px #85592125)}
+.tf-homework-wrap:before{left:31%;right:29%;top:-2.5cqw;height:3cqw;opacity:.65}
+
+/* One native portrait scene, uniformly scaled across the entire phone. */
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{background:#45cbd2 url('assets/hd/today-bluegreen-portrait-v2.png') center bottom/cover no-repeat}
+.tf-today{background:transparent}
+.tf-hero-art{display:none}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:transparent;border:0;box-shadow:none}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before,body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:after{content:none!important;display:none!important}
+
+/* Improve label contrast and connect the character's feet to the grassy landing. */
+.tf-subject .hd-subject-art{width:min(9.3cqw,36px);height:min(9.3cqw,36px)}
+.tf-homework-wrap>.tf-mascot{top:-45cqw;filter:drop-shadow(0 2px 1px #40582a35)}
+.tf-homework-wrap:before{left:38%;right:34%;top:-9cqw;height:4cqw;opacity:.8;background:radial-gradient(ellipse,#334e2870 0%,#40592b40 35%,transparent 72%);filter:blur(1px)}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:linear-gradient(to bottom,transparent 12%,#ffe9b54d 32%,#ffe9b5e8 58%,#ffe9b5 78%)}
+body[data-mode=child] .up-nav-item.tf-image-tab{font-size:12px!important;font-weight:800;color:#56351f!important}
+
+/* Animated scenery and a solid illustrated sand edge; reminders carry no preparation state. */
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{background-image:url('assets/hd/today-sandy-path-v4.png')}
+.tf-bring-copy small{font-size:2.9cqw;color:#55774b;font-weight:650;white-space:normal;line-height:1.35}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:transparent}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before{content:""!important;display:block!important;position:absolute;inset:0;z-index:-1;width:100%;height:100%;background:url('assets/hd/tab-sand-line.svg') center/100% 100% no-repeat;transform:none;filter:none}
+
+/* The sandy path is painted into the landscape; only a small contact shadow sits under the shoes. */
+.tf-homework-wrap:before{left:50%;right:auto;top:-7.4cqw;transform:translateX(-50%);width:16cqw;height:2.3cqw;opacity:.45;filter:blur(1px);border-radius:50%;background:radial-gradient(ellipse,#805b34a0,transparent 70%)}

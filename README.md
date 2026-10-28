@@ -97,3 +97,12 @@ node checks/domain.test.cjs
 - `.github/workflows/pages.yml`：检查与自动发布流程。
 
 界面图片包含项目既有素材和新生成的岛屿、房间及角色素材。公开发布网页不代表获得第三方游戏品牌或角色的商标与商业授权。
+
+## 儿童端视觉开发预览（2026-10-27）
+
+开发分支：`feat/child-ui-hd-assets`，尚未合并上线。
+
+- 儿童端：`dist/child.html?preview=1&design=original`
+- 更新素材库：`dist/asset-library.html`（四个新图标、木牌标题、微不规则面板、自然沙路背景与已选字体）
+- 变更与生成提示词：`docs/today-icons-and-dialogs.md`
+- 本地预览：`python3 -m http.server 8178 --directory dist`，浏览器打开 `http://127.0.0.1:8178/child.html?preview=1&design=original`。
