@@ -100,3 +100,49 @@ body[data-mode=child] .island-dialog{padding:65px 0 calc(56px + env(safe-area-in
 .island-dialog .up-dialog-body{max-height:calc(100dvh - 153px - env(safe-area-inset-bottom));box-sizing:border-box}
 .island-dialog .island-dialog-surface>.up-close:focus-visible{outline:3px solid #4a9f76;outline-offset:3px}
 .island-dialog .island-dialog-surface>.up-close:active{transform:translateX(-50%) translateY(1px);box-shadow:inset 0 1px 2px #b68d5730}
+
+/* 2026-10-28 approved three-panel visual language. Keep all content as DOM. */
+body[data-mode=child] .island-dialog-surface{padding:0 4px 8px;filter:drop-shadow(0 9px 17px #24554844)}
+body[data-mode=child] .island-dialog-surface:before{filter:drop-shadow(0 0 1px #8bba69)}
+body[data-mode=child] .island-dialog .up-dialog-header{transform:translate(0,-17px);left:4%;right:4%}
+body[data-mode=child] .island-dialog .island-dialog-title{font-size:clamp(20px,5.7vw,25px);font-weight:850;min-height:104px;padding:14px 38px 0 38px;background-position:center calc(50% + 8px);line-height:1.16;text-shadow:0 1px #fff4d5}
+body[data-mode=child] .island-dialog .up-dialog-body{padding:78px 24px 28px}
+body[data-mode=child] .island-dialog .island-dialog-question{font-size:16px;color:#66351e;margin-bottom:17px}
+body[data-mode=child] .island-dialog .up-moods{gap:9px;margin-bottom:17px}
+body[data-mode=child] .island-dialog .up-mood{min-height:99px;border:1px solid #eeddbc;border-radius:18px 17px 20px 16px;background:linear-gradient(135deg,#fffdf7,#fff2db);box-shadow:0 2px 0 #eadcbf;padding:7px 3px 8px;color:#6f462d}
+body[data-mode=child] .island-dialog .up-mood[aria-pressed=true]{border:2px solid #65b448;background:#fff9e9;box-shadow:inset 0 0 0 1px #d7edb7,0 2px 0 #bddb9f;padding:6px 2px 7px}
+body[data-mode=child] .island-journal-note{background:transparent;padding:0;border-radius:0}
+body[data-mode=child] .island-dialog .up-journal-label{font-size:13px;font-weight:700;color:#72412b}
+body[data-mode=child] .island-dialog .up-journal-text{background:#fffdfa;border:1.5px solid #e9d4ad;border-radius:13px 15px 12px 14px;box-shadow:inset 0 2px 4px #d7b99020;min-height:91px}
+body[data-mode=child] .island-dialog .island-save{width:78%;min-height:49px;border-radius:22px 19px 23px 20px;transform:none;letter-spacing:.03em;background:linear-gradient(#9bdf69,#51bd35);box-shadow:inset 0 2px #d9ffba,0 3px 0 #388d29,0 5px 9px #487d3340}
+body[data-mode=child] .island-dialog .island-save:before,body[data-mode=child] .island-dialog .island-save:after{content:none}
+body[data-mode=child] .island-dialog .island-save:active{transform:translateY(2px);box-shadow:inset 0 1px #d9ffba,0 1px 0 #388d29}
+body[data-mode=child] .island-mate-tabs{background:#fff6e4;border:1px solid #eedbbe;border-radius:20px;padding:3px;margin:0 0 12px}
+body[data-mode=child] .island-mate-tabs button[aria-pressed=true]{background:linear-gradient(#a0df70,#57b83e);box-shadow:inset 0 1px #ddf4c6,0 2px 0 #81ab63}
+body[data-mode=child] .island-mate-grid{gap:8px}
+body[data-mode=child] .island-mate-tile{border:1px solid #ead9b9;border-radius:15px 17px 16px 14px;background:linear-gradient(#fffcf3,#fff1d9);box-shadow:0 2px 0 #eddec4}
+body[data-mode=child] .island-mate-tile[aria-pressed=true]{background:#fff9e9;border:2px solid #6ab34e;box-shadow:inset 0 0 0 1px #d1edb7,0 2px 0 #b5d59a}
+body[data-mode=child] .island-current-mate{background:#fffaf0;border-color:#e8d6b7;border-radius:16px 17px 15px 18px;box-shadow:0 2px 0 #ebdaba}
+body[data-mode=child] .island-dialog.up-success .up-celebrate{height:198px;margin:0 0 5px}
+body[data-mode=child] .island-dialog.up-success .up-celebrate .up-buddy{height:180px;width:145px;object-fit:contain}
+body[data-mode=child] .island-dialog.up-success .up-receipt-slogan{font-size:17px;font-weight:800;color:#7c3e21}
+body[data-mode=child] .island-dialog.up-success .up-loot{background:linear-gradient(#fff9e1,#fff0c7);border-color:#efd598;border-radius:17px 15px 18px 16px;box-shadow:inset 0 1px #fffefa,0 2px 0 #ead2a0}
+body[data-mode=child] .island-dialog.up-success .up-primary{border-radius:22px 19px 23px 20px;box-shadow:inset 0 2px #e6ffcf,0 3px 0 #358d25}
+/* Existing production wood logo and house-tab art use dark brown glyph and door. */
+body[data-mode=child] .tf-wordmark,body[data-mode=child] .tf-library-tab{filter:drop-shadow(0 2px 1px #74422544)}
+@media(max-width:359px){body[data-mode=child] .island-dialog .up-dialog-body{padding:75px 18px 24px}body[data-mode=child] .island-dialog .island-dialog-title{font-size:20px}}
+
+/* Mood dialog final density and material pass against approved reference. */
+body[data-mode=child] .island-dialog::backdrop{background:#21678565;backdrop-filter:blur(2px) saturate(1.14)}
+body[data-mode=child] .island-mood-dialog .up-dialog-header{left:8%;right:8%;top:-43px;transform:translateY(-16px)}
+body[data-mode=child] .island-mood-dialog .island-dialog-title{min-height:94px;padding:10px 30px 0;background-size:100% auto;background-position:center calc(50% + 5px)}
+body[data-mode=child] .island-mood-dialog .up-dialog-body{padding-top:64px;padding-bottom:23px}
+body[data-mode=child] .island-mood-dialog .island-dialog-question{margin-bottom:14px}
+body[data-mode=child] .island-mood-dialog .up-moods{gap:8px;margin-bottom:14px}
+body[data-mode=child] .island-mood-dialog .up-mood{min-height:96px;border-color:#edd5ad;background:linear-gradient(#fffcf3,#fff2dd);box-shadow:0 2px 0 #e8d4b2}
+body[data-mode=child] .island-mood-dialog .island-mood-face{width:58px;height:58px;filter:drop-shadow(0 1px 1px #a3703726)}
+body[data-mode=child] .island-mood-dialog .up-mood small{font-size:12px;font-weight:750;color:#724426}
+body[data-mode=child] .island-mood-dialog .up-journal-label{margin-bottom:6px}
+body[data-mode=child] .island-mood-dialog .up-journal-text{min-height:94px}
+body[data-mode=child] .island-mood-dialog .island-save{margin-top:15px;background:linear-gradient(180deg,#a4e970 0%,#71d246 55%,#38b329 100%);border-color:#4caa2e;box-shadow:inset 0 2px #e2ffc8,0 3px 0 #328f24,0 5px 8px #487d3338}
+body[data-mode=child] .island-mood-dialog .up-link{margin-top:8px}

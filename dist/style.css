@@ -1,5 +1,5 @@
 /* ============================================================
-   作业岛 · 页面迭代设计稿
+   开心岛 · 页面迭代设计稿
    设计令牌 + 组件库
    色彩/圆角/字阶均从参考稿（GPT 出图）取样标定
    ------------------------------------------------------------
@@ -221,7 +221,7 @@ img { display: block; max-width: 100%; }
 .back-btn svg { display: block; }
 .back-btn:active { transform: scale(.88); }
 
-/* ---- 品牌：矢量 Logo（assets/logo.svg，纯路径无字体依赖）---- */
+/* ---- 品牌：矢量 Logo（assets/kaixin-logo.svg，纯路径无字体依赖）---- */
 .brand { display: flex; align-items: center; gap: 6px; margin-right: auto; min-width: 0; }
 .brand-logo {
     height: 32px; width: auto; display: block; flex-shrink: 0;

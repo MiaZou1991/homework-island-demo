@@ -12,3 +12,9 @@ Create a high-resolution portrait background illustration for the Chinese childr
 原始生成文件：`/Users/miazou/.codex/generated_images/01a172da-613c-7fd3-be3e-1f2b73441bca/exec-56268c7c-de16-4e72-b287-cc9a147e5877.png`。
 
 已验证：日/月视图切换、前后一天、跨至11月、回今天、课程筛选、空日程、添加入口和关闭；课程无打卡入口。底部导航在720px高预览中保持可见。39项领域检查通过。
+
+## 页头修订
+
+日、月视图共用左上角作业岛 Logo，滚动时保持可见。取消独立大木牌，页名放在奶白日历卡片左上方，日/月切换和日期位于其下。品牌资源复用今日任务首页，不另做 Logo。
+
+页面视觉调整：按用户反馈删除底部“课程和携带物品只作提醒，无需打卡”文案；提醒规则仅在功能逻辑与设计规范中保留。

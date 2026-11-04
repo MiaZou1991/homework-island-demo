@@ -5,12 +5,15 @@ body[data-mode=child]:has(.up-main[data-route=plan]) .up-chrome{display:none!imp
 body[data-mode=child] .up-main[data-route=plan]{padding:0!important;background:none;min-height:0}
 body[data-mode=child]:has(.up-main[data-route=plan]) .stage{min-height:0;flex:1}
 .cp-page{min-height:calc(844px - var(--tf-nav-height));padding:0 10px 15px;color:#654329}
-.cp-header{height:145px;text-align:center;padding-top:14px}
+.cp-header{height:96px;padding-top:12px;position:sticky;top:0;z-index:6;pointer-events:none;background:linear-gradient(#47c5eeed, #69d2ecaa 58%,transparent)}
 .cp-status{display:flex;justify-content:space-between;margin:0 15px;color:#fff;font-size:10px}
-.cp-header h1{display:flex;align-items:center;justify-content:center;background:url('assets/hd/today-icons/dialog-title-v1.png') center/contain no-repeat;width:260px;height:80px;margin:8px auto 0!important;padding:10px 20px 0;font-size:22px!important;color:#633b1d!important;letter-spacing:0!important}
-.cp-header p{color:#326f68;font-size:12px!important;text-shadow:0 1px #efffff;margin-top:-3px}
+.cp-brand.tf-brand{position:relative;display:block;margin:7px 0 0 13px;width:132px;height:48px;pointer-events:auto}
+.cp-brand:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.cp-paper-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:3px 5px 13px}
+.cp-paper-heading h1{font-size:21px!important;line-height:1.4!important;letter-spacing:0!important;margin:0!important;color:#704728!important}
+.cp-paper-heading>span{font-size:10px;color:#a08b68}
 .cp-paper{background:#fffbee;border:2px solid #fffdf5;outline:1px solid #d2dfb3;border-radius:26px 24px 28px 23px;padding:13px 10px 17px;box-shadow:inset 0 0 0 1px #f0dfb7,0 4px 0 #78b8a048,0 8px 16px #216c5924}
-.cp-view-switch{display:flex;width:76%;margin:0 auto 10px;background:#f4e7cd;border-radius:18px;padding:3px;gap:3px}
+.cp-view-switch{display:flex;width:100%;margin:0 auto 10px;background:#f4e7cd;border-radius:18px;padding:3px;gap:3px}
 .cp-view-switch button{flex:1;border:0;background:none;min-height:32px;border-radius:14px;color:#8b6443;font-size:14px}
 .cp-view-switch button[aria-pressed=true]{background:linear-gradient(#8cde58,#43bb2d);box-shadow:inset 0 1px 0 #daffb9,0 2px 0 #389e28;color:#fff}
 .cp-date-nav{display:flex;align-items:center;justify-content:space-between;padding:0 3px;margin-bottom:5px}

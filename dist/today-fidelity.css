@@ -128,7 +128,7 @@ body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:
 body[data-mode=child] .up-nav-item.tf-image-tab{font-size:12px!important;font-weight:800;color:#56351f!important}
 
 /* Animated scenery and a solid illustrated sand edge; reminders carry no preparation state. */
-body[data-mode=child]:has(.up-main[data-route=today]) .phone{background-image:url('assets/hd/today-sandy-path-v4.png')}
+body[data-mode=child]:has(.up-main[data-route=today]) .phone{background-image:url('assets/hd/today-island-reference-v1.png')}
 .tf-bring-copy small{font-size:2.9cqw;color:#55774b;font-weight:650;white-space:normal;line-height:1.35}
 body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav{background:transparent}
 body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before{content:""!important;display:block!important;position:absolute;inset:0;z-index:-1;width:100%;height:100%;background:url('assets/hd/tab-sand-line.svg') center/100% 100% no-repeat;transform:none;filter:none}
@@ -139,7 +139,7 @@ body[data-mode=child]:has(.up-main[data-route=today]) .phone>.up-nav:before{cont
 /* Lighter homework rows, raised shortcuts, and a quiet hand-drawn active tab. */
 .tf-homework-wrap{flex:0 0 auto;min-height:0}
 .tf-homework-wrap>.tf-card{height:auto}
-.tf-homework-wrap>.tf-mascot{top:-58cqw}
+.tf-homework-wrap>.tf-mascot{top:-41cqw;width:33cqw;height:34cqw}
 .tf-homework-wrap .tf-task-list{flex:none;grid-template-rows:repeat(3,12.8cqw);align-content:start;gap:2.5cqw}
 .tf-homework-wrap .tf-task{min-height:12.8cqw;border-radius:3.8cqw}
 .tf-homework-wrap .tf-task-main{min-height:12.3cqw}
@@ -160,3 +160,30 @@ body[data-mode=child] .up-nav-item.tf-image-tab>span:last-child{line-height:20px
 body[data-mode=child] .up-nav-item.tf-image-tab[aria-current=page]>span:last-child{min-width:82px;min-height:24px;padding:0 10px!important;border-radius:12px 10px 13px 11px / 10px 12px 10px 11px!important}
 
 .tf-check{font-size:4.9cqw!important;line-height:1}
+
+/* The selected companion stands on the dock, independently of the scenery. */
+.tf-companion-spot{position:absolute;z-index:3;left:8cqw;top:-27cqw;width:24cqw;height:24cqw;padding:0;border:0;background:transparent;display:flex;align-items:flex-end;justify-content:center;cursor:pointer;isolation:isolate;-webkit-tap-highlight-color:transparent}
+.tf-companion-spot:before{content:"";position:absolute;z-index:-1;left:17%;right:17%;bottom:0;height:11%;border-radius:50%;background:radial-gradient(ellipse,#56371d99 0%,#56371d58 38%,transparent 75%);filter:blur(1px)}
+.tf-companion-spot:focus-visible{outline:3px solid #136f9e;outline-offset:2px;border-radius:12px}
+.tf-companion-art{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 2px 1px #53371d55);pointer-events:none}
+.tf-companion-spot .up-emoji-buddy{display:grid;place-items:center;width:80%;height:80%;font-size:12cqw;border-radius:50%;background:#fff5d9;color:#634123}
+
+/* Trial: use the approved blank illustrated frame only for the homework card. */
+.tf-homework-wrap>.tf-card{background:none;border:0;border-radius:0;box-shadow:none;padding:1.5cqw 2.3cqw 5cqw;isolation:isolate}
+.tf-homework-wrap>.tf-card::before{content:"";display:block;position:absolute;inset:-3cqw -3cqw -3cqw;width:auto;height:auto;z-index:-1;background:url('assets/hd/today-homework-frame-v1.png') center/100% 100% no-repeat;pointer-events:none}
+
+/* Keep the original left/right course layout; only the frame and backpack are new art. */
+.tf-panels>.tf-reminder{position:relative;display:flex;align-items:center;gap:1.3cqw;min-height:19cqw;padding:1cqw 2.3cqw;border:0;border-radius:0;background:url('assets/hd/course/frame-no-leaves.png') center/100% 100% no-repeat;box-shadow:none;color:#60341e;overflow:visible}
+.tf-reminder .tf-course-icon{flex:none}
+.tf-reminder .tf-course-icon .tf-generated-icon{width:11.5cqw;height:11.5cqw}
+.tf-reminder .tf-course-copy{min-width:14.5cqw;gap:.1cqw}
+.tf-reminder .tf-course-copy time{font-size:5cqw}
+.tf-reminder .tf-course-copy b{font-size:3.7cqw}
+.tf-reminder .tf-reminder-divider{flex:none;width:1px;background:#a9dce9;margin:1cqw .5cqw}
+.tf-reminder .tf-bring-icon{display:block;flex:none;width:10.5cqw}
+.tf-reminder .tf-backpack-art{display:block;width:10.5cqw;height:12cqw;object-fit:contain;filter:none}
+.tf-reminder .tf-bring-copy{gap:.3cqw;min-width:0}
+.tf-reminder .tf-bring-copy b{font-size:3.7cqw}
+.tf-reminder .tf-bring-copy small{font-size:2.9cqw;color:#55774b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tf-reminder .tf-chevron{font-size:5cqw;flex:none}
+.tf-panels>.tf-no-course>span:nth-child(2){margin-left:1cqw}

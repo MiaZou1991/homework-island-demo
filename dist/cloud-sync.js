@@ -1,4 +1,4 @@
-/* 作业岛云端同步：家庭码对应一份 Supabase 家庭数据。 */
+/* 开心岛云端同步：家庭码对应一份 Supabase 家庭数据。 */
 (() => {
   if(typeof ISLAND_PREVIEW!=='undefined'&&ISLAND_PREVIEW)return;
   const SUPABASE_URL = 'https://syqcpfjudjniripzcjdq.supabase.co';
@@ -129,7 +129,7 @@
           setSyncState({ cloudRecord: 'yes', current: 'synced', message: '云端有记录，当前数据已同步' });
       }
     } catch (error) {
-      console.warn('[作业岛云端同步] 保存失败', error);
+      console.warn('[开心岛云端同步] 保存失败', error);
       notify('云端保存失败，已暂存本机；稍后自动重试');
       setSyncState({ current: 'pending', message: '当前数据待上传，稍后自动重试' });
       scheduleFlush(RETRY_MS);
@@ -155,7 +155,7 @@
     if (!started || !client || busy) return;
     if (pending) { scheduleFlush(0); return; }
     try { await pull(); }
-    catch (error) { console.warn('[作业岛云端同步] 读取失败', error); }
+    catch (error) { console.warn('[开心岛云端同步] 读取失败', error); }
   }
 
   async function start(options = {}) {
@@ -163,7 +163,7 @@
     if (startPromise) return startPromise;
     startPromise = (async () => {
       if (!window.supabase || typeof window.supabase.createClient !== 'function') {
-        console.warn('[作业岛云端同步] Supabase 客户端未加载');
+        console.warn('[开心岛云端同步] Supabase 客户端未加载');
         notify('云端暂时不可用，当前使用本机缓存');
         setSyncState({ current: 'unknown', message: '云端未加载，当前使用本机数据' });
         window.dispatchEvent(new Event('island-ready'));
@@ -203,7 +203,7 @@
           }
         }
       } catch (error) {
-        console.warn('[作业岛云端同步] 初始化失败', error);
+        console.warn('[开心岛云端同步] 初始化失败', error);
         notify('云端暂时不可用，当前使用本机缓存');
         setSyncState({ current: pending ? 'pending' : 'unknown', message: pending ? '本机改动待上传' : '云端读取失败，当前使用本机数据' });
         // Retry only an upload that was actually attempted. A failed read

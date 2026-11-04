@@ -771,5 +771,77 @@
     "src": "assets/hd/calendar-coast-v1.png",
     "name": "小岛日程 · 蓝绿海湾背景 V1",
     "featured": true
+  },
+  {
+    "path": "dist/assets/hd/moods/angry.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1079,
+    "src": "assets/hd/moods/angry.svg",
+    "name": "angry-mood",
+    "featured": false
+  },
+  {
+    "path": "dist/assets/hd/moods/calm.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1002,
+    "src": "assets/hd/moods/calm.svg",
+    "name": "calm-mood",
+    "featured": false
+  },
+  {
+    "path": "dist/assets/hd/moods/excited.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1171,
+    "src": "assets/hd/moods/excited.svg",
+    "name": "excited-mood",
+    "featured": false
+  },
+  {
+    "path": "dist/assets/hd/moods/happy.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1016,
+    "src": "assets/hd/moods/happy.svg",
+    "name": "happy-mood",
+    "featured": false
+  },
+  {
+    "path": "dist/assets/hd/moods/sad.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1183,
+    "src": "assets/hd/moods/sad.svg",
+    "name": "sad-mood",
+    "featured": false
+  },
+  {
+    "path": "dist/assets/hd/moods/tired.svg",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "SVG",
+    "bytes": 1130,
+    "src": "assets/hd/moods/tired.svg",
+    "name": "tired-mood",
+    "featured": false
   }
 ]

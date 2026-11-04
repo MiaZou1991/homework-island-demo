@@ -1,4 +1,4 @@
-// ================= 作业岛·小岛日历 =================
+// ================= 开心岛·小岛日历 =================
 // 一个轻量级家庭作业管理小游戏
 // 数据保存在浏览器 localStorage
 
@@ -4502,7 +4502,7 @@ function openRewardItemEditor(itemId) {
                     <span>可以重复兑换</span>
                 </label>
             </div>
-            <p class="hw-editor-tip">图片从作业岛内置素材中选择。兑换后的奖励会进入你的“待兑现”清单。</p>
+            <p class="hw-editor-tip">图片从开心岛内置素材中选择。兑换后的奖励会进入你的“待兑现”清单。</p>
             <div class="hw-editor-actions">
                 <button class="btn-primary" onclick="saveRewardItem()">保存</button>
                 <button class="btn-secondary" onclick="closeRewardItemEditor()">取消</button>
