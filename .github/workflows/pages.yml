@@ -24,6 +24,19 @@ jobs:
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
+      - name: Mobile family calendar QA (320 / 375 / 390 / 430)
+        run: |
+          npm install --no-save --no-package-lock playwright
+          python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
+          PLAYWRIGHT_MODULE=./node_modules/playwright node checks/family-schedule.cjs
+      - name: Upload calendar QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-calendar-mobile-qa
+          path: /tmp/family-calendar-*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
