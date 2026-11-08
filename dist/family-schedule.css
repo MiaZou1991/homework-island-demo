@@ -1,5 +1,5 @@
 /* Family schedule only. Approved brand and navigation are deliberately inherited. */
-body[data-mode=child]:has(.up-main[data-route=plan]) .phone{background:#7fdce0 url('assets/hd/family-calendar/coast.png') center top/cover no-repeat}
+body[data-mode=child]:has(.up-main[data-route=plan]) .phone{background:#7fdce0 url('assets/hd/family-calendar/coast-empty-v2.png') center bottom/cover no-repeat}
 .cp-page{padding:0 12px 0;min-height:calc(844px - var(--tf-nav-height))}
 .cp-header{position:relative;background:none;height:116px;padding-top:10px}
 .cp-status{color:#164959}
@@ -27,3 +27,48 @@ body[data-mode=child]:has(.up-main[data-route=plan]) .phone{background:#7fdce0 u
 @media(prefers-reduced-motion:reduce){.cp-page *{scroll-behavior:auto!important}}
 /* Golden deckled paper from the approved calendar, fixed edge slices. */
 .cp-paper:before{inset:-3px -13px;border-image:url('assets/hd/family-calendar/paper.png') 110 270 fill / 20px 32px / 0 stretch}
+/* Compact title, and a separate companion stage in normal document flow. */
+.cp-header{height:32px;min-height:32px;padding-top:10px}
+.cp-title{padding:12px 10px 8px;min-height:54px}
+body[data-mode=child] .cp-title h1{font-family:var(--font-round)!important;font-size:clamp(20px,5.6cqw,24px)!important;font-weight:900!important;line-height:1.2!important;letter-spacing:0!important;color:#4d291a!important;text-shadow:none!important;-webkit-text-stroke:0!important}
+.cp-seaside{position:relative;isolation:isolate;box-sizing:border-box;min-height:270px;display:grid;grid-template-columns:43% 57%;align-items:start;margin:12px -12px 0;padding:20px 18px 60px;background:transparent}
+.cp-buddy-message{padding-top:24px;display:grid;justify-items:start;gap:18px;z-index:1}
+.cp-buddy-message>span{display:block;background:#fffef5;border:2px solid #d6ecf0;border-radius:50% 45% 48% 40%;padding:12px 17px;font-size:13px;color:#294c76;text-align:center;transform:rotate(-7deg);line-height:1.5}
+.cp-buddy-button{position:relative;display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;padding:0;min-width:0;border:0;box-shadow:none;background:transparent;color:#654027;cursor:pointer;scroll-margin-bottom:100px}
+.cp-buddy-button .cp-buddy-art{display:block;width:100%;height:164px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 3px #4b725c30)}
+.cp-buddy-button>span:last-child{display:block;max-width:100%;padding:7px 12px;border:1px solid #e1be88;border-radius:18px;background:#fff8e8f5;box-shadow:0 2px 0 #bfa17040;font-size:12px;text-align:center}
+.cp-buddy-button:focus-visible{outline:3px solid #327bac;outline-offset:4px;border-radius:20px}
+@media(max-width:359px){.cp-seaside{margin-inline:-8px;min-height:250px;padding-inline:14px}.cp-buddy-button .cp-buddy-art{height:145px}.cp-buddy-message>span{padding:11px 12px;font-size:12px}}
+/* A single weekday heading row keeps the month grid quiet. */
+.cp-month-weekday{text-align:center;font-size:12px;line-height:30px;color:#887151;font-weight:500}
+.cp-calendar.monthly{row-gap:7px;padding:9px 8px 12px}
+.cp-calendar.monthly .cp-day{min-height:40px;font-size:18px;border-radius:13px;gap:0}
+/* Compact illustrated month calendar: one paper panel, light date numbers. */
+.cp-page:has(.cp-calendar.monthly) .cp-title{min-height:61px;padding-top:7px}
+.cp-page:has(.cp-calendar.monthly) .cp-title h1{display:grid;place-items:center;width:156px;height:58px;padding:4px 11px 0;box-sizing:border-box;background:url('assets/hd/dialogs-v3/plaque.webp') center/100% 100% no-repeat;font-size:19px!important;text-align:center}
+.cp-page:has(.cp-calendar.monthly) .cp-date-nav{height:45px;margin:0 4px;padding:4px 12px 0;background:#fffaf0f5;border:2px solid #fffdf7;border-bottom:0;border-radius:25px 25px 0 0;box-shadow:0 -2px 7px #386b7620}
+.cp-page:has(.cp-calendar.monthly) .cp-date-nav strong{font-size:15px;font-weight:900;color:#653b25}
+.cp-calendar.monthly{margin:0 4px;padding:0 12px 13px;gap:2px 3px;background:#fffaf0f5;border:2px solid #fffdf7;border-top:0;border-radius:0 0 25px 25px;box-shadow:0 4px 9px #386b7620}
+.cp-calendar.monthly .cp-month-weekday{font-size:12px;line-height:23px;color:#785439;font-weight:800;border-bottom:1px solid #ebdec4}
+.cp-calendar.monthly .cp-day{min-height:33px;border:0;border-radius:12px;background:transparent;box-shadow:none;color:#5d4332;font-size:16px;font-weight:700;padding:2px 0}
+.cp-calendar.monthly .cp-day.selected{background:linear-gradient(#78df52,#24b831);color:#fff;box-shadow:inset 0 1px 0 #c0f9a8,0 2px 0 #57a63e}
+.cp-calendar.monthly .cp-day[aria-current=date]:not(.selected){background:#eff8dd;color:#538737}
+.cp-calendar.monthly .cp-day.outside:not(.selected){opacity:.34}
+.cp-calendar.monthly .cp-day:focus-visible{outline:2px solid #2882c2;outline-offset:1px}
+@media(max-width:359px){.cp-calendar.monthly{padding-inline:7px}.cp-page:has(.cp-calendar.monthly) .cp-date-nav{padding-inline:7px}}
+/* The same title plaque is used by both calendar views. */
+.cp-page .cp-title{min-height:61px;padding-top:7px}
+body[data-mode=child] .cp-page .cp-title h1{display:grid;place-items:center;box-sizing:border-box;width:156px;height:58px;padding:4px 11px 0;background:url('assets/hd/dialogs-v3/plaque.webp') center/100% 100% no-repeat;font-size:19px!important;text-align:center}
+/* Seat the companion on the dock instead of above it. */
+.cp-buddy-button{transform:translateY(20px)}
+/* Shared fishing pose strips. Companion sits over all dock scenery. */
+.cp-seaside{isolation:auto;min-height:310px;overflow:visible}
+.cp-buddy-message{position:relative;z-index:2}
+.cp-buddy-button{z-index:20;isolation:isolate;overflow:visible;transform:translateY(2px)}
+.cp-fishing-art{display:block;width:155px;max-width:100%;height:235px;flex:none;background-image:var(--fishing-sheet);background-size:500% 100%;background-position:calc(var(--fishing-index)*25%) center;background-repeat:no-repeat;filter:drop-shadow(0 3px 2px #375d5035);pointer-events:none}
+.cp-buddy-button>span:last-child{position:relative;z-index:21}
+@media(max-width:359px){.cp-seaside{min-height:295px}.cp-fishing-art{width:142px;height:216px}}
+/* Calendar companion is the foreground layer over the dock and shoreline. */
+.cp-seaside{z-index:31}
+.cp-buddy-button{z-index:32}
+.cp-buddy-message{z-index:33}
