@@ -255,3 +255,13 @@ body[data-mode=child] .cp-page:has(.cp-calendar.monthly) .cp-title h1{
 }
 @media(prefers-reduced-motion:reduce){.cp-page *{transition:none!important}}
 \n/* The schedule header scrolls with content; native original dock/tab art stays sticky. */\n.cp-page .cp-header{position:relative;top:auto;background:none;z-index:1}\n
+
+/* Mobile screenshot review: keep the companion completely above sticky tabs. */
+.cp-page .cp-header{height:19px;min-height:19px}
+.cp-page .cp-filters{margin-top:10px;margin-bottom:10px}
+.cp-page .cp-item{min-height:58px;padding-top:6px;padding-bottom:6px}
+.cp-page .cp-packing{margin-top:9px}
+.cp-page .cp-packing-list>div{min-height:70px}
+.cp-page .cp-packing-list img{height:42px}
+.cp-page .cp-seaside{height:104px;min-height:104px;margin-top:10px}
+.cp-page .cp-buddy-button .cp-buddy-art{height:78px;max-height:78px}
