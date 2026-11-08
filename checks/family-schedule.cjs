@@ -23,8 +23,13 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  assert.ok(type.taskSize<=13.1,'task body should be at most 13px');
  assert.ok(type.taskWeight<=600,'task body should no longer be extra bold');
  assert.ok(type.dateSize<=13.1,'date label should be compact');
- assert.match(type.fontFamily,/PingFang SC/,'schedule text should use a native Chinese system font');
+ assert.match(type.fontFamily,/IslandRound/,'schedule should use the previously approved ChillRound font');
  assert.equal(type.clamp,'3','long task preview should clamp to three lines');
+ const loaded=await p.evaluate(async()=>{
+    await document.fonts.load('500 13px IslandRound','今天的安排');
+    return document.fonts.check('500 13px IslandRound','今天的安排');
+ });
+ assert.equal(loaded,true,'the actual approved ChillRound webfont must load');
  await p.screenshot({path:`/tmp/family-calendar-${width}.png`,fullPage:true});
 
  const originalTask=p.locator('.cp-item-copy b').first();
