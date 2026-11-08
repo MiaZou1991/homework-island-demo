@@ -10,11 +10,11 @@ assert.equal(F.parse('上午十点半读书',defaults).start,'10:30');
 assert.equal(F.visible({kind:'class'},'dad'),false);
 assert.equal(F.visible({kind:'event',ev:{members:['all']}},'mom'),true);
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
-(async()=>{const browser=await chromium.launch({headless:true,channel:'chrome'});for(const width of [320,390,430]){
+(async()=>{const browser=await chromium.launch({headless:true,channel:'chrome'});for(const width of [320,375,390,430]){
  const p=await browser.newPage({viewport:{width,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original&view=calendar');await p.locator('.cp-title').waitFor();await p.locator('#island-loader').waitFor({state:'detached'});await p.evaluate(()=>document.fonts.ready);
  await p.screenshot({path:`/tmp/family-calendar-${width}.png`,fullPage:true});
- assert.equal(await p.locator('.cp-brand img').getAttribute('src'),'assets/brand/kaixin-logo-final.webp');assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);
+ assert.equal(await p.locator('.cp-title h1').innerText(),'小岛日程');assert.equal(await p.locator('.cp-packing h2 img').getAttribute('src'),'assets/hd/course/backpack.webp');assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);assert.ok((await p.locator('.cp-seaside').boundingBox()).height<=135,'companion should be compact');
  await p.locator('[data-up="add-menu"]').click();await p.locator('#fs-sentence').fill('下午三点开心游泳，爸爸送');assert.match(await p.locator('#fs-summary').innerText(),/15:00.*爸爸/);
  await p.screenshot({path:`/tmp/family-calendar-dialog-${width}.png`,fullPage:true});
  await p.locator('.fs-save').click();await p.locator('.cp-item').filter({hasText:'开心游泳，爸爸送'}).waitFor();
