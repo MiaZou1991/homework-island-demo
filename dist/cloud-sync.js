@@ -162,6 +162,7 @@
     onRemoteUpdate = options.onRemoteUpdate || null;
     if (startPromise) return startPromise;
     startPromise = (async () => {
+      if (window.__islandSupabaseReady) await window.__islandSupabaseReady;
       if (!window.supabase || typeof window.supabase.createClient !== 'function') {
         console.warn('[作业岛云端同步] Supabase 客户端未加载');
         notify('云端暂时不可用，当前使用本机缓存');

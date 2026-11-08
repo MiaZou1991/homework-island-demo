@@ -16,7 +16,7 @@
 <link rel="stylesheet" href="calendar-fidelity.css?v=20261108-family">
 <link rel="stylesheet" href="child-dialogs.css?v=20261108-fast">
 <link rel="stylesheet" href="brand-final.css?v=20261108-fast">
-<link rel="stylesheet" href="family-schedule.css?v=20261108-month4">
+<link rel="stylesheet" href="family-schedule.css?v=20261108-month5">
 <link rel="preload" as="image" href="assets/hd/today-island-reference-v1.webp">
 </head>
 <body data-mode="child"><style>
@@ -394,7 +394,17 @@
 
 <script src="app.js?v=20261028dialogs8"></script>
 <script src="demo-core.js?v=20261027preview3"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+window.__islandSupabaseReady = new Promise(function(resolve) {
+  if (window.ISLAND_PREVIEW) { resolve(); return; }
+  var script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  script.async = true;
+  script.onload = resolve;
+  script.onerror = resolve;
+  document.head.appendChild(script);
+});
+</script>
 <script src="cloud-sync.js?v=20261025hd1"></script>
 <script src="v2-reminders.js?v=20261025hd1"></script>
 <script src="family-schedule.js?v=20261108"></script>
