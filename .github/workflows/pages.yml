@@ -23,6 +23,7 @@ jobs:
           node checks/domain.test.cjs
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
+          node checks/realtime-signal.cjs
       - uses: actions/setup-python@v6
         with:
           python-version: '3.x'

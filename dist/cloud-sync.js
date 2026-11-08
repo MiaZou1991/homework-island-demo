@@ -5,7 +5,13 @@
   const SUPABASE_KEY = 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax';
   const CODE_KEY = 'homework_island_family_code_v1';
   const PENDING_KEY = 'homework_island_sync_pending_v1:';
-  const POLL_MS = 60000;
+  const POLL_MS = 300000;
+  let knownRevision = null;
+  let wantedRevision = -1;
+  let signal = null;
+  let signalConnected = false;
+  let revisionBusy = false;
+  let revisionTimer = null;
   const RETRY_MS = 60000;
   let lastReadAt = -Infinity;
   let retryAfter = 0;
@@ -69,6 +75,7 @@
       return null;
     }
     if (!validPayload(data.payload)) throw new Error('云端家庭数据格式不正确');
+    knownRevision = Number.isInteger(data.revision) ? data.revision : null;
     setSyncState({ cloudRecord: 'yes', message: '云端有有效记录，正在核对当前数据' });
     return data.payload;
   }
@@ -107,6 +114,7 @@
     } finally {
       busy = false;
       if (pending) scheduleFlush(0);
+      drainRevision();
     }
   }
 
@@ -118,6 +126,7 @@
     });
     if (error) throw error;
     if (result && result.ok === false) throw new Error(result.error || '家庭数据保存失败');
+    if (Number.isInteger(result?.revision)) knownRevision = result.revision;
     return result;
   }
 
@@ -149,6 +158,7 @@
     } finally {
       busy = false;
       if (pending && pending !== snapshot) scheduleFlush(0);
+      drainRevision();
     }
   }
 
@@ -164,33 +174,48 @@
     scheduleFlush();
   }
 
+  function drainRevision() {
+    clearTimeout(revisionTimer);
+    if (!started || busy || pending || !available() || wantedRevision <= (knownRevision ?? -1)) return;
+    revisionTimer = setTimeout(() => {
+      if (!available() || busy || pending) return;
+      pull().catch(() => {});
+    }, Math.max(200, retryAfter - Date.now()));
+  }
+
+  async function checkRevision() {
+    if (!available() || revisionBusy || Date.now() < retryAfter) return;
+    revisionBusy = true;
+    try {
+      const { data } = await client.rpc('__revision', {});
+      const row = Array.isArray(data) ? data[0] : null;
+      if (!row || !Number.isInteger(row.revision)) throw new Error('版本通知尚不可用');
+      wantedRevision = Math.max(wantedRevision, row.revision);
+      if (pending && !cloudConfirmed) {
+        if (!busy) { busy = true; try { await loadRemote(); } finally { busy = false; } }
+      }
+      if (pending) scheduleFlush(0);
+      else drainRevision();
+    } catch (_) { setSyncState({ message: '暂时无法核对云端版本，本机记录保留' }); }
+    finally { revisionBusy = false; }
+  }
+
   function armPoll() {
     clearTimeout(pollTimer);
     if (!started || !available()) return;
-    const delay = Math.max(POLL_MS, retryAfter - Date.now());
-    pollTimer = setTimeout(async () => { await poll(); armPoll(); }, delay);
-  }
-
-  async function poll() {
-    if (!started || !client || busy || !available() || Date.now() < retryAfter) return;
-    if (pending && cloudConfirmed) { scheduleFlush(0); return; }
-    if (Date.now() - lastReadAt < POLL_MS) return;
-    try {
-      if (pending) {
-        busy = true;
-        try { await loadRemote(); } finally { busy = false; }
-        scheduleFlush(0);
-      } else await pull();
-    } catch (error) { console.warn('[开心岛云端同步] 读取失败', error); }
+    // No periodic data reads while the notification connection is healthy.
+    if (signalConnected) return;
+    pollTimer = setTimeout(async () => { await checkRevision(); armPoll(); }, Math.max(POLL_MS, retryAfter-Date.now()));
   }
 
   function resume() {
     if (!available()) {
-      clearTimeout(pollTimer);
-      clearTimeout(pushTimer);
-      return;
+      clearTimeout(pollTimer); clearTimeout(pushTimer); clearTimeout(revisionTimer);
+      signal?.stop(); return;
     }
-    poll().finally(armPoll);
+    signal?.start();
+    if (pending) scheduleFlush(0);
+    if (!signalConnected) { checkRevision(); armPoll(); }
   }
 
   async function start(options = {}) {
@@ -203,9 +228,9 @@
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
-          const response = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + name, {
-            method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload), signal: controller.signal
+          const response = await fetch(SUPABASE_URL + (name === '__revision' ? '/rest/v1/kaixin_sync_signal?id=eq.KAIXIN&select=revision&limit=1' : '/rest/v1/rpc/' + name), {
+            method: name === '__revision' ? 'GET' : 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+            body: name === '__revision' ? undefined : JSON.stringify(payload), signal: controller.signal
           });
           if (!response.ok) {
             const error = new Error('云端请求失败：' + response.status);
@@ -267,7 +292,14 @@
       } finally {
         started = true;
         if (pending) scheduleFlush(0);
-        armPoll();
+      drainRevision();
+        if (window.KaixinSignal) signal = window.KaixinSignal({
+          url: SUPABASE_URL, key: SUPABASE_KEY,
+          onRevision(revision) { wantedRevision = Math.max(wantedRevision, revision); drainRevision(); },
+          onReady: checkRevision,
+          onState(connected) { signalConnected = connected; setSyncState({ notifications: connected ? 'connected' : 'disconnected' }); armPoll(); }
+        });
+        resume();
         window.addEventListener('online', resume);
         window.addEventListener('offline', resume);
         window.addEventListener('focus', resume);
