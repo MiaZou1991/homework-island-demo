@@ -50,7 +50,7 @@ const DemoCore=(()=>{
   const target=kind==='homework'?item:((d.classCheckins ||= {})[day+'|'+id] ||= {items:{}});if(target.done)return null;
   target.done=true;target.completedAt=new Date().toISOString();target.pendingApproval=false;
   let r=g.receipts[key];
-  if(d.familyEdition==='kaixin-v1'){
+  if(d.familyEdition==='kaixin-v1'&&!d.pointsEnabled){
    if(!r){r={id:key,points:0,base:0,bonus:0,drops:[],construction:0,at:target.completedAt,reversed:false,policy:'kaixin-v1'};g.receipts[key]=r;}
    d.totalCompleted=(d.totalCompleted||0)+1;
    return {...r,replayed:!!r.historical,title:item.content};
@@ -58,12 +58,12 @@ const DemoCore=(()=>{
   if(r){if(r.reversed){r.points=Number(item.points)||0;r.base=r.points;r.bonus=0;credit(d,r.points);r.reversed=false;}if(kind==='homework'){item.earnedPoints=r.points||0;d.totalCompleted=(d.totalCompleted||0)+1;}else target.pointsAwarded=r.points||0;return {...r,replayed:true,title:kind==='homework'?item.content:item.name};}
   let base=Number.isFinite(Number(item.points))?Number(item.points):(kind==='class'?10:0),bonus=0;
   if(kind==='homework'){const today=date(0);if(d.lastCompletedDate!==today){d.currentStreak=d.lastCompletedDate===date(-1)?(d.currentStreak||0)+1:1;d.lastCompletedDate=today;}bonus=0;d.totalCompleted=(d.totalCompleted||0)+1;}
-  const drops=grantMaterialRewards(d).map(m=>m.id),construction=kind==='homework'?10:0;
+  const drops=d.familyEdition==='kaixin-v1'?[]:grantMaterialRewards(d).map(m=>m.id),construction=d.familyEdition==='kaixin-v1'?0:kind==='homework'?10:0;
   r={id:key,points:base+bonus,base,bonus,drops,construction,at:target.completedAt,reversed:false};g.receipts[key]=r;credit(d,r.points);g.construction+=construction;
   if(kind==='homework')item.earnedPoints=r.points;else target.pointsAwarded=r.points;
   return {...r,title:kind==='homework'?item.content:item.name};
  }
- function undo(d,id,kind='homework',day=date(0)){ensure(d);const target=kind==='homework'?d.homework.find(h=>h.id===id):(d.classCheckins||{})[day+'|'+id];if(!target?.done)return false;const key=kind==='homework'?'homework|'+id:'class|'+day+'|'+id;let r=d.demoGrowth.receipts[key];if(!r)r=d.demoGrowth.receipts[key]={historical:true,points:target.earnedPoints??target.pointsAwarded??target.points??0,drops:[],construction:0};if(d.familyEdition!=='kaixin-v1'&&!r.reversed){debit(d,r.points||0);r.reversed=true;}target.done=false;target.completedAt=null;if(kind==='homework'){target.earnedPoints=0;d.totalCompleted=Math.max(0,(d.totalCompleted||0)-1);}else target.pointsAwarded=0;return true;}
+ function undo(d,id,kind='homework',day=date(0)){ensure(d);const target=kind==='homework'?d.homework.find(h=>h.id===id):(d.classCheckins||{})[day+'|'+id];if(!target?.done)return false;const key=kind==='homework'?'homework|'+id:'class|'+day+'|'+id;let r=d.demoGrowth.receipts[key];if(!r)r=d.demoGrowth.receipts[key]={historical:true,points:target.earnedPoints??target.pointsAwarded??target.points??0,drops:[],construction:0};if((d.familyEdition!=='kaixin-v1'||d.pointsEnabled)&&!r.reversed){debit(d,r.points||0);r.reversed=true;}target.done=false;target.completedAt=null;if(kind==='homework'){target.earnedPoints=0;d.totalCompleted=Math.max(0,(d.totalCompleted||0)-1);}else target.pointsAwarded=0;return true;}
  function validate(value){let d=value;if(!Array.isArray(d?.homework)&&Array.isArray(d?.data?.homework))d=d.data;if(!d||typeof d!=='object'||Array.isArray(d)||!Array.isArray(d.homework))throw Error('请选择作业岛导出的 JSON 备份。');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions','journalEntries'])if(d[k]!==undefined&&!Array.isArray(d[k]))throw Error(k+' 字段格式不正确');for(const k of ['homework','recurringTasks','classes','events','rewardItems','redemptions','journalEntries']){const ids=(d[k]||[]).map(x=>x?.id);if(ids.some(id=>typeof id!=='string'||!id)||new Set(ids).size!==ids.length)throw Error(k+' 中存在缺失或重复 ID');}if(!Number.isFinite(Number(d.points??0))||Number(d.points??0)<0)throw Error('积分数据不正确');return clone(d);}
  function importData(value){let d=ensure({...createDefaultData(),...validate(value)});localStorage.setItem(DEMO_KEY,JSON.stringify(d));return d;}
  function homeworkProgress(d,day=date(0)){
