@@ -42,16 +42,11 @@
       </form>
     </div>`;
   document.body.appendChild(root);
-  let activeCode=cleanCode(localStorage.getItem(CODE_KEY))||'KAIXIN',expected=0; localStorage.setItem(CODE_KEY,activeCode);
+  let activeCode='KAIXIN',expected=0; localStorage.setItem(CODE_KEY,activeCode);
   const codeGate=document.getElementById('family-code-gate'),mathGate=document.getElementById('parent-math-gate');
   const codeInput=document.getElementById('family-code-input'),mathInput=document.getElementById('parent-math-answer');
   function openFamilyCodeDialog(){
-    codeInput.value=activeCode;
-    document.getElementById('family-code-current').hidden=!activeCode;
-    document.getElementById('family-code-current').textContent=activeCode?'当前家庭码：'+activeCode:'';
-    document.getElementById('family-code-error').textContent='';
-    codeGate.style.display='flex';
-    codeInput.focus();
+    if(typeof showToast==='function') showToast(window.IslandSync?.getStatus?.()?.message || '开心岛 · 家庭专属');
   }
   function makeQuestion(){
     const a=10+Math.floor(Math.random()*90),b=10+Math.floor(Math.random()*90);

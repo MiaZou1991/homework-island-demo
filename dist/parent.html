@@ -53,7 +53,7 @@
             <img class="brand-logo" src="assets/brand/kaixin-logo-final.webp" alt="开心岛 Homework Island">
         </div>
         <div class="hud">
-            <span class="kid-chip" onclick="openSyncPanel()" title="家庭码 / 多设备共享">
+            <span class="kid-chip" onclick="openSyncPanel()" title="家庭同步">
                 <img src="assets/cut/icon_coin.png" alt="">
                 <b id="kid-points">0</b>
                 <i>分</i>
@@ -299,14 +299,14 @@
                     </svg>
                 </b>
             </h1>
-            <p>把家庭码告诉家人，<br>大家就能看到同一座小岛啦。</p>
+            <p>把小岛链接发给家人，<br>大家就能看到同一座小岛啦。</p>
         </section>
 
         <section class="board">
             <i class="peg"></i>
             <div class="board-head">
                 <span class="b-ico">🔑</span>
-                <h2>家庭码</h2>
+                <h2>家庭空间</h2>
                 <span class="b-badge">多设备共享</span>
             </div>
             <div class="fam-code" style="margin-top:2px">
@@ -316,13 +316,13 @@
                 </span>
                 <span class="fc-copy" onclick="openSyncPanel()">管理</span>
             </div>
-            <p class="hint">在另一台设备上打开小岛日历，输入这串家庭码就能看到同一份作业。</p>
+            <p class="hint">在另一台设备打开开心岛，即可读取家庭记录。</p>
             <div class="review-act">
                 <span class="btn btn-ok" onclick="copyInviteLinkFor('child')">复制儿童端链接</span>
                 <span class="btn btn-ghost" onclick="copyInviteLinkFor('parent')">复制家长端链接</span>
-                <span class="btn btn-ghost" onclick="openSyncPanel()">管理家庭码</span>
+                <span class="btn btn-ghost" onclick="openSyncPanel()">查看同步状态</span>
             </div>
-            <p class="hint">发给孩子的用「儿童端链接」，发给另一位家长的用「家长端链接」；对方点开就自动连上这个家庭码，不用再手输。</p>
+            <p class="hint">发给孩子的用「儿童端链接」，发给另一位家长的用「家长端链接」；对方点开即可进入开心岛。</p>
         </section>
 
         <section class="board">
@@ -568,14 +568,14 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261025hd1"></script>
-<script src="demo-core.js?v=20261109-points-list"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="cloud-sync.js?v=20261025hd1"></script>
+<script src="app.js?v=20261109-kaixin1"></script>
+<script src="demo-core.js?v=20261109-kaixin1"></script>
+
+<script src="cloud-sync.js?v=20261109-kaixin1"></script>
 <script src="v2-reminders.js?v=20261025hd1"></script>
 <script src="family-schedule.js?v=20261108"></script>
-<script src="upgrade.js?v=20261109-points-list"></script>
-<script src="family-access.js?v=20261025hd1"></script>
+<script src="upgrade.js?v=20261109-kaixin1"></script>
+<script src="family-access.js?v=20261109-kaixin1"></script>
 </body>
 </html>
 

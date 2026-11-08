@@ -4599,10 +4599,10 @@ function renderParentSettings(data) {
     const knEl = $('set-kid-name');
     if (knEl && document.activeElement !== knEl) knEl.value = data.kidName || '';
     setText('set-code-sub', code
-        ? '家里所有设备都用这个码'
+        ? '开心岛 · 家庭数据自动同步'
         : '点「换一个码」给自己起个好记的');
     setText('set-sync-state', code
-        ? `已连接 · 家庭码 ${code}`
+        ? '开心岛 · 家庭同步'
         : '尚未连接，点这里设置家庭码');
 
     const cutoff = Date.now() - 30 * 86400000;
@@ -4678,7 +4678,7 @@ function copyInviteLinkFor(end) {
     // 直接在原路径后面拼 child.html 会得到 /parent.htmlchild.html。
     const dir = location.origin + location.pathname.replace(/[^/]*$/, '');
     const link = dir + (end === 'parent' ? 'parent.html' : 'child.html')
-               + '?code=' + encodeURIComponent(code);
+               + '';
     const label = (end === 'parent' ? '家长端' : '儿童端') + '邀请链接已复制 ✅';
 
     if (!navigator.clipboard || !navigator.clipboard.writeText) {

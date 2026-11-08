@@ -8,6 +8,7 @@
   const POLL_MS = 5000;
   const RETRY_MS = 5000;
   let client = null;
+  let cloudConfirmed = false;
   let started = false;
   let startPromise = null;
   let onRemoteUpdate = null;
@@ -23,8 +24,7 @@
   }
 
   function code() {
-    return String(localStorage.getItem(CODE_KEY) || 'KAIXIN')
-      .toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 32);
+    return 'KAIXIN';
   }
 
   function localKey() {
@@ -58,6 +58,7 @@
     const { data, error } = await client.rpc('family_load', { p_family_code: code() });
     if (error) throw error;
     if (data && data.ok === false) throw new Error(data.error || '家庭数据读取失败');
+    cloudConfirmed = true;
     if (!data || !data.exists) {
       setSyncState({ cloudRecord: 'no', message: '云端暂无家庭记录' });
       return null;
@@ -71,6 +72,10 @@
     if (pending || !validPayload(data)) return false;
     const serialized = JSON.stringify(data);
     if (localStorage.getItem(localKey()) === serialized) return false;
+    const backupKey = 'homework_island_before_kaixin_repair_v1';
+    if (!localStorage.getItem(backupKey) && localStorage.getItem(localKey()))
+      localStorage.setItem(backupKey, localStorage.getItem(localKey()));
+    localStorage.setItem('homework_island_last_cloud_KAIXIN_v1', serialized);
     localStorage.setItem(localKey(), serialized);
     if (typeof onRemoteUpdate === 'function') onRemoteUpdate(data);
     return true;
@@ -101,6 +106,7 @@
   }
 
   async function push(data) {
+    if (!cloudConfirmed) throw new Error("请先完成云端数据核对");
     if (!client || !code() || !validPayload(data)) return null;
     const { data: result, error } = await client.rpc('family_save', {
       p_family_code: code(), p_payload: data
@@ -153,7 +159,8 @@
 
   async function poll() {
     if (!started || !client || busy) return;
-    if (pending) { scheduleFlush(0); return; }
+    if (pending && cloudConfirmed) { scheduleFlush(0); return; }
+    if (!cloudConfirmed) { try { await loadRemote(); } catch (_) { return; } }
     try { await pull(); }
     catch (error) { console.warn('[作业岛云端同步] 读取失败', error); }
   }
@@ -162,15 +169,19 @@
     onRemoteUpdate = options.onRemoteUpdate || null;
     if (startPromise) return startPromise;
     startPromise = (async () => {
-      if (window.__islandSupabaseReady) await window.__islandSupabaseReady;
-      if (!window.supabase || typeof window.supabase.createClient !== 'function') {
-        console.warn('[作业岛云端同步] Supabase 客户端未加载');
-        notify('云端暂时不可用，当前使用本机缓存');
-        setSyncState({ current: 'unknown', message: '云端未加载，当前使用本机数据' });
-        window.dispatchEvent(new Event('island-ready'));
-        return;
-      }
-      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      // Native HTTP avoids waiting for a third-party SDK download.
+      client = { async rpc(name, payload) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 8000);
+        try {
+          const response = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + name, {
+            method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload), signal: controller.signal
+          });
+          if (!response.ok) throw new Error('云端请求失败：' + response.status);
+          return { data: await response.json(), error: null };
+        } finally { clearTimeout(timeout); }
+      } };
       const local = readLocal();
       const savedPending = readPending();
       if (savedPending) {
@@ -181,7 +192,7 @@
       }
       let initialUploadFailed = false;
       try {
-        const remote = pending ? null : await loadRemote();
+        const remote = await loadRemote();
         if (pending) {
           // Do not replace edits made while the initial request was running.
           notify('本机有新改动，正在同步');
@@ -191,7 +202,7 @@
             setSyncState({ current: 'synced', message: '云端有记录，当前数据已同步' });
             notify('当前数据已同步');
           }
-        } else if (validPayload(local)) {
+        } else if (validPayload(local) && local.homework.length > 0) {
           try {
             await push(local);
             if (!pending && localStorage.getItem(localKey()) === JSON.stringify(local)) {
@@ -224,7 +235,7 @@
 
   function openPanel() {
     if (typeof openFamilyCodeDialog === 'function') openFamilyCodeDialog();
-    else notify('请先设置家庭码');
+    else notify(syncState.message);
   }
 
   window.IslandSync = { start, schedulePush, pull, push, getCode: code, getStatus: () => ({ ...syncState }), setCode: () => {}, openPanel };
