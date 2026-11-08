@@ -7,6 +7,7 @@ from PIL import Image
 SOURCE = Path("dist")
 BUILD = Path("build/pages")
 TARGETS = [
+    *[Path(f"assets/our-island-v1/{name}.png") for name in ("map", "girl", "tree")],
     *[Path(f"assets/island-stage-{i}.png") for i in range(4)],
     Path("assets/room.png"),
     Path("assets/characters/char_dog.png"),
@@ -36,7 +37,7 @@ for relative in TARGETS:
         raise RuntimeError(f"WebP conversion did not reduce {relative}")
     before_total += source.stat().st_size
     after_total += target.stat().st_size
-    converted_names.add(source.name)
+    converted_names.add(str(relative))
     source.unlink()
 
 # Rewrite only paths for assets converted above. The dynamic island-stage path
@@ -48,6 +49,7 @@ for path in BUILD.rglob("*"):
     for filename in converted_names:
         text = text.replace(filename, Path(filename).with_suffix(".webp").name)
     text = text.replace("island-stage-${stage(d)}.png", "island-stage-${stage(d)}.webp")
+    text = text.replace("assets/our-island-v1/${name}.png", "assets/our-island-v1/${name}.webp")
     path.write_text(text, encoding="utf-8")
 
 saved = before_total - after_total

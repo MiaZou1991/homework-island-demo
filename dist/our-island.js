@@ -16,6 +16,28 @@ if(state.overview){ctx.font='bold 19px system-ui';ctx.textAlign='center';for(con
 $('stick').addEventListener('pointerdown',e=>{if(pointer!==null)return;pointer=e.pointerId;$('stick').setPointerCapture(pointer);move(e)});function move(e){if(e.pointerId!==pointer)return;const r=$('stick').getBoundingClientRect();let x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,n=Math.hypot(x,y);const f=Math.min(n,36)/(n||1);x*=f;y*=f;axis.x=n<9?0:x/36;axis.y=n<9?0:y/36;$('knob').style.transform=`translate(${x}px,${y}px)`} $('stick').addEventListener('pointermove',move);for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('stick').addEventListener(ev,stop);
 window.addEventListener('keydown',e=>{if($('closeup').open||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)){e.preventDefault();keys.add(e.key)}});window.addEventListener('keyup',e=>keys.delete(e.key));window.addEventListener('blur',stop);document.addEventListener('visibilitychange',stop);window.addEventListener('pagehide',()=>{stop();cancelAnimationFrame(frame)});
 $('visit').onclick=()=>{stop();$('closeup').showModal();$('back').focus()};$('back').onclick=()=>$('closeup').close();$('closeup').addEventListener('close',()=>{stop();$('visit').focus()});$('home').onclick=()=>{stop();state.x=768;state.y=925};$('mapToggle').onclick=()=>{stop();state.overview=!state.overview;$('mapToggle').textContent=state.overview?'继续漫步':'看看地图';resize()};new ResizeObserver(resize).observe(canvas);
-Promise.all(['map','girl','tree'].map(name=>new Promise((resolve,reject)=>{const im=new Image;im.onload=()=>{images[name]=im;resolve()};im.onerror=reject;im.src=`assets/our-island-v1/${name}.png`}))).then(()=>{state.ready=true;resize();camera.x=Math.max(0,Math.min(W-vw/scale,state.x-vw/scale/2));camera.y=Math.max(0,H-vh/scale);$('loading').hidden=true;draw(0)}).catch(()=>{$('loading').textContent='小岛图片未加载成功，请刷新重试'});
+let loadingAttempt=0;
+async function loadIsland(){
+ const attempt=++loadingAttempt,box=$('loading');box.hidden=false;
+ const names=['map','girl','tree'];let complete=names.filter(n=>images[n]).length;
+ const progress=()=>{box.textContent=`正在加载小岛画面 ${complete}/3…`;};progress();
+ try{
+  await Promise.all(names.map(name=>images[name]?Promise.resolve():new Promise((resolve,reject)=>{
+   const im=new Image();let finished=false;
+   const timer=setTimeout(()=>finish(new Error('timeout')),12000);
+   function finish(error){if(finished)return;finished=true;clearTimeout(timer);im.onload=im.onerror=null;
+    if(error){im.src='';reject(error);return;}
+    if(attempt===loadingAttempt){images[name]=im;complete++;progress();}resolve();}
+   im.onload=()=>finish();im.onerror=()=>finish(new Error('image'));im.src=`assets/our-island-v1/${name}.png`;
+  })));
+  if(attempt!==loadingAttempt)return;
+  state.ready=true;resize();camera.x=Math.max(0,Math.min(W-vw/scale,state.x-vw/scale/2));camera.y=Math.max(0,H-vh/scale);box.hidden=true;cancelAnimationFrame(frame);draw(0);
+ }catch(_){if(attempt!==loadingAttempt)return;loadingAttempt++;box.replaceChildren();
+  const panel=document.createElement('div'),message=document.createElement('p'),retry=document.createElement('button'),back=document.createElement('a');
+  message.textContent='小岛画面加载较慢或未成功，你的记录没有改变。';retry.textContent='重试加载';retry.onclick=loadIsland;
+  back.textContent='返回今日任务';back.href='child.html';back.style.cssText='display:block;margin-top:20px;color:inherit';panel.style.cssText='padding:24px;text-align:center';panel.append(message,retry,back);box.append(panel);
+ }
+}
+loadIsland();
 window.IslandWalk={state,walkable,polygons,stop};
 })();
