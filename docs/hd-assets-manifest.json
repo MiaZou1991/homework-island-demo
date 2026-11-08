@@ -1,0 +1,595 @@
+[
+  {
+    "path": "dist/assets/hd/magic-lucky-stone.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 60209
+  },
+  {
+    "path": "dist/assets/hd/shell-scallop.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 50288
+  },
+  {
+    "path": "dist/assets/hd/island.webp",
+    "size": [
+      1448,
+      1086
+    ],
+    "mode": "RGB",
+    "bytes": 490376
+  },
+  {
+    "path": "dist/assets/hd/nature-tree-branch.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 47263
+  },
+  {
+    "path": "dist/assets/hd/flower-cosmos.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 55047
+  },
+  {
+    "path": "dist/assets/hd/raccoon.webp",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 324284
+  },
+  {
+    "path": "dist/assets/hd/nature-wood-piece.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 47816
+  },
+  {
+    "path": "dist/assets/hd/plant-four-leaf-clover.png",
+    "size": [
+      256,
+      256
+    ],
+    "mode": "RGBA",
+    "bytes": 54147
+  },
+  {
+    "path": "dist/assets/hd/today-hero.jpg",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "bytes": 514113,
+    "source": "Independent generated Today illustration, 2026-10-25; Canva DAHYmuLEOFs composition reference",
+    "css_max_width": 430,
+    "dpr3": "pass; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/today-foliage.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGBA",
+    "bytes": 1618972,
+    "source": "Independent generated Today illustration, 2026-10-25; Canva DAHYmuLEOFs composition reference",
+    "css_max_width": 85,
+    "dpr3": "pass; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/masters/today-hero.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "bytes": 2139680,
+    "source": "Independent generated Today illustration, 2026-10-25; Canva DAHYmuLEOFs composition reference",
+    "css_max_width": 430,
+    "dpr3": "pass; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/today-original-scene.webp",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "bytes": 255228,
+    "source": "Independent scene reconstructed from approved Today reference",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/masters/today-original-scene.png",
+    "size": [
+      1536,
+      1024
+    ],
+    "mode": "RGB",
+    "bytes": 1943500,
+    "source": "Independent scene reconstructed from approved Today reference",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/raccoon-wave.webp",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 181142,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/utilities.webp",
+    "size": [
+      2172,
+      724
+    ],
+    "mode": "RGBA",
+    "bytes": 231880,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs-clean.webp",
+    "size": [
+      2172,
+      724
+    ],
+    "mode": "RGBA",
+    "bytes": 180104,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-other.png",
+    "size": [
+      154,
+      150
+    ],
+    "mode": "RGBA",
+    "bytes": 31908,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-english.png",
+    "size": [
+      155,
+      150
+    ],
+    "mode": "RGBA",
+    "bytes": 30879,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-chinese.png",
+    "size": [
+      156,
+      150
+    ],
+    "mode": "RGBA",
+    "bytes": 34085,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-art.png",
+    "size": [
+      158,
+      152
+    ],
+    "mode": "RGBA",
+    "bytes": 39747,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-science.png",
+    "size": [
+      148,
+      151
+    ],
+    "mode": "RGBA",
+    "bytes": 33888,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-music.png",
+    "size": [
+      158,
+      151
+    ],
+    "mode": "RGBA",
+    "bytes": 32445,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-sports.png",
+    "size": [
+      160,
+      151
+    ],
+    "mode": "RGBA",
+    "bytes": 37586,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/subjects/subject-math.png",
+    "size": [
+      151,
+      149
+    ],
+    "mode": "RGBA",
+    "bytes": 31953,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/masters/library-v2-utilities.png",
+    "size": [
+      2172,
+      724
+    ],
+    "mode": "RGBA",
+    "bytes": 1103106,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/masters/library-v2-raccoon-wave.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 1134088,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/masters/library-v2-tabs-clean.png",
+    "size": [
+      2172,
+      724
+    ],
+    "mode": "RGBA",
+    "bytes": 1159343,
+    "source": "zuoyedao-ui-library-v2 original asset / documented HD derivative; see today-page-review.md",
+    "acceptance": "See mobile-results.json; image dimensions and sprite cell dimensions tested separately"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/wordmark-wood-source.png",
+    "size": [
+      197,
+      70
+    ],
+    "mode": "RGBA",
+    "bytes": 22005,
+    "source": "V2 UI library original wooden wordmark",
+    "acceptance": "See today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/masters/library-v2-wordmark-wood.png",
+    "size": [
+      2103,
+      748
+    ],
+    "mode": "RGBA",
+    "bytes": 1431015,
+    "source": "High-definition repair derived from V2 wooden wordmark",
+    "acceptance": "See today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/wordmark-wood-hd.webp",
+    "size": [
+      2103,
+      748
+    ],
+    "mode": "RGBA",
+    "bytes": 183700,
+    "source": "High-definition repair derived from V2 wooden wordmark",
+    "acceptance": "See today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/masters/today-portrait-scene.png",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGB",
+    "bytes": 1935563,
+    "source": "Independent portrait scene reconstructed from approved Today reference",
+    "acceptance": "2.6x at 430 CSS px; strict DPR3 pending"
+  },
+  {
+    "path": "dist/assets/hd/today-portrait-scene.webp",
+    "size": [
+      1122,
+      1402
+    ],
+    "mode": "RGB",
+    "bytes": 318288,
+    "source": "Independent portrait scene reconstructed from approved Today reference",
+    "acceptance": "2.6x at 430 CSS px; strict DPR3 pending"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-calendar-default.png",
+    "size": [
+      217,
+      164
+    ],
+    "mode": "RGBA",
+    "bytes": 57760,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-calendar-selected.png",
+    "size": [
+      218,
+      172
+    ],
+    "mode": "RGBA",
+    "bytes": 64059,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-home-default.png",
+    "size": [
+      214,
+      173
+    ],
+    "mode": "RGBA",
+    "bytes": 61973,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-home-selected.png",
+    "size": [
+      214,
+      173
+    ],
+    "mode": "RGBA",
+    "bytes": 65198,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-tasks-default.png",
+    "size": [
+      212,
+      174
+    ],
+    "mode": "RGBA",
+    "bytes": 57851,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/tabs/tab-tasks-selected.png",
+    "size": [
+      207,
+      174
+    ],
+    "mode": "RGBA",
+    "bytes": 59121,
+    "source": "zuoyedao-ui-library-v2 original tab asset",
+    "acceptance": "Displayed proportionally at about 3x CSS pixel density; see today-page-review.md"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/art.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 4635,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/chinese.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 3886,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/english.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 4149,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/math.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 4929,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/music.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 3260,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/other.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 3719,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/science.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 3257,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/subjects-v12/sports.png",
+    "size": [
+      72,
+      72
+    ],
+    "mode": "RGBA",
+    "bytes": 4991,
+    "source": "作业岛_学科与日历_独立切图_V1.2.zip / 01_subjects/icons-transparent",
+    "displayMaxCssPx": 36,
+    "dpr3": "pending higher resolution source after user-requested enlargement"
+  },
+  {
+    "path": "dist/assets/hd/today-bluegreen-portrait-v2.png",
+    "size": [
+      853,
+      1844
+    ],
+    "bytes": 2445563,
+    "source": "built-in imagegen; docs/today-background-v2.md",
+    "display": "full phone, cover, uniform scale",
+    "dpr3": "pending higher resolution master"
+  },
+  {
+    "path": "dist/assets/hd/library-v2/raccoon-standing-v2.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "bytes": 1173590,
+    "source": "built-in imagegen; docs/today-background-v2.md"
+  },
+  {
+    "path": "dist/assets/hd/today-cartoon-portrait-v3.png",
+    "size": [
+      853,
+      1844
+    ],
+    "bytes": 2056278,
+    "source": "built-in imagegen; docs/today-background-v2.md"
+  },
+  {
+    "path": "dist/assets/hd/today-sandy-path-v4.png",
+    "size": [
+      853,
+      1844
+    ],
+    "mode": "RGB",
+    "bytes": 2011917
+  },
+  {
+    "path": "dist/assets/hd/today-icons/mood-v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 1140727
+  },
+  {
+    "path": "dist/assets/hd/today-icons/course-v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 1294658
+  },
+  {
+    "path": "dist/assets/hd/today-icons/companions-v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 1087621
+  },
+  {
+    "path": "dist/assets/hd/today-icons/homework-v1.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "bytes": 1299484
+  },
+  {
+    "path": "dist/assets/hd/today-icons/dialog-title-v1.png",
+    "size": [
+      2172,
+      724
+    ],
+    "mode": "RGBA",
+    "bytes": 1053299
+  },
+  {
+    "path": "dist/assets/hd/today-icons/dialog-panel-v1.svg",
+    "size": [
+      390,
+      650
+    ],
+    "mode": "SVG",
+    "bytes": 776
+  }
+]

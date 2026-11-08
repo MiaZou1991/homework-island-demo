@@ -1,5 +1,6 @@
 /* 作业岛云端同步：家庭码对应一份 Supabase 家庭数据。 */
 (() => {
+  if(typeof ISLAND_PREVIEW!=='undefined'&&ISLAND_PREVIEW)return;
   const SUPABASE_URL = 'https://syqcpfjudjniripzcjdq.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax';
   const CODE_KEY = 'homework_island_family_code_v1';

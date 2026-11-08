@@ -1,5 +1,6 @@
 /* 家庭码用于云端家庭数据分区；同一家庭的成员共享同一份数据。 */
 (() => {
+  if(typeof ISLAND_PREVIEW!=='undefined'&&ISLAND_PREVIEW)return;
   const CODE_KEY='homework_island_family_code_v1';
   const cleanCode=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,8);
   const style=document.createElement('style');

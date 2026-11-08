@@ -1068,6 +1068,16 @@ function deleteEvent(id) {
     if (!data.events) return;
     const ev = getEvent(id);
     if (!ev) return;
+    if (document.body.dataset.mode === 'child') {
+        openConfirm({ title: '删除日程', sub: `确定删除「${ev.title}」吗？`, okText: '确认删除', onOk: () => {
+            const current = getData();
+            current.events = (current.events || []).filter(x => x.id !== id);
+            saveData(current);
+            refreshAfterChange();
+            showToast('已删除');
+        }});
+        return;
+    }
     if (!window.confirm(`删除「${ev.title}」？`)) return;
     data.events = data.events.filter(x => x.id !== id);
     saveData(data);
@@ -2023,7 +2033,7 @@ function completeHomework(id) {
     }
     data.lastCompletedDate = today;
 
-    const streakBonus = Math.min(data.currentStreak * 2, 20);
+    const streakBonus = 0; // V2: only the configured homework points.
     hw.earnedPoints = hw.points + streakBonus;
     data.points += hw.earnedPoints;
     data.totalCompleted += 1;
@@ -3206,54 +3216,10 @@ function ensureTodayMate(data) {
     return fallback;
 }
 
-function openMatePicker(e) {
-    if (e) e.stopPropagation();
-    const data = getData();
-    const current = ensureTodayMate(data);
-    const ovl = $('ovl-mate');
-
-    if (ovl) {
-        ovl.classList.add('on');
-        document.body.classList.add('sheet-open');
-    }
-
-    const grid = $('mate-grid');
-    if (grid) {
-        grid.innerHTML = '';
-        const all = mateRewardItems(data);
-        all.forEach(r => {
-            const isUnlocked = (data.rewardsUnlocked || []).includes(r.emoji);
-            const isCurrent = current.emoji === r.emoji;
-            const el = document.createElement('button');
-            el.type = 'button';
-            el.className = 'mate-card' + (isUnlocked ? ' unlocked' : ' locked') + (isCurrent ? ' current' : '');
-            el.innerHTML = `
-                <span class="mate-emoji">${isUnlocked ? r.emoji : '🔒'}</span>
-                <span class="mate-name">${escapeHtml(r.name)}</span>
-                <span class="mate-state">${isCurrent ? '今天陪你 ✨' : isUnlocked ? '选它' : `⭐ ${r.points} 分兑换`}</span>
-            `;
-            if (isUnlocked) {
-                el.onclick = () => pickMate(r.emoji);
-            } else {
-                el.disabled = true;
-            }
-            grid.appendChild(el);
-        });
-    }
-
-    const tip = $('mate-tip');
-    if (tip) {
-        const locked = mateRewardItems(data).filter(r => !(data.rewardsUnlocked || []).includes(r.emoji));
-        tip.textContent = locked.length
-            ? `还有 ${locked.length} 个伙伴没上岛，去「积分兑换」里用积分请它来吧！`
-            : '所有伙伴都上岛啦，真棒！';
-    }
-}
-
+// Partner selection is owned by upgrade.js; keep the shared close hook for callers.
 function closeMatePicker() {
-    const ovl = $('ovl-mate');
-    if (ovl) ovl.classList.remove('on');
-    document.body.classList.remove('sheet-open');
+    const dialog = document.querySelector('#up-dialog.island-companion-dialog');
+    if (dialog) dialog.close();
 }
 
 function pickMate(emoji, name) {
