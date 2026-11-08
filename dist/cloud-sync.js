@@ -5,8 +5,12 @@
   const SUPABASE_KEY = 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax';
   const CODE_KEY = 'homework_island_family_code_v1';
   const PENDING_KEY = 'homework_island_sync_pending_v1:';
-  const POLL_MS = 5000;
-  const RETRY_MS = 5000;
+  const POLL_MS = 60000;
+  const RETRY_MS = 60000;
+  let lastReadAt = -Infinity;
+  let retryAfter = 0;
+  let failures = 0;
+  const available = () => !document.hidden && navigator.onLine !== false;
   let client = null;
   let cloudConfirmed = false;
   let started = false;
@@ -55,6 +59,7 @@
   }
 
   async function loadRemote() {
+    lastReadAt = Date.now();
     const { data, error } = await client.rpc('family_load', { p_family_code: code() });
     if (error) throw error;
     if (data && data.ok === false) throw new Error(data.error || '家庭数据读取失败');
@@ -117,13 +122,15 @@
   }
 
   function scheduleFlush(delay = 450) {
-    if (!started || !client || !pending) return;
+    if (!started || !client || !pending || !available()) return;
     clearTimeout(pushTimer);
-    pushTimer = setTimeout(flush, delay);
+    pushTimer = setTimeout(flush, Math.max(delay, retryAfter - Date.now()));
   }
 
   async function flush() {
-    if (busy || !pending || !client) return;
+    if (busy || !pending || !client || !available()) return;
+    if (Date.now() < retryAfter) { scheduleFlush(RETRY_MS); return; }
+    if (!cloudConfirmed) { armPoll(); return; }
     busy = true;
     const snapshot = pending;
     try {
@@ -157,12 +164,33 @@
     scheduleFlush();
   }
 
+  function armPoll() {
+    clearTimeout(pollTimer);
+    if (!started || !available()) return;
+    const delay = Math.max(POLL_MS, retryAfter - Date.now());
+    pollTimer = setTimeout(async () => { await poll(); armPoll(); }, delay);
+  }
+
   async function poll() {
-    if (!started || !client || busy) return;
+    if (!started || !client || busy || !available() || Date.now() < retryAfter) return;
     if (pending && cloudConfirmed) { scheduleFlush(0); return; }
-    if (!cloudConfirmed) { try { await loadRemote(); } catch (_) { return; } }
-    try { await pull(); }
-    catch (error) { console.warn('[作业岛云端同步] 读取失败', error); }
+    if (Date.now() - lastReadAt < POLL_MS) return;
+    try {
+      if (pending) {
+        busy = true;
+        try { await loadRemote(); } finally { busy = false; }
+        scheduleFlush(0);
+      } else await pull();
+    } catch (error) { console.warn('[开心岛云端同步] 读取失败', error); }
+  }
+
+  function resume() {
+    if (!available()) {
+      clearTimeout(pollTimer);
+      clearTimeout(pushTimer);
+      return;
+    }
+    poll().finally(armPoll);
   }
 
   async function start(options = {}) {
@@ -171,6 +199,7 @@
     startPromise = (async () => {
       // Native HTTP avoids waiting for a third-party SDK download.
       client = { async rpc(name, payload) {
+        if (Date.now() < retryAfter) throw new Error('云端暂不可用，稍后重试');
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
@@ -178,8 +207,21 @@
             method: 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
             body: JSON.stringify(payload), signal: controller.signal
           });
-          if (!response.ok) throw new Error('云端请求失败：' + response.status);
-          return { data: await response.json(), error: null };
+          if (!response.ok) {
+            const error = new Error('云端请求失败：' + response.status);
+            error.status = response.status;
+            throw error;
+          }
+          const data = await response.json();
+          failures = 0;
+          retryAfter = 0;
+          return { data, error: null };
+        } catch (error) {
+          failures++;
+          const delay = error.status === 402 ? 30 * 60000 : Math.min(15 * 60000, RETRY_MS * 2 ** Math.min(failures - 1, 4));
+          retryAfter = Date.now() + delay;
+          if (error.status === 402) setSyncState({ current: pending ? 'pending' : 'unknown', message: '云端额度受限，已暂停频繁重试；本机记录保留' });
+          throw error;
         } finally { clearTimeout(timeout); }
       } };
       const local = readLocal();
@@ -192,6 +234,7 @@
       }
       let initialUploadFailed = false;
       try {
+        if (!available()) throw new Error("页面在后台或网络离线");
         const remote = await loadRemote();
         if (pending) {
           // Do not replace edits made while the initial request was running.
@@ -224,9 +267,11 @@
       } finally {
         started = true;
         if (pending) scheduleFlush(0);
-        pollTimer = setInterval(poll, POLL_MS);
-        window.addEventListener('online', poll);
-        window.addEventListener('focus', poll);
+        armPoll();
+        window.addEventListener('online', resume);
+        window.addEventListener('offline', resume);
+        window.addEventListener('focus', resume);
+        document.addEventListener('visibilitychange', resume);
         window.dispatchEvent(new Event('island-ready'));
       }
     })();
