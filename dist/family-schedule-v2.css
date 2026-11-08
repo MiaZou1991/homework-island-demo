@@ -3,7 +3,7 @@
    editor, cloud sync, task/class/event handlers remain untouched.
    Illustration and content are separate DOM layers. */
 body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone{
-  background:#f9eed8!important;
+  background:#7fdce0 url("assets/hd/family-calendar/coast-empty-v2.webp") center bottom / cover no-repeat!important;
 }
 body[data-mode="child"] .cp-page{
   box-sizing:border-box;
@@ -254,3 +254,4 @@ body[data-mode=child] .cp-page:has(.cp-calendar.monthly) .cp-title h1{
   .cp-page .cp-buddy-message>span{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.cp-page *{transition:none!important}}
+\n/* The schedule header scrolls with content; native original dock/tab art stays sticky. */\n.cp-page .cp-header{position:relative;top:auto;background:none;z-index:1}\n
