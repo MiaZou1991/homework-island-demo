@@ -47,7 +47,7 @@ for path in BUILD.rglob("*"):
         continue
     text = path.read_text(encoding="utf-8")
     for filename in converted_names:
-        text = text.replace(filename, Path(filename).with_suffix(".webp").name)
+        text = text.replace(filename, str(Path(filename).with_suffix(".webp")))
     text = text.replace("island-stage-${stage(d)}.png", "island-stage-${stage(d)}.webp")
     text = text.replace("assets/our-island-v1/${name}.png", "assets/our-island-v1/${name}.webp")
     path.write_text(text, encoding="utf-8")
