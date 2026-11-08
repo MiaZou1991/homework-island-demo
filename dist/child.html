@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="island-booting">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -9,17 +9,18 @@
     <meta name="apple-mobile-web-app-title" content="小岛日历">
     <link rel="manifest" href="manifest.json">
     <title>开心岛·小岛日历</title>
-    <link rel="stylesheet" href="style.css?v=20261019r">
-<link rel="stylesheet" href="upgrade.css?v=20261019r">
-<link rel="stylesheet" href="child-hd.css?v=20261025">
-<link rel="stylesheet" href="today-fidelity.css?v=20261109-homework-compat">
-<link rel="stylesheet" href="calendar-fidelity.css?v=20261108-family">
-<link rel="stylesheet" href="child-dialogs.css?v=20261109-points-list">
-<link rel="stylesheet" href="brand-final.css?v=20261108-fast">
-<link rel="stylesheet" href="family-schedule.css?v=20261108-month5">
+    <link rel="stylesheet" href="style.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="upgrade.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="child-hd.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="today-fidelity.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="calendar-fidelity.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="child-dialogs.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="brand-final.css?v=20261109-bootfix1">
+<link rel="stylesheet" href="family-schedule.css?v=20261109-bootfix1">
 <link rel="preload" as="image" href="assets/hd/today-island-reference-v1.webp">
 </head>
 <body data-mode="child"><style>
+.island-booting .phone{visibility:hidden!important}
 #island-loader{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 50% 15%,#fff5d7 0,#f9efd9 42%,#edf0d9 100%);opacity:1;transition:opacity .45s ease,visibility .45s ease}
 #island-loader.is-ready{opacity:0;visibility:hidden;pointer-events:none}
 .island-loader-card{width:min(390px,90vw);padding:18px 18px 24px;text-align:center;color:#5e4933;background:#fffaf0;border:1px solid #ecdfc4;border-radius:28px;box-shadow:0 18px 52px #7f66402c,0 3px 0 #e8d9bd}
@@ -30,7 +31,7 @@
 .loader-dots{display:flex;justify-content:center;gap:7px;margin-top:17px}.loader-dots i{width:8px;height:8px;border-radius:50%;background:#d6a44e;animation:loader-bounce 1s ease-in-out infinite}.loader-dots i:nth-child(2){animation-delay:.14s}.loader-dots i:nth-child(3){animation-delay:.28s}
 @keyframes loader-bounce{0%,100%{transform:translateY(0);opacity:.45}50%{transform:translateY(-5px);opacity:1}}
 @media(prefers-reduced-motion:reduce){.loader-dots i{animation:none}#island-loader{transition:none}}
-</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><img src="assets/hd/island.webp" alt="" decoding="async"></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;x.classList.add('is-ready');setTimeout(function(){x.remove()},500)}window.addEventListener('island-ready',done);setTimeout(done,9000)})();</script>
+</style><div id="island-loader" role="status" aria-live="polite"><div class="island-loader-card"><div class="island-loader-art"><img src="assets/hd/island.webp" alt="" decoding="async"></div><h1 class="island-loader-title">小岛正在醒来</h1><p class="island-loader-sub">正在把今天的作业和小岛记忆带回来…</p><span class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></span></div></div><script>(function(){var x=document.getElementById('island-loader');function done(){if(!x||x.classList.contains('is-ready'))return;if(!document.querySelector('#upgrade-root > *')||document.querySelectorAll('.up-nav [data-up]').length!==3)return;document.documentElement.classList.remove('island-booting');x.classList.add('is-ready');setTimeout(function(){x.remove()},500)}window.addEventListener('island-ready',done);setTimeout(function(){if(!document.documentElement.classList.contains('island-booting'))return; x.querySelector('.island-loader-title').textContent='小岛暂时没有加载完成';x.querySelector('.island-loader-sub').textContent='请检查网络后重试，你的家庭资料和学习记录不会被清除。';x.querySelector('.loader-dots').hidden=true;var b=document.createElement('button');b.type='button';b.textContent='重新加载小岛';b.onclick=function(){var u=new URL(location.href);u.searchParams.set('v',Date.now());location.replace(u.href)};x.querySelector('.island-loader-card').appendChild(b)},9000)})();</script>
 <!-- 内联图标库（纯路径，无 emoji 依赖；规格与设计基准稿一致） -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
@@ -392,8 +393,8 @@
 
 <script>window.__ISLAND_BUILD__ = '20261018-demo-integrated';</script>
 
-<script src="app.js?v=20261028dialogs8"></script>
-<script src="demo-core.js?v=20261109-points-list"></script>
+<script src="app.js?v=20261109-bootfix1"></script>
+<script src="demo-core.js?v=20261109-bootfix1"></script>
 <script>
 window.__islandSupabaseReady = new Promise(function(resolve) {
   if (window.ISLAND_PREVIEW) { resolve(); return; }
@@ -405,12 +406,12 @@ window.__islandSupabaseReady = new Promise(function(resolve) {
   document.head.appendChild(script);
 });
 </script>
-<script src="cloud-sync.js?v=20261025hd1"></script>
-<script src="v2-reminders.js?v=20261025hd1"></script>
-<script src="family-schedule.js?v=20261108"></script>
-<script src="upgrade.js?v=20261109-points-list"></script>
-<script src="family-access.js?v=20261025hd1"></script>
-<script src="child-dialogs.js?v=20261028v2"></script>
+<script src="cloud-sync.js?v=20261109-bootfix1"></script>
+<script src="v2-reminders.js?v=20261109-bootfix1"></script>
+<script src="family-schedule.js?v=20261109-bootfix1"></script>
+<script src="upgrade.js?v=20261109-bootfix1"></script>
+<script src="family-access.js?v=20261109-bootfix1"></script>
+<script src="child-dialogs.js?v=20261109-bootfix1"></script>
 </body>
 </html>
 
