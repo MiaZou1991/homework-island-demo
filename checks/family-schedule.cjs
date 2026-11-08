@@ -26,6 +26,17 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  assert.match(type.fontFamily,/PingFang SC/,'schedule text should use a native Chinese system font');
  assert.equal(type.clamp,'3','long task preview should clamp to three lines');
  await p.screenshot({path:`/tmp/family-calendar-${width}.png`,fullPage:true});
+
+ const originalTask=p.locator('.cp-item-copy b').first();
+ const savedTitle=await originalTask.textContent();
+ const longHomework='钢琴练习🌈 1️⃣ 指法：左右手每个5次 2️⃣ 唱谱：2次 3️⃣ 练习：5遍。整理自己的书包 1️⃣ 文具：铅笔、直尺、橡皮 2️⃣ 语文、数学、英语三科课本及作业本。';
+ await originalTask.evaluate((el,title)=>{el.textContent=title},longHomework);
+ const longText=await originalTask.evaluate(el=>({height:el.getBoundingClientRect().height,lineHeight:parseFloat(getComputedStyle(el).lineHeight),title:el.textContent}));
+ assert.equal(longText.title,longHomework,'long task text should stay intact for details and accessibility');
+ assert.ok(longText.height<=longText.lineHeight*3+10,'long Chinese homework should preview within three lines');
+ await p.screenshot({path:`/tmp/family-calendar-longtext-${width}.png`,fullPage:true});
+ await originalTask.evaluate((el,title)=>{el.textContent=title},savedTitle);
+
  assert.equal(await p.locator('.cp-title h1').innerText(),'小岛日程');assert.equal(await p.locator('.cp-packing h2 img').getAttribute('src'),'assets/hd/course/backpack.webp');assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);assert.ok((await p.locator('.cp-seaside').boundingBox()).height<=135,'companion should be compact');
  await p.locator('[data-up="add-menu"]').click();await p.locator('#fs-sentence').fill('下午三点开心游泳，爸爸送');assert.match(await p.locator('#fs-summary').innerText(),/15:00.*爸爸/);
  await p.screenshot({path:`/tmp/family-calendar-dialog-${width}.png`,fullPage:true});
