@@ -13,6 +13,18 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const browser=await chromium.launch({headless:true,channel:'chrome'});for(const width of [320,375,390,430]){
  const p=await browser.newPage({viewport:{width,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
  await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original&view=calendar');await p.locator('.cp-title').waitFor();await p.locator('#island-loader').waitFor({state:'detached'});await p.evaluate(()=>document.fonts.ready);
+ const type=await p.evaluate(()=>{
+   const title=getComputedStyle(document.querySelector('.cp-agenda-head h2'));
+   const task=getComputedStyle(document.querySelector('.cp-item-copy b'));
+   const date=getComputedStyle(document.querySelector('.cp-date-nav strong'));
+   return {titleSize:parseFloat(title.fontSize),taskSize:parseFloat(task.fontSize),taskWeight:Number(task.fontWeight),dateSize:parseFloat(date.fontSize),fontFamily:task.fontFamily,clamp:task.webkitLineClamp};
+ });
+ assert.ok(type.titleSize<=17,'calendar heading should be compact');
+ assert.ok(type.taskSize<=13.1,'task body should be at most 13px');
+ assert.ok(type.taskWeight<=600,'task body should no longer be extra bold');
+ assert.ok(type.dateSize<=13.1,'date label should be compact');
+ assert.match(type.fontFamily,/PingFang SC/,'schedule text should use a native Chinese system font');
+ assert.equal(type.clamp,'3','long task preview should clamp to three lines');
  await p.screenshot({path:`/tmp/family-calendar-${width}.png`,fullPage:true});
  assert.equal(await p.locator('.cp-title h1').innerText(),'小岛日程');assert.equal(await p.locator('.cp-packing h2 img').getAttribute('src'),'assets/hd/course/backpack.webp');assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);assert.ok((await p.locator('.cp-seaside').boundingBox()).height<=135,'companion should be compact');
  await p.locator('[data-up="add-menu"]').click();await p.locator('#fs-sentence').fill('下午三点开心游泳，爸爸送');assert.match(await p.locator('#fs-summary').innerText(),/15:00.*爸爸/);
