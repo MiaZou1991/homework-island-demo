@@ -1,0 +1,67 @@
+/* 开心岛 · iPhone 安全区与两条作业展示版 · 2026-11-09
+   保留原页面可编辑 DOM、真实作业数量和积分逻辑。 */
+body[data-mode=child] .tf-today .tf-top{
+  top:calc(2.8cqw + env(safe-area-inset-top,0px));
+  left:max(5cqw,calc(env(safe-area-inset-left,0px) + 8px));
+  right:max(5cqw,calc(env(safe-area-inset-right,0px) + 8px));
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+body[data-mode=child] .tf-today .tf-brand{
+  flex:0 0 auto;width:clamp(116px,34cqw,148px);height:auto;aspect-ratio:1547/837;
+}
+body[data-mode=child] .tf-today .tf-points{
+  flex:0 0 auto;margin-left:auto;height:clamp(29px,7.4cqw,36px);
+  padding:0 clamp(8px,2.2cqw,12px);font-size:clamp(13px,3.3cqw,16px);
+  transform:translateY(1.8cqw);
+}
+body[data-mode=child] .tf-today .tf-points .tf-icon{
+  width:clamp(18px,5cqw,22px);height:clamp(18px,5cqw,22px);
+}
+body[data-mode=child] .tf-today .tf-weather{display:none!important}
+body[data-mode=child] .tf-today .tf-hero{min-height:calc(42cqw + env(safe-area-inset-top,0px))}
+body[data-mode=child] .tf-today .tf-status{
+  top:calc(5px + env(safe-area-inset-top,0px));
+  left:max(7cqw,calc(env(safe-area-inset-left,0px) + 8px));
+  right:max(6cqw,calc(env(safe-area-inset-right,0px) + 8px));
+}
+/* 首页字体轻量化，保留儿童可读字号与 44px 勾选触点。 */
+body[data-mode=child] .tf-today .tf-card-head h1{font-size:clamp(15px,4.2cqw,18px)!important}
+body[data-mode=child] .tf-today .tf-progress{font-size:clamp(14px,3.7cqw,17px)}
+body[data-mode=child] .tf-today .tf-progress small{font-size:clamp(12px,3.3cqw,15px)}
+body[data-mode=child] .tf-today .tf-task-main b{font-size:clamp(14px,3.8cqw,17px)}
+body[data-mode=child] .tf-today .tf-task-main small{font-size:clamp(12px,3.2cqw,14px)}
+body[data-mode=child] .tf-today .tf-quick{font-size:clamp(13px,3.7cqw,16px)!important}
+body[data-mode=child] .tf-today .tf-no-course>span{font-size:clamp(12px,3.3cqw,14px)}
+body[data-mode=child] .tf-today .tf-all{font-size:clamp(12px,3.1cqw,14px)!important}
+body[data-mode=child] .tf-today .tf-homework-wrap .tf-task-list{
+  grid-template-rows:none;grid-auto-rows:minmax(14cqw,auto);
+}
+/* 底部手势条、横屏圆角和安全区。 */
+body[data-mode=child] .phone>.up-nav{
+  padding-left:max(8px,env(safe-area-inset-left,0px));
+  padding-right:max(8px,env(safe-area-inset-right,0px));
+  padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));
+}
+/* 日程页不重复模拟系统时间，在全屏安装模式下避开灵动岛。 */
+body[data-mode=child] .cp-page .cp-status{display:none}
+body[data-mode=child] .cp-page .cp-header{
+  height:calc(12px + env(safe-area-inset-top,0px));
+  min-height:calc(12px + env(safe-area-inset-top,0px));padding:0;
+}
+body[data-mode=child] .up-main:not([data-route=today]):not([data-route=plan]){
+  padding-top:calc(68px + env(safe-area-inset-top,0px));
+}
+/* 弹窗不会碰到刘海或底部 Home Indicator。 */
+body[data-mode=child] .island-dialog{
+  max-height:calc(100dvh - max(16px,env(safe-area-inset-top,0px)) - max(16px,env(safe-area-inset-bottom,0px)));
+}
+body[data-mode=child] .island-dialog .up-dialog-body{
+  max-height:calc(100dvh - 168px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));
+}
+@media(orientation:landscape) and (max-height:500px){
+  body[data-mode=child] .tf-today .tf-top{
+    left:calc(12px + env(safe-area-inset-left,0px));
+    right:calc(12px + env(safe-area-inset-right,0px));
+  }
+  body[data-mode=child] .tf-today .tf-hero{min-height:130px}
+}
