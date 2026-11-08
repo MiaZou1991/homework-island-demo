@@ -24,6 +24,11 @@ jobs:
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
+      - name: Install CJK fonts for visual mobile QA
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+          fc-cache -f
       - name: Mobile family calendar QA (320 / 375 / 390 / 430)
         run: |
           npm install --no-save --no-package-lock playwright
