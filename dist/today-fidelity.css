@@ -209,3 +209,13 @@ body[data-mode=child]:has(.up-main[data-route=today]) .tf-panels{padding-left:5c
 
 /* Bring the reminder and navigation closer while retaining touch spacing. */
 .tf-today{padding-bottom:2.5cqw}
+
+/* Today's card follows its actual number of homework rows. */
+.tf-homework-wrap .tf-task-list{flex:none;grid-template-rows:none;grid-auto-rows:minmax(14cqw,auto);align-content:start}
+.tf-homework-wrap .tf-task-main>span:last-child{min-width:0;overflow:hidden}
+.tf-homework-wrap .tf-task-main small{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;white-space:normal;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere;word-break:break-word;line-height:1.3}
+.tf-homework-wrap .tf-task-main b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tf-homework-wrap .tf-task{min-width:0}
+.tf-homework-wrap .tf-check{flex:none;min-width:44px;min-height:44px}
+.tf-homework-wrap .tf-empty{margin:0;padding:4cqw 2cqw}
+
