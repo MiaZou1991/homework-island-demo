@@ -30,6 +30,6 @@ const HOME='http://127.0.0.1:8189/child.html?preview=1&design=original';
    assert.equal(stored.found,true,'pending upload must survive page reload');
    assert.equal(stored.taskId,'qa-browser-task');
    assert.equal(stored.pendingAfterCleanup,0,'acknowledged operation must clear IndexedDB');
-   console.log('PASS browser IndexedDB: encrypted transport metadata not logged, durable V2 operation survives reload, ack cleanup works');
+   console.log('PASS browser IndexedDB: durable V2 operation survives reload, ack cleanup works; no Supabase network');
  } finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});
