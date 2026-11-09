@@ -1,0 +1,153 @@
+{
+  "version": "v6",
+  "date": "2026-11-09",
+  "format": "RGBA PNG 512x512",
+  "source": "基于用户确认的16位伙伴造型重新绘制独立透明立绘",
+  "notes": "新绘制版本并非原像素逐点去背；局部细节与旧版可能略有差异。原10位Emoji/ID和历史记录不变，旧v4/v5文件保留回退。",
+  "characters": [
+    {
+      "id": "bear",
+      "name": "小熊",
+      "legacyEmoji": "🐻",
+      "src": "assets/characters/companion-bear-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "0974edb72936acc611e5997680a3df5c980f4323"
+    },
+    {
+      "id": "rabbit",
+      "name": "小兔",
+      "legacyEmoji": "🐰",
+      "src": "assets/characters/companion-rabbit-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "c8cf355a63ae472eef0478249fe2187f65a268f6"
+    },
+    {
+      "id": "fox",
+      "name": "小狐",
+      "legacyEmoji": "🐺",
+      "src": "assets/characters/companion-fox-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "b5b41baaf274cd522840ff4dbacfb11590af5c5c"
+    },
+    {
+      "id": "cat",
+      "name": "小猫",
+      "legacyEmoji": "🐱",
+      "src": "assets/characters/companion-cat-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "ec2f2d4df7f0337b1de71d4433c7a8917226e836"
+    },
+    {
+      "id": "dog",
+      "name": "小狗",
+      "legacyEmoji": "🐶",
+      "src": "assets/characters/companion-dog-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "7bcb74e281a02b9d95042c4027195172cd55e807"
+    },
+    {
+      "id": "panda",
+      "name": "熊猫",
+      "legacyEmoji": "🐼",
+      "src": "assets/characters/companion-panda-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "2b7be71147dcffea5d5158ceb3e3109cf9e806af"
+    },
+    {
+      "id": "owl",
+      "name": "猫头鹰",
+      "legacyEmoji": "🐦",
+      "src": "assets/characters/companion-owl-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "44b7e68d3a45f3a66fafa84bec75a8e80fcfa48b"
+    },
+    {
+      "id": "squirrel",
+      "name": "小松鼠",
+      "legacyEmoji": "🐿️",
+      "src": "assets/characters/companion-squirrel-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "a044d07a98fbd285e76086a3d6c392ca5bb34a97"
+    },
+    {
+      "id": "lion",
+      "name": "小狮子",
+      "legacyEmoji": "🐯",
+      "src": "assets/characters/companion-lion-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "a36f4e8f2cdf02c456946e546324c2bd7df49916"
+    },
+    {
+      "id": "unicorn",
+      "name": "小独角兽",
+      "legacyEmoji": "🐴",
+      "src": "assets/characters/companion-unicorn-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "638a58534b0168f9e1955451c47369c6f8f5edd0"
+    },
+    {
+      "id": "deer",
+      "name": "小鹿",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-deer-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "25ce774488b7380192be34cc803a384881ac5e82"
+    },
+    {
+      "id": "penguin",
+      "name": "小企鹅",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-penguin-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "26233e001832fbf90cd9002fbc473c94ec576082"
+    },
+    {
+      "id": "koala",
+      "name": "小考拉",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-koala-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "5b251a19f2d4a0f46e5396c38f4d5486c1bb5b4f"
+    },
+    {
+      "id": "raccoon",
+      "name": "小浣熊",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-raccoon-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "11019e69c45bdf1fa471c4c1e6889a75ad2f5629"
+    },
+    {
+      "id": "hedgehog",
+      "name": "小刺猬",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-hedgehog-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "74e0cc47d303d71411b4e5e023d731ad93755368"
+    },
+    {
+      "id": "elephant",
+      "name": "小象",
+      "legacyEmoji": null,
+      "src": "assets/characters/companion-elephant-v6.png",
+      "width": 512,
+      "height": 512,
+      "gitBlobSha": "643e3c1ea123aa6f27cf85e4f0062128545fbebf"
+    }
+  ]
+}
