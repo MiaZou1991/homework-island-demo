@@ -31,6 +31,6 @@ assert.equal(run('getTodayMate(getData()).name'),'小鹿');
 assert.equal(run('getUnlockedRewards(getData()).length'),2);
 assert.equal(run('JSON.stringify([getData().points,getData().materials,getData().demoGrowth,getData().redemptions])'),run('economy'));
 for(const p of ['child.html','parent.html']){
- const html=fs.readFileSync(path.join(root,p),'utf8');assert.ok(html.includes('slim-v7'),'cache-bust '+p);
+ const html=fs.readFileSync(path.join(root,p),'utf8');assert.ok(html.includes('demo-core.js?v=20261110-performance1'),'cache-bust '+p);
 }
 console.log('PASS companion v7: 16 transparent RGBA PNGs, IDs, historical economy & cached paths');
