@@ -17,7 +17,7 @@ const allItems=[
  {kind:'event',done:false,ev:{title:'家庭散步',start:'19:00',members:['all']}}
 ];
 const ctx={date,range:'month',data,familyMember:'all',dayItems:(_d,day)=>day===date?allItems:[],buddy:()=>'<img src="test.png" alt="伙伴">'};
-assert.deepEqual(Growth.marks(ctx,date).map(x=>x.kind),['mood','done','habit','moment'],
+assert.deepEqual(Array.from(Growth.marks(ctx,date),x=>x.kind),['mood','done','habit','moment'],
  'four categories can coexist; two habits make one leaf');
 const calendar=Growth.render(ctx);
 assert.match(calendar,/成长日历/);
