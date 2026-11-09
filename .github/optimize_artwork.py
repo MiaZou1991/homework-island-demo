@@ -47,10 +47,21 @@ for path in BUILD.rglob("*"):
         continue
     text = path.read_text(encoding="utf-8")
     for filename in converted_names:
-        text = text.replace(filename, str(Path(filename).with_suffix(".webp")))
+        webp_filename = str(Path(filename).with_suffix(".webp"))
+        text = text.replace(filename, webp_filename)
+        # Companion filenames are assembled dynamically in demo-core.js as
+        # 'assets/characters/' + file, so there is no literal full path to match.
+        if filename.startswith("assets/characters/"):
+            text = text.replace(Path(filename).name, Path(webp_filename).name)
     text = text.replace("island-stage-${stage(d)}.png", "island-stage-${stage(d)}.webp")
     text = text.replace("assets/our-island-v1/${name}.png", "assets/our-island-v1/${name}.webp")
     path.write_text(text, encoding="utf-8")
+
+# Catch broken companion paths before publishing: the PNGs were removed above.
+core = (BUILD / "demo-core.js").read_text(encoding="utf-8")
+for relative in TARGETS:
+    if relative.parts[:2] == ("assets", "characters") and relative.name in core:
+        raise RuntimeError(f"Unconverted companion filename in demo-core.js: {relative.name}")
 
 saved = before_total - after_total
 print(f"Optimized {len(TARGETS)} images: {before_total:,} -> {after_total:,} bytes "
