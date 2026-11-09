@@ -5,6 +5,9 @@
   const SUPABASE_KEY = 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax';
   const CODE_KEY = 'homework_island_family_code_v1';
   const PENDING_KEY = 'homework_island_sync_pending_v1:';
+  // Only store a tiny marker: the full payload is already in the main local key.
+  // Duplicating attachment-heavy family data can exceed iOS Safari localStorage quota.
+  const PENDING_MARKER = 'local-v1';
   const POLL_MS = 300000;
   let knownRevision = null;
   let wantedRevision = -1;
@@ -51,9 +54,25 @@
 
   function readPending() {
     try {
-      const data = JSON.parse(localStorage.getItem(pendingKey()) || 'null');
+      const stored = localStorage.getItem(pendingKey());
+      if (stored === PENDING_MARKER) {
+        const local = readLocal();
+        return validPayload(local) ? local : null;
+      }
+      // Backward compatible with snapshots saved by earlier releases.
+      const data = JSON.parse(stored || 'null');
       return validPayload(data) ? data : null;
     } catch (_) { return null; }
+  }
+
+  function rememberPending() {
+    try {
+      localStorage.setItem(pendingKey(), PENDING_MARKER);
+      return true;
+    } catch (error) {
+      console.warn('[开心岛同步] 无法保存待同步标记', error);
+      return false;
+    }
   }
 
   function notify(message) {
@@ -169,8 +188,11 @@
     if (!started && !startPromise) return;
     // Keep the newest full snapshot until the server confirms the save.
     pending = data;
-    localStorage.setItem(pendingKey(), JSON.stringify(data));
-    setSyncState({ current: 'pending', message: '当前数据待上传' });
+    const persisted = rememberPending();
+    setSyncState({
+      current: 'pending',
+      message: persisted ? '当前数据待上传' : '本机保存成功，但待同步标记写入失败；请保持页面打开直到同步完成'
+    });
     scheduleFlush();
   }
 
@@ -254,8 +276,13 @@
       if (savedPending) {
         // Startup may have generated today's tasks in the local copy.
         pending = validPayload(local) ? local : savedPending;
-        localStorage.setItem(pendingKey(), JSON.stringify(pending));
-        setSyncState({ current: 'pending', message: '本机有待上传的改动' });
+        // Migrate legacy full pending snapshots only when the main local data is valid.
+        // Otherwise keep the older snapshot so a restart cannot discard unsynced work.
+        const persisted = validPayload(local) ? rememberPending() : true;
+        setSyncState({
+          current: 'pending',
+          message: persisted ? '本机有待上传的改动' : '待同步标记写入失败；请保持页面打开直到同步完成'
+        });
       }
       let initialUploadFailed = false;
       try {
