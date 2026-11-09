@@ -1,0 +1,42 @@
+name: Staging Supabase DB Acceptance
+# Deliberately manual. Never run real database writes on PR/main or production.
+on:
+  workflow_dispatch:
+    inputs:
+      run_conflict_test:
+        description: "Run isolated staging concurrency overwrite test"
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  staging-db:
+    name: staging-db-contract
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      KAIXIN_STAGE_URL: ${{ secrets.KAIXIN_STAGE_URL }}
+      KAIXIN_STAGE_KEY: ${{ secrets.KAIXIN_STAGE_KEY }}
+      RUN_CONFLICT_TEST: ${{ inputs.run_conflict_test }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate staging-only database test setup and run contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAIXIN_STAGE_URL" && test -n "$KAIXIN_STAGE_KEY" || {
+            echo "Missing staging-only secrets. No database call was made."
+            exit 2
+          }
+          args=(--stage)
+          if [ "$RUN_CONFLICT_TEST" = "true" ]; then args+=(--conflicts); fi
+          node checks/staging-db-sync.cjs "${args[@]}" | tee staging-db-result.json
+      - name: Save isolated staging evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-db-acceptance
+          path: staging-db-result.json
+          if-no-files-found: ignore
+          retention-days: 7
