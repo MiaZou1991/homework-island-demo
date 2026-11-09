@@ -36,11 +36,12 @@ async function api(path, body, accessToken) {
 }
 async function signUp(role) {
   const res = await api('/auth/v1/signup', {
-    data: { kaixin_qa_suite:'p0_real_auth_20261109', kaixin_qa_role:role }
+    data: { kaixin_qa_suite:'p0_real_auth_20261109', kaixin_qa_role:role },
+    gotrue_meta_security: { captcha_token:null }
   });
   if (!res.ok || !res.data?.access_token || !res.data?.user?.id)
     throw new Error('auth_signup_' + role + '_status_' + res.status +
-       '_code_' + String(res.data?.code || res.data?.error_code || 'unknown').replace(/[^a-z_]/gi,''));
+       '_code_' + String(res.data?.code || res.data?.error_code || res.data?.msg || 'unknown').replace(/[^a-z_]/gi,'').slice(0,80));
   const token = res.data.access_token, id = res.data.user.id;
   assert.match(id,/^[a-f0-9-]{36}$/i);
   const profile = await api('/auth/v1/user',null,token);
