@@ -28,6 +28,28 @@
   ]);
   const byId = Object.fromEntries(areas.map(area => [area.id, area]));
 
+  // raw.githack is for code preview only. Its image gateway can be unreliable on
+  // mobile, so for this public demo reuse the identical published image files.
+  // Normal production and local preview continue loading relative assets.
+  const PREVIEW_HOST = /(^|\.)githack\.com$/i.test(location.hostname);
+  const PUBLIC_ASSETS = 'https://miazou1991.github.io/homework-island-demo/';
+  function sourceFor(path) {
+    return PREVIEW_HOST ? new URL(path, PUBLIC_ASSETS).href : path;
+  }
+  function configurePreviewArtwork() {
+    if (!PREVIEW_HOST) return;
+    $('detailMap').src = sourceFor('assets/our-island-v1/map.webp');
+    $('detailTree').src = sourceFor('assets/our-island-v1/tree.webp');
+    $('detailKid').style.backgroundImage = 'url("' + sourceFor('assets/our-island-v1/girl.webp') + '")';
+    const rules = document.createElement('style');
+    const img = name => 'url("' + sourceFor('assets/hd/dialogs-v3/' + name + '.webp') + '")';
+    rules.textContent =
+      '#toolbar h1,#detailTitle{background-image:' + img('plaque') + '!important}' +
+      '#visit,#back{background-image:' + img('button-primary') + '!important}' +
+      '#mapPanel,.detail-copy{border-image-source:' + img('panel') + '!important}';
+    document.head.append(rules);
+  }
+
   // Walkable polygons match the pier, central square and three outgoing paths
   // on the approved map illustration. Movement is blocked at shore/flowers.
   const polygons = [
@@ -260,7 +282,7 @@
     loading.hidden = false;
     const sources = {
       map: 'assets/our-island-v1/map.webp',
-      girl: 'assets/our-island-v1/girl.png',
+      girl: 'assets/our-island-v1/girl.webp',
       tree: 'assets/our-island-v1/tree.webp'
     };
     let completed = Object.keys(sources).filter(name => images[name]).length;
@@ -270,7 +292,9 @@
         images[name] ? Promise.resolve() : new Promise((resolve, reject) => {
           const img = new Image();
           let finished = false;
-          const timer = setTimeout(() => finish(new Error('timeout')), 12000);
+          // A slow image CDN is not a broken island. Allow more time, and use
+          // the published asset host directly for third-party HTML previews.
+          const timer = setTimeout(() => finish(new Error('timeout')), 30000);
           function finish(error) {
             if (finished) return;
             finished = true; clearTimeout(timer); img.onload = img.onerror = null;
@@ -283,7 +307,7 @@
           }
           img.onload = () => finish();
           img.onerror = () => finish(new Error('image'));
-          img.src = src;
+          img.src = sourceFor(src);
         })
       ));
       if (attempt !== loadingAttempt) return;
@@ -306,6 +330,7 @@
   }
 
   // Read-only testing surface. This scene never touches homework or cloud data.
-  window.IslandWalk = {state, areas, polygons, walkable, nearestLandmark, goTo, openDetail, toggleMap, stop};
+  window.IslandWalk = {state, areas, polygons, walkable, nearestLandmark, goTo, openDetail, toggleMap, stop, sourceFor};
+  configurePreviewArtwork();
   loadIsland();
 })();
