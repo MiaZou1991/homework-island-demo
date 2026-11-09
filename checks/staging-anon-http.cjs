@@ -32,5 +32,13 @@ const requests=[
      report.checks.push({name,status:res.status,denied:true});
    } finally {clearTimeout(timer)}
  }
+ // Read-only Auth provider capability check. No signup, no PII and no secret output.
+ const settingsResponse=await fetch(url+'/auth/v1/settings',{headers:{apikey:key}});
+ const settings=await settingsResponse.json().catch(()=>({}));
+ report.authCapabilities={
+   settingsHttpStatus:settingsResponse.status,
+   anonymousProviderEnabled:!!(settings.external?.anonymous || settings.external?.anonymous_signup || settings.enable_anonymous_sign_ins),
+   emailAutoConfirm:!!settings.mailer_autoconfirm
+ };
  console.log(JSON.stringify({...report,conclusion:'PASS'},null,2));
 })().catch(e=>{console.error('FAILED '+String(e?.message||'unknown').replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,120));process.exitCode=1});
