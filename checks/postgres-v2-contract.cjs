@@ -49,6 +49,15 @@ async function main() {
   // The fixture file is synthetic and never contains any real family data.
   execFileSync('psql', [...args, '-f', path.join(__dirname,'fixtures/postgres-v2-contract.sql')],
     {env:creds,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+  const grants=pgJson(`SELECT count(*) AS functions,
+    bool_and(CASE WHEN n.nspname='public' THEN
+      NOT p.prosecdef AND NOT has_function_privilege('anon',p.oid,'EXECUTE')
+      ELSE p.prosecdef AND NOT has_function_privilege('anon',p.oid,'EXECUTE') END) AS safe
+    FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+    WHERE p.proname IN ('family_load_v2','family_save_v2')
+      AND n.nspname IN ('public','kaixin_private')`);
+  assert.equal(Number(grants.functions),4,'both public wrappers and both private implementations required');
+  assert.equal(grants.safe,true,'public RPCs must be invoker-only; high-privilege logic must be private');
   const first = load(PARENT_A);
   assert.equal(first.ok,true); assert.equal(first.revision,1);
   assert.deepEqual(first.payload.homework.map(x=>x.id),['existing']);
@@ -106,6 +115,6 @@ async function main() {
   // Revoke child membership in the ephemeral fixture and confirm server rejects old claims.
   cmd("UPDATE public.family_members_v2 SET revoked_at=now() WHERE family_id='"+P+"' AND user_id='"+CHILD+"';");
   assert.equal(load(CHILD).error,'unauthorized','revoked member denied');
-  console.log('PASS PostgreSQL 17: membership isolation, anonymous deny, no raw table access, parent vs child, CAS, concurrent race, idempotency, replay safety, signal trigger, revocation');
+  console.log('PASS PostgreSQL 17: private definer + public invoker, membership isolation, anonymous deny, no raw table access, parent vs child, CAS, concurrent race, idempotency, replay safety, signal trigger, revocation');
 }
 main().catch(e=>{console.error(e.stack||e.message);process.exitCode=1;});
