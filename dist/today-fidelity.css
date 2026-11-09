@@ -219,3 +219,7 @@ body[data-mode=child]:has(.up-main[data-route=today]) .tf-panels{padding-left:5c
 .tf-homework-wrap .tf-check{flex:none;min-width:44px;min-height:44px}
 .tf-homework-wrap .tf-empty{margin:0;padding:4cqw 2cqw}
 
+
+/* 2026-11-09: course-only day stays informative without an empty backpack column. */
+body[data-mode=child] .tf-reminder.tf-course-only .tf-course-copy{flex:1;min-width:0}
+body[data-mode=child] .tf-reminder.tf-course-only .tf-chevron{margin-left:auto}
