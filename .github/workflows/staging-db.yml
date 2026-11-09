@@ -1,5 +1,7 @@
 name: Staging Supabase DB Acceptance
-# Deliberately manual. Never run real database writes on PR/main or production.
+# Deliberately manual. Requires four fresh real Auth JWTs and pre-enrolled synthetic QA family.
+# MUST NOT run on production or use real child data. Workflow dispatch requires integration to default branch;
+# until then use the standalone script with explicit isolated staging secrets after safe review.
 on:
   workflow_dispatch:
     inputs:
@@ -18,6 +20,10 @@ jobs:
     env:
       KAIXIN_STAGE_URL: ${{ secrets.KAIXIN_STAGE_URL }}
       KAIXIN_STAGE_KEY: ${{ secrets.KAIXIN_STAGE_KEY }}
+      KAIXIN_STAGE_PARENT_A_JWT: ${{ secrets.KAIXIN_STAGE_PARENT_A_JWT }}
+      KAIXIN_STAGE_PARENT_B_JWT: ${{ secrets.KAIXIN_STAGE_PARENT_B_JWT }}
+      KAIXIN_STAGE_CHILD_JWT: ${{ secrets.KAIXIN_STAGE_CHILD_JWT }}
+      KAIXIN_STAGE_OUTSIDER_JWT: ${{ secrets.KAIXIN_STAGE_OUTSIDER_JWT }}
       RUN_CONFLICT_TEST: ${{ inputs.run_conflict_test }}
     steps:
       - uses: actions/checkout@v6
@@ -25,8 +31,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$KAIXIN_STAGE_URL" && test -n "$KAIXIN_STAGE_KEY" || {
-            echo "Missing staging-only secrets. No database call was made."
+          test -n "$KAIXIN_STAGE_URL" && test -n "$KAIXIN_STAGE_KEY" && test -n "$KAIXIN_STAGE_PARENT_A_JWT" && test -n "$KAIXIN_STAGE_PARENT_B_JWT" && test -n "$KAIXIN_STAGE_CHILD_JWT" && test -n "$KAIXIN_STAGE_OUTSIDER_JWT" || {
+            echo "Missing staging-only URL/key or real Auth test JWT secrets. No database call was made."
             exit 2
           }
           args=(--stage)
