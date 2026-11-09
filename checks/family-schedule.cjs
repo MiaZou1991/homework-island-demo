@@ -9,6 +9,12 @@ assert.equal(F.parse('二十五点看书',defaults).start,'');
 assert.equal(F.parse('上午十点半读书',defaults).start,'10:30');
 assert.equal(F.visible({kind:'class'},'dad'),false);
 assert.equal(F.visible({kind:'event',ev:{members:['all']}},'mom'),true);
+assert.deepEqual(F.packingItems([]),[],'no reminder for a day without carry items');
+assert.deepEqual(F.packingItems([{kind:'class',cls:{bring:['泳帽',' 水杯 ','泳帽','']}},{kind:'event',ev:{checklist:[{name:'水杯'},{name:'泳衣'},{name:' '}]}}]),['泳帽','水杯','泳衣'],'merge, trim and deduplicate course/event reminders');
+assert.deepEqual(F.packingItems([{kind:'class',cls:{bring:[]}},{kind:'event',ev:{checklist:[{name:''}]}}]),[],'empty course and event preparation lists stay hidden');
+const checked=[{kind:'class',cls:{bring:['泳帽']}},{kind:'event',ev:{members:['dad'],checklist:[{name:'礼物'}]}}];
+assert.deepEqual(F.packingItems(checked.filter(it=>F.visible(it,'dad'))),['礼物'],'member switching must re-evaluate filtered reminders');
+assert.deepEqual(F.packingItems(checked.filter(it=>F.visible(it,'child'))),['泳帽'],'member switching must not leak another member’s item');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{const browser=await chromium.launch({headless:true,channel:'chrome'});for(const width of [320,375,390,430]){
  const p=await browser.newPage({viewport:{width,height:900}});const errors=[];p.on('pageerror',e=>errors.push(e.message));
@@ -42,7 +48,18 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  await p.screenshot({path:`/tmp/family-calendar-longtext-${width}.png`,fullPage:true});
  await originalTask.evaluate((el,title)=>{el.textContent=title},savedTitle);
 
- assert.equal(await p.locator('.cp-title h1').innerText(),'小岛日程');assert.equal(await p.locator('.cp-packing h2 img').getAttribute('src'),'assets/hd/course/backpack.webp');assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);assert.ok((await p.locator('.cp-seaside').boundingBox()).height<=135,'companion should be compact');
+ assert.equal(await p.locator('.cp-title h1').innerText(),'小岛日程');
+ assert.equal(await p.locator('.cp-packing h2 img').getAttribute('src'),'assets/hd/course/backpack.webp');
+ assert.equal(await p.locator('.up-nav .tf-library-tab').count(),3);
+ assert.ok((await p.locator('.cp-seaside').boundingBox()).height<=135,'companion should be compact');
+ const initialPacking=await p.locator('.cp-packing').count();assert.equal(initialPacking,1,'course with items displays packing card');
+ await p.locator('[data-member="dad"]').click();
+ assert.equal(await p.locator('.cp-packing').count(),0,'switch to a member with no items hides entire card');
+ assert.ok(await p.locator('.cp-seaside').isVisible(),'companion remains when packing is hidden');
+ await p.screenshot({path:`/tmp/family-calendar-empty-packing-${width}.png`,fullPage:true});
+ await p.locator('[data-member="all"]').click();
+ assert.equal(await p.locator('.cp-packing').count(),1,'packing card returns when switching back');
+
  await p.locator('[data-up="add-menu"]').click();await p.locator('#fs-sentence').fill('下午三点开心游泳，爸爸送');assert.match(await p.locator('#fs-summary').innerText(),/15:00.*爸爸/);
  await p.screenshot({path:`/tmp/family-calendar-dialog-${width}.png`,fullPage:true});
  await p.locator('.fs-save').click();await p.locator('.cp-item').filter({hasText:'开心游泳，爸爸送'}).waitFor();
