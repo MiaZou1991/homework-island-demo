@@ -1659,6 +1659,7 @@ let manualPublishInFlight = false;
 async function addManualHomework() {
     // 图片压缩和存储均可能异步/耗时；连点只能发布一次。
     if (manualPublishInFlight) return;
+    if (typeof IslandSync !== 'undefined') IslandSync.recordEvent?.('publish_started');
 
     const subject = $('manual-subject').value;
     const content = $('manual-content').value.trim();
@@ -1725,6 +1726,7 @@ async function addManualHomework() {
         // 成功保存本机之后，立即退出编辑弹窗；后续 UI 更新故障不应造成误点重发。
         syncQueued = saveData(data);
         saved = true;
+        if (typeof IslandSync !== 'undefined') IslandSync.recordEvent?.('publish_saved');
         closePublishSheet();
         try {
             resetManualForm();
@@ -1744,6 +1746,7 @@ async function addManualHomework() {
                 : isRecurring ? '周期作业已保存，正在同步 🔄' : '作业已保存，正在同步到孩子端 ✅';
         showToast(feedback);
     } catch (error) {
+        if (typeof IslandSync !== 'undefined') IslandSync.recordEvent?.('publish_failed');
         console.warn('[开心岛] 发布作业失败', error);
         if (saved) {
             // 仅 UI 更新失败：明确告诉家长已保存，不要重复发布。
