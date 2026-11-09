@@ -53,7 +53,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     assert.ok(sample.scoreTop>=62,'Points must clear status text');
     assert.ok(sample.homeworkTop>sample.logoTop+75,'Homework cannot cover logo');
     assert.match(sample.bgSize,/100% auto/,'Never scale art with viewport height');
-    assert.match(sample.bgPosition,/center 0%/);
+    assert.match(sample.bgPosition,/50% 0%/);
     assert.match(sample.topBackground,/linear-gradient/,'A gradient remains behind webpage, not over art');
     assert.equal(sample.phoneColor,'rgb(250, 229, 179)');
     assert.equal(sample.afterContent,'none','No fixed 8px bottom strip');
