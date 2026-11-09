@@ -1,1 +1,56 @@
-<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>我们的岛 · 漫步</title><link rel="stylesheet" href="our-island.css?v=20261109-load2"><main id="island"><canvas id="world" aria-label="我们的岛，使用左下摇杆或方向键沿路漫步"></canvas><header><h1>我们的岛</h1><button id="mapToggle">看看地图</button></header><p id="hint" role="status">从码头出发，去看看家庭树</p><button id="visit" hidden>看看家庭树</button><div id="stick" role="group" aria-label="行走摇杆"><span class="arrows">↑<br>←　　→<br>↓</span><i id="knob"></i></div><button id="home">回到码头</button><div id="loading" role="status">小岛正在醒来…</div><dialog id="closeup" aria-labelledby="treeTitle"><div class="tree-scene"><h2 id="treeTitle">我们的家庭树</h2><p>把一起长大的日子，留在这里</p><img class="close-tree" src="assets/our-island-v1/tree.png" alt="开着白花的家庭橘子树"><div class="close-girl" aria-label="开心站在家庭树旁"></div><div class="tree-note">从一棵小树，长成家的记忆<br><small>成长记录、家庭便签与爱心将在后续接入</small></div><button id="back">回到小路</button></div></dialog></main><script src="our-island.js?v=20261109-load2"></script></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#74c9db">
+  <title>我们的岛 · 自由漫步</title>
+  <link rel="stylesheet" href="our-island.css?v=20261109-explore1">
+</head>
+<body>
+  <main id="island">
+    <canvas id="world" aria-label="我们的岛漫步地图：码头、花园、家庭树、森林书屋和我的小屋；可使用方向键或左下方摇杆行走"></canvas>
+    <header id="toolbar">
+      <h1>我们的岛</h1>
+      <button type="button" id="mapToggle" aria-controls="mapPanel" aria-expanded="false">看看地图</button>
+    </header>
+    <p id="hint" role="status" aria-live="polite">从码头出发，沿着小路探索吧</p>
+    <button type="button" id="visit" hidden>看看码头</button>
+    <section id="mapPanel" aria-label="小岛地点导航" hidden>
+      <h2>想去哪里看看？</h2>
+      <p>点选地点就能抵达附近，也可以关掉地图慢慢走。</p>
+      <div class="map-places">
+        <button type="button" data-go="pier"><span class="place-dot"></span>码头</button>
+        <button type="button" data-go="garden"><span class="place-dot"></span>花园</button>
+        <button type="button" data-go="tree"><span class="place-dot"></span>家庭树</button>
+        <button type="button" data-go="treehouse"><span class="place-dot"></span>森林书屋</button>
+        <button type="button" data-go="house"><span class="place-dot"></span>我的小屋</button>
+      </div>
+      <button type="button" id="keepWalking">继续慢慢走</button>
+    </section>
+    <div id="stick" role="group" aria-label="行走摇杆">
+      <span class="arrows" aria-hidden="true">↑<br>←　　→<br>↓</span>
+      <i id="knob" aria-hidden="true"></i>
+    </div>
+    <button type="button" id="home">回到码头</button>
+    <div id="loading" role="status" aria-live="polite">小岛正在醒来…</div>
+    <dialog id="detail" aria-labelledby="detailTitle" aria-describedby="detailDescription">
+      <div class="detail-shell">
+        <div id="detailScene" class="detail-scene">
+          <img id="detailMap" src="assets/our-island-v1/map.webp" alt="">
+          <img id="detailTree" src="assets/our-island-v1/tree.webp" alt="" hidden>
+          <div id="detailKid" aria-hidden="true" hidden></div>
+        </div>
+        <div class="detail-copy">
+          <h2 id="detailTitle">欢迎来到小岛</h2>
+          <p id="detailDescription"></p>
+          <p id="detailFuture" class="detail-future"></p>
+          <button type="button" id="back">返回小路</button>
+        </div>
+        <button type="button" id="detailClose" aria-label="关闭，回到小路">×</button>
+      </div>
+    </dialog>
+  </main>
+  <script src="our-island.js?v=20261109-explore1"></script>
+</body>
+</html>
