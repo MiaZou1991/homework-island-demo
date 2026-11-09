@@ -1,3 +1,5 @@
+> **P0 数据同步治理（2026-11-09，待验收，未上线）：** 手机 1 发布作业后手机 2 不可见问题正在 [PR #12](https://github.com/MiaZou1991/homework-island-demo/pull/12) 修复。已规划脱敏日志、失败恢复、手动重试以及 [数据库与双机验收](docs/SYNC_P0_DATABASE_ACCEPTANCE_20261109.md)。**真实 Supabase 数据库写入测试和访问权限检查尚未完成；当前不能宣称跨设备问题已解决。** staging DB 验证仅能在独立测试项目、设置 GitHub 环境 secrets 后，由手动工作流 `.github/workflows/staging-db.yml` 运行。严禁使用生产家庭记录作为测试数据。
+
 > **2026-11-09 开发与发布约定（自动发布）：** 以 [开发协作与版本发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md) 为准。功能开发先走独立分支与 PR，`checks.yml` 对 PR 执行自动校验，**仅在 PR 通过检查且获准合并到 main 后**，`pages.yml` 才随 main 更新自动执行发布前检查与 GitHub Pages 部署。发布失败则不替换线上版本。`workflow_dispatch` 仍可用于维护应急，但正常流程不需要手动发布。GitHub 的 main PR 必经 Ruleset/分支保护**尚需管理员在 Settings 启用**。最新历史基线见 [发布基线](docs/RELEASE_BASELINE_20261109.md)。
 
 # 开心岛 · 项目与发布记录
