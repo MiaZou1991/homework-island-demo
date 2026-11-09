@@ -18,6 +18,7 @@ jobs:
       - name: Verify settlement, sync, traffic and data isolation
         run: |
           node checks/domain.test.cjs
+          node checks/companions-v4.cjs
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
@@ -32,6 +33,15 @@ jobs:
           npm install --no-save --no-package-lock playwright
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
+          node checks/companions-mobile.cjs
+      - name: Upload companion gallery QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-gallery-mobile-qa
+          path: /tmp/companions-gallery-*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - name: Build optimized WebP assets without publishing
         run: |
           python3 -m pip install --disable-pip-version-check Pillow

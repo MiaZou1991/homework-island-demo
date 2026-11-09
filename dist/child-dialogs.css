@@ -170,3 +170,17 @@ body[data-mode=child] .island-dialog .island-dialog-surface>.up-close{top:calc(1
 body[data-mode=child] .island-mood-dialog .up-mood{min-height:87px}
 body[data-mode=child] .island-mood-dialog .island-mood-face{width:50px;height:50px}
 @media(max-width:359px){body[data-mode=child] .island-dialog .up-dialog-body{padding-left:18px;padding-right:18px}body[data-mode=child] .island-dialog .island-dialog-title{font-size:20px}body[data-mode=child] .island-mood-dialog .island-mood-face{width:44px;height:44px}}
+
+/* Companion gallery v4: preserve approved wooden plaque and cream paper dialog. */
+body[data-mode=child] .island-companion-dialog .up-dialog-body{max-height:calc(100dvh - 122px);overflow-y:auto;overscroll-behavior:contain}
+body[data-mode=child] .island-companion-dialog .island-mate-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+body[data-mode=child] .island-companion-dialog .island-mate-tile{min-height:122px;padding:6px 2px 8px}
+body[data-mode=child] .island-companion-dialog .island-mate-tile img{display:block;width:100%;height:72px;object-fit:contain;object-position:center bottom}
+body[data-mode=child] .island-companion-dialog .island-mate-tile b{font-size:12px;white-space:nowrap}
+body[data-mode=child] .island-companion-dialog .island-mate-tile small{font-size:9px;white-space:nowrap}
+body[data-mode=child] .island-companion-dialog .island-mate-tile[disabled]{opacity:1;cursor:default}
+body[data-mode=child] .island-companion-dialog .island-mate-empty{grid-column:1/-1;text-align:center}
+@media(max-width:359px){
+ body[data-mode=child] .island-companion-dialog .island-mate-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ body[data-mode=child] .island-companion-dialog .island-mate-tile img{height:76px}
+}

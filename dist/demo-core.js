@@ -71,18 +71,25 @@ const DemoCore=(()=>{
   const remaining=tasks.filter(h=>!h.done);
   return {total:tasks.length,remaining:remaining.length,waiting:remaining.filter(h=>h.pendingApproval).length,next:remaining.find(h=>!h.pendingApproval)||null,complete:remaining.length===0};
  }
+ // Gallery v4: retain all original emoji/id keys, now with one HD image per companion.
  const companions=[
-  ['🐻','bear','小熊','慢慢来，我就在这里陪你。','companion-bear-v3.png'],
-  ['🐰','rabbit','小兔','先做好眼前这一小步。','companion-rabbit-v3.png'],
-  ['🐺','fox','小狐','一起试试，总会找到办法。','companion-fox-v3.png'],
-  ['🐱','cat','小猫','按自己的节奏来，每一点努力都算数。','char_cat.png'],
-  ['🐶','dog','小狗','写完这一件，我们一起去看看小岛。','char_dog.png'],
-  ['🐼','panda','熊猫','累了就伸个懒腰，我会陪你。','companion-panda-v3.png'],
-  ['🐦','owl','猫头鹰','认真想一想，答案会慢慢出现。','companion-owl-v3.png'],
-  ['🐿️','squirrel','小松鼠','今天的努力，会变成明天的小惊喜。','char_squirrel.png'],
-  ['🐯','lion','小狮子','你已经迈出勇敢的一步。','companion-lion-v3.png'],
-  ['🐴','unicorn','独角兽','每一点进步，都有自己的光。','companion-unicorn-v3.png']
- ].map(([emoji,id,name,line,file])=>({emoji,id,name,line,src:'assets/characters/'+file}));
+  ['🐻','bear','小熊','慢慢来，我就在这里陪你。'],
+  ['🐰','rabbit','小兔','先做好眼前这一小步。'],
+  ['🐺','fox','小狐','一起试试，总会找到办法。'],
+  ['🐱','cat','小猫','按自己的节奏来，每一点努力都算数。'],
+  ['🐶','dog','小狗','写完这一件，我们一起去看看小岛。'],
+  ['🐼','panda','熊猫','累了就伸个懒腰，我会陪你。'],
+  ['🐦','owl','猫头鹰','认真想一想，答案会慢慢出现。'],
+  ['🐿️','squirrel','小松鼠','今天的努力，会变成明天的小惊喜。'],
+  ['🐯','lion','小狮子','你已经迈出勇敢的一步。'],
+  ['🐴','unicorn','独角兽','每一点进步，都有自己的光。'],
+  ['🦌','deer','小鹿','一步一步走，我和你一起发现新风景。'],
+  ['🐧','penguin','小企鹅','不着急，我们慢慢完成今天的小目标。'],
+  ['🐨','koala','小考拉','休息一下也很好，我一直陪着你。'],
+  ['🦝','raccoon','小浣熊','今天又会遇到什么有趣的事呢？'],
+  ['🦔','hedgehog','小刺猬','小小的勇气，也值得被珍惜。'],
+  ['🐘','elephant','小象','你做过的每一件努力，我都会记得。']
+ ].map(([emoji,id,name,line])=>({emoji,id,name,line,src:'assets/characters/companion-'+id+'-v4.png'}));
  const roomSlots=[{id:'0',zone:'desk',name:'书桌左侧',x:22,y:43},{id:'2',zone:'window',name:'窗边',x:22,y:36},{id:'desk-2',zone:'desk',name:'书桌右侧',x:34,y:42}];
  for(let row=0;row<3;row++)for(let col=0;col<4;col++)roomSlots.push({id:row===0&&col===0?'1':`shelf-${row*4+col+1}`,zone:'shelf',name:`展示架第 ${row+1} 层 · ${col+1} 号`,x:52+col*11,y:22+row*10});
  function roomUsage(d,item){return Object.values(ensure(d).demoGrowth.room).filter(x=>x===item).length;}
