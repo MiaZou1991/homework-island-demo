@@ -41,6 +41,13 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await page.locator('.gc-family [data-member="dad"]').click();
    assert.ok(await page.locator('.gc-week-row').count()===3,'switching a member keeps the timetable');
    await page.locator('.gc-family [data-member="all"]').click();
+   if(width===390){
+    await page.locator('.gc-timetable [data-up="add-menu"]').click();
+    await page.locator('#fs-sentence').fill('下午三点和妈妈一起阅读');
+    await page.locator('.fs-save').click();
+    await page.locator('.gc-week-row').first().waitFor();
+    assert.match(await page.locator('.gc-timetable').innerText(),/和妈妈一起阅读/,'one-line family schedule editor remains connected');
+   }
    assert.equal(await page.locator('.gc-page [data-up="complete"]').count(),0,'courses and packing remain read-only');
    const layout=await page.locator('.gc-page').evaluate(el=>({scroll:el.scrollWidth,width:el.clientWidth}));
    assert.ok(layout.scroll<=layout.width+3,'no horizontal overflow at '+width+'px: '+JSON.stringify(layout));
