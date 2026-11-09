@@ -1,6 +1,7 @@
 name: Staging REAL Anonymous Auth JWT Integration
 # One-shot staging harness. Never touches the production Supabase project.
 # Current acceptance also exercises real Postgres Changes WebSocket subscriptions.
+# Retry: record safe Phoenix event counters and allow Realtime CDC warmup before assert.
 # Retry after user confirmed staging Anonymous Sign-Ins on Nov 9; production untouched.
 # A human/operator enrolls its four synthetic user UUIDs via a separate staging SQL action.
 on:
