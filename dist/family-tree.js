@@ -19,7 +19,7 @@ if(/(^|\.)githack\.com$/i.test(location.hostname)){
 const PUB='kaixin_family_tree_public_preview_v1', PRIV='kaixin_family_tree_private_preview_v1';
 const names=Object.fromEntries(M.members.map(x=>[x.id,x.name]));
 const kinds=Object.fromEntries(M.types.map(x=>[x.id,x.name]));
-let actor='kid',section='moments',heartView='received',editing=null,publicData,privateData;
+let actor='kid',section='stories',recordFilter='all',heartView='received',editing=null,publicData,privateData;
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function today(offset=0){const d=new Date();d.setDate(d.getDate()+offset);return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
 function read(key,normalize){try{return normalize(JSON.parse(localStorage.getItem(key)||'null'));}catch(_){return normalize(null);}}
@@ -53,31 +53,42 @@ if(item.author!==actor)return '';
 return '<div class="ft-paper-tools"><button type="button" class="ft-text-button" data-edit="'+type+'" data-id="'+esc(item.id)+'">修改</button>'+
 '<button type="button" class="ft-text-button danger" data-delete="'+type+'" data-id="'+esc(item.id)+'">删除</button></div>';
 }
-function renderMoments(){
-const entries=[...publicData.moments].sort((a,b)=>(b.day||'').localeCompare(a.day||'')||(b.createdAt||'').localeCompare(a.createdAt||''));
-$('momentsList').innerHTML=entries.length?entries.map(item=>
-'<article class="ft-paper" data-moment="'+esc(item.id)+'">'+
-'<div class="ft-paper-head"><span class="ft-category">'+esc(kinds[item.category]||'成长回忆')+'</span>'+
-'<span>'+esc(item.day)+' · '+esc(names[item.author]||'家人')+'</span></div>'+
-'<div class="ft-paper-copy">'+esc(item.text)+'</div>'+actions('moment',item)+'</article>'
-).join(''):'<div class="ft-empty"><b>小树还在等第一个故事</b>记下一件小事，让它慢慢长大。</div>';
-}
-function renderNotes(){
-const notes=[...publicData.notes].sort((a,b)=>(b.createdAt||'').localeCompare(a.createdAt||''));
-$('notesList').innerHTML=notes.length?notes.map(note=>{
-const replies=publicData.replies.filter(x=>x.noteId===note.id).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));
-const replyHtml=replies.map(reply=>
-'<div class="ft-reply" data-reply="'+esc(reply.id)+'"><span class="ft-reply-name">'+esc(names[reply.author]||'家人')+'：</span>'+
-'<span class="ft-reply-content">'+esc(reply.text)+'</span>'+
-(reply.author===actor?'<span class="ft-reply-tools"><button type="button" class="ft-text-button" data-edit="reply" data-id="'+esc(reply.id)+'">改</button>'+
-'<button type="button" class="ft-text-button danger" data-delete="reply" data-id="'+esc(reply.id)+'">删</button></span>':'')+'</div>'
+function renderReplyThread(recordType,recordId) {
+const replies=publicData.replies.filter(x=>
+ (x.targetType===recordType&&x.targetId===recordId) ||
+ (recordType==='moment'?x.momentId===recordId:x.noteId===recordId)
+).sort((a,b)=>(a.createdAt||'').localeCompare(b.createdAt||''));
+const html=replies.map(reply=>
+ '<div class="ft-reply" data-reply="'+esc(reply.id)+'"><span class="ft-reply-name">'+esc(names[reply.author]||'家人')+'：</span>'+
+ '<span class="ft-reply-content">'+esc(reply.text)+'</span>'+
+ (reply.author===actor?'<span class="ft-reply-tools">'+
+ '<button type="button" class="ft-text-button" data-edit="reply" data-id="'+esc(reply.id)+'">改</button>'+
+ '<button type="button" class="ft-text-button danger" data-delete="reply" data-id="'+esc(reply.id)+'">删</button></span>':'')+
+ '</div>'
 ).join('');
-return '<article class="ft-paper" data-note="'+esc(note.id)+'"><div class="ft-paper-head"><span>挂在家庭树上的便签</span><span>'+
-esc(names[note.author]||'家人')+'</span></div><div class="ft-paper-copy">'+esc(note.text)+'</div><div class="ft-meta">'+
-esc((note.createdAt||'').slice(0,10))+'</div>'+actions('note',note)+
-'<div class="ft-replies" aria-label="便签回复">'+replyHtml+
-'<form class="ft-reply-form" data-note-id="'+esc(note.id)+'"><input name="reply" type="text" maxlength="120" placeholder="回复这张便签…" required aria-label="写一条回复"><button type="submit">回复</button></form></div></article>';
-}).join(''):'<div class="ft-empty"><b>暂时没有家庭便签</b>写一句温暖的话，家人都能看见并回复。</div>';
+return '<div class="ft-replies" aria-label="家人回复">'+html+
+'<form class="ft-reply-form" data-record-type="'+recordType+'" data-record-id="'+esc(recordId)+'">'+
+'<input name="reply" type="text" maxlength="120" placeholder="回复这条家庭记录…" required aria-label="写一条回复">'+
+'<button type="submit">回复</button></form></div>';
+}
+function renderStories() {
+const entries=[
+...publicData.moments.map(item=>({...item,recordType:'moment',sortDay:item.day||item.createdAt?.slice(0,10)||''})),
+...publicData.notes.map(item=>({...item,recordType:'note',sortDay:item.createdAt?.slice(0,10)||''}))
+].filter(item=>recordFilter==='all'||item.recordType===recordFilter)
+.sort((a,b)=>(b.sortDay||'').localeCompare(a.sortDay||'')||
+ (b.createdAt||'').localeCompare(a.createdAt||''));
+$('storiesList').innerHTML=entries.length?entries.map(item=>{
+const moment=item.recordType==='moment';
+const typeLabel=moment?'成长回忆':'家庭便签';
+const day=item.sortDay;
+return '<article class="ft-paper ft-story-item '+(moment?'is-moment':'is-note')+'" data-'+(moment?'moment':'note')+'="'+esc(item.id)+'">'+
+'<div class="ft-paper-head"><span class="ft-category '+(moment?'ft-category-moment':'ft-category-note')+'">'+
+typeLabel+'</span><span>'+esc(day)+' · '+esc(names[item.author]||'家人')+'</span></div>'+
+'<div class="ft-paper-copy">'+esc(item.text)+'</div>'+
+actions(item.recordType,item)+renderReplyThread(item.recordType,item.id)+'</article>';
+}).join(''):
+'<div class="ft-empty"><b>树下还没有记录</b>写下成长的小事，或留一句话给家人吧。</div>';
 }
 function refreshRecipients(){
 $('heartTo').innerHTML=M.members.filter(m=>m.id!==actor).map(m=>'<option value="'+m.id+'">'+esc(m.name)+'</option>').join('');
@@ -99,23 +110,45 @@ $('activeMember').value=actor;
 document.querySelectorAll('.ft-tabs button').forEach(b=>b.setAttribute('aria-current',b.dataset.section===section?'page':'false'));
 document.querySelectorAll('.ft-page').forEach(el=>el.hidden=el.dataset.page!==section);
 document.querySelectorAll('[data-heart-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.heartView===heartView)));
-refreshRecipients();renderMoments();renderNotes();renderHearts();
+refreshRecipients();renderStories();renderHearts();
+document.querySelectorAll('[data-filter]').forEach(button=>{
+button.setAttribute('aria-pressed',String(button.dataset.filter===recordFilter));
+});
+const growth=M.treeGrowth(privateData);
+$('treeHeartCount').textContent=growth.count;
+$('treeStage').textContent=growth.name;
+$('treeGrowthProgress').setAttribute('aria-valuenow',String(growth.stage));
+$('treeNext').textContent=growth.next===null?'满树都是爱，继续分享暖心时刻':
+ '再送出 '+(growth.next-growth.count)+' 份爱心，解锁下一阶段';
+const hero=document.querySelector('.ft-hero');
+hero.dataset.growthStage=String(growth.stage);
+hero.style.setProperty('--growth-progress',String((growth.stage+1)/4));
 }
 function findEntry(type,id){const list=type==='moment'?publicData.moments:type==='note'?publicData.notes:publicData.replies;return list.find(x=>x.id===id);}
-function openEditor(kind,item=null){
-editing={kind,id:item?.id||null};
-$('editorTitle').textContent=(item?'修改':'')+({moment:'留下回忆',note:'写给全家',reply:'回复'}[kind]);
-$('editorText').maxLength=kind==='moment'?300:kind==='reply'?120:180;
-$('editorText').value=item?.text||'';
-$('editorText').placeholder=kind==='moment'?'今天有什么值得记下来的事？':kind==='note'?'写一段话，挂到家庭树上……':'说一句话……';
+function drawEditorExtra() {
+const kind=editing.kind;
+$('editorTitle').textContent=editing.id?'修改家庭记录':'写一条家庭记录';
+$('editorText').maxLength=kind==='moment'?300:kind==='note'?180:120;
+$('editorText').placeholder=kind==='moment'?'今天有什么值得记下来的成长小事？':
+kind==='note'?'写给全家的一句话……':'回复这条家庭记录……';
 $('editorExtra').replaceChildren();
 if(kind==='moment'){
 const dateLabel=document.createElement('label'),date=document.createElement('input');
-dateLabel.textContent='哪一天';date.type='date';date.name='day';date.required=true;date.value=item?.day||today();dateLabel.append(date);
+dateLabel.textContent='哪一天';date.type='date';date.name='day';date.required=true;
+date.value=editing.day||today();dateLabel.append(date);
 const catLabel=document.createElement('label'),cat=document.createElement('select');
-catLabel.textContent='回忆类别';cat.name='category';M.types.forEach(t=>cat.add(new Option(t.name,t.id)));cat.value=item?.category||'growth';catLabel.append(cat);
+catLabel.textContent='回忆类别';cat.name='category';M.types.forEach(t=>cat.add(new Option(t.name,t.id)));
+cat.value=editing.category||'growth';catLabel.append(cat);
 $('editorExtra').append(dateLabel,catLabel);
 }
+}
+function openEditor(kind,item=null){
+const chosen=kind==='story'?(recordFilter==='note'?'note':'moment'):kind;
+editing={kind:chosen,id:item?.id||null,day:item?.day||today(),category:item?.category||'growth'};
+$('editorKind').value=chosen==='reply'?'note':chosen;
+$('editorTypeWrap').hidden=!!item||chosen==='reply';
+$('editorText').value=item?.text||'';
+drawEditorExtra();
 $('editor').showModal();$('editorText').focus();
 }
 function closeEditor(){if($('editor').open)$('editor').close();editing=null;}
@@ -124,6 +157,13 @@ const b=event.target.closest('button[data-section]');if(!b)return;section=b.data
 $('activeMember').addEventListener('change',e=>{actor=e.target.value;heartView='received';feedback('');render();});
 document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>openEditor(b.dataset.open)));
 $('cancelEditor').addEventListener('click',closeEditor);
+$('editorKind').addEventListener('change',event=>{
+if(!editing||editing.id)return;
+const oldText=$('editorText').value;
+editing.kind=event.target.value;
+drawEditorExtra();
+$('editorText').value=oldText;
+});
 $('editor').addEventListener('close',()=>{editing=null;});
 $('editorForm').addEventListener('submit',e=>{
 e.preventDefault();if(!editing)return;const value=$('editorText').value;
@@ -133,9 +173,21 @@ editing.kind==='note'?{type:editing.id?'editNote':'addNote',id:editing.id,text:v
 {type:'editReply',id:editing.id,text:value};
 if(perform(a))closeEditor();
 });
-$('notesList').addEventListener('submit',e=>{
-const form=e.target.closest('form[data-note-id]');if(!form)return;e.preventDefault();
-if(perform({type:'addReply',noteId:form.dataset.noteId,text:form.elements.reply.value},false,'已回复家庭便签'))form.reset();
+$('storiesList').addEventListener('submit',e=>{
+const form=e.target.closest('form[data-record-id]');
+if(!form)return;
+e.preventDefault();
+const id=form.dataset.recordId,recordType=form.dataset.recordType;
+const action={type:'addReply',targetType:recordType,targetId:id,text:form.elements.reply.value};
+if(recordType==='moment')action.momentId=id;
+else action.noteId=id;
+if(perform(action,false,'回复已保存'))form.reset();
+});
+document.querySelector('.ft-story-filters').addEventListener('click',event=>{
+const b=event.target.closest('button[data-filter]');
+if(!b)return;
+recordFilter=b.dataset.filter;
+render();
 });
 document.querySelector('.ft-content').addEventListener('click',event=>{
 const edit=event.target.closest('[data-edit]');
