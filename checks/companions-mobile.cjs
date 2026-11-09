@@ -19,6 +19,13 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
      return {src:img.getAttribute('src'),ok:img.naturalWidth>0};
    })));
    assert.equal(images.length,16);
+   assert.ok(images.find(i=>i.src?.endsWith('companion-rabbit-v5.png')),'rabbit should use the corrected transparent PNG');
+   const rabbitAlpha=await p.locator('.island-mate-tile[data-id="rabbit"] img').evaluate(img=>{
+      const cvs=document.createElement('canvas');cvs.width=img.naturalWidth;cvs.height=img.naturalHeight;
+      const ctx=cvs.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+      return {gap:ctx.getImageData(210,58,1,1).data[3],face:ctx.getImageData(250,190,1,1).data[3]};
+   });
+   assert.ok(rabbitAlpha.gap<12 && rabbitAlpha.face>240,'rabbit card background must be transparent '+width);
    assert.ok(images.every(i=>i.ok),JSON.stringify(images.filter(i=>!i.ok)));
    const gridColumns=await p.locator('.island-mate-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
    assert.equal(gridColumns,width<360?3:4,'adaptive columns '+width);
