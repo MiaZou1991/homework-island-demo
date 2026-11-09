@@ -14,7 +14,7 @@ assert.equal(pub.replies.find(r=>r.id==='r-growth').momentId,'g1','memory suppor
 
 pub=M.applyPublic(pub,'mom',{type:'addNote',text:'一起去公园'},time,'n1');
 pub=M.applyPublic(pub,'dad',{type:'addReply',noteId:'n1',text:'周六一起去'},time,'r1');
-assert.equal(pub.replies[0].author,'dad');
+assert.equal(pub.replies.find(x=>x.id==='r1').author,'dad');
 assert.throws(()=>M.applyPublic(pub,'kid',{type:'deleteNote',id:'n1'}),/自己的/);
 assert.throws(()=>M.applyPublic(pub,'mom',{type:'editReply',id:'r1',text:'不可以'}),/自己的/);
 pub=M.applyPublic(pub,'mom',{type:'deleteNote',id:'n1'});
