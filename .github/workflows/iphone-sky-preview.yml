@@ -1,0 +1,24 @@
+name: Preview iPhone Sky Continuity
+on:
+  push:
+    branches: [feat/iphone-sky-continuity]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Browser preview at four phone sizes
+        run: |
+          npm install --no-save --no-package-lock playwright
+          python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/iphone-sky-server.log 2>&1 &
+          node checks/iphone-sky-qa.cjs
+      - name: Upload phone previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: iphone-sky-previews
+          path: /tmp/iphone-sky-preview-*.png
+          if-no-files-found: ignore
+          retention-days: 5

@@ -88,12 +88,13 @@ body[data-mode="child"]:has(.up-main[data-route="today"]){
 }
 @media (max-width:450px){
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone{
-    /* One scenic layer. Prevent background-cover from cutting off the sky. */
+    /* Single scenery: original island geometry and continuous upper sky/lower beach.
+       No full-height stretching or artificial tint gradient. */
     background-color:#2ab3f4!important;
-    background-image:url("assets/hd/today-island-reference-v1.webp")!important;
-    background-size:100% 100%!important;
-    background-position:center top!important;
-    background-repeat:no-repeat!important;
+    background-image:url("assets/hd/today-island-continuous-v2.svg"),url("assets/hd/today-island-reference-v1.webp")!important;
+    background-size:cover,cover!important;
+    background-position:center top,center top!important;
+    background-repeat:no-repeat,no-repeat!important;
   }
   body[data-mode="child"] .tf-today .tf-hero::before,
   body[data-mode="child"] .tf-today .tf-hero::after{
@@ -134,4 +135,27 @@ body[data-mode="child"] .phone>.up-nav{
   body[data-mode="child"] .tf-today .tf-hero{
     min-height:calc(130px + var(--island-safe-top));
   }
+}
+
+/* iOS 26 Safari tints its browser chrome from the edge's computed background.
+   The top keeps the existing sky body tint. Sample sand only at the bottom.
+   This is a small solid edge sample, not a visible overlay on the island. */
+@media(max-width:450px){
+  body[data-mode="child"]:has(.up-main[data-route="today"])::after{
+    content:""!important;
+    display:block!important;
+    position:fixed;
+    left:0;right:0;bottom:0;
+    height:8px;min-height:8px;
+    background-color:#fae6b3;
+    z-index:9999;
+    pointer-events:auto;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-companion-spot{
+    transform:translateY(2px);
+  }
+}
+/* Contrast safeguard: no pseudo sky mask returns for this route. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-hero::before{
+  content:none!important;display:none!important;
 }
