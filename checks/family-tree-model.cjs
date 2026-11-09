@@ -19,7 +19,8 @@ assert.throws(()=>M.applyPublic(pub,'kid',{type:'deleteNote',id:'n1'}),/自己�
 assert.throws(()=>M.applyPublic(pub,'mom',{type:'editReply',id:'r1',text:'不可以'}),/自己的/);
 pub=M.applyPublic(pub,'mom',{type:'deleteNote',id:'n1'});
 assert.equal(pub.notes.length,0);
-assert.equal(pub.replies.length,0,'deleting note removes its replies');
+assert.equal(pub.replies.filter(x=>x.noteId==='n1').length,0,'deleting note removes its replies');
+assert.equal(pub.replies.filter(x=>x.momentId==='g1').length,1,'unrelated memory reply is retained');
 assert.throws(()=>M.applyPublic(pub,'kid',{type:'addMoment',day:'2026-11-09',category:'growth',text:' '.repeat(3)}),/1～300/);
 assert.throws(()=>M.applyPublic(pub,'kid',{type:'addMoment',day:'2026-11-09',category:'growth',text:'x'.repeat(301)}),/1～300/);
 assert.throws(()=>M.applyPublic(pub,'stranger',{type:'addNote',text:'wrong'}),/身份/);
