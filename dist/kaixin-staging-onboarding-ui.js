@@ -15,6 +15,7 @@
   guest_login_failed:'孩子测试身份暂时创建失败，请重试。',
   signup_failed:'创建账号失败，请检查邮箱、密码及测试库邮件服务配置。',
   invalid_credentials:'登录失败，请检查邮箱密码或先完成邮箱验证。',
+  verified_https_redirect_required:'此页面尚未部署在已授权 HTTPS 测试地址，不能在这里创建邮箱账号。请等独立测试地址就绪。',
   server_unavailable:'测试库接口暂时不可用，请重试。',
   session_error:'会话校验失败，请重新登录。',
   sign_out_before_new_device:'当前已有登录身份；请在孩子手机或另一个浏览器中绑定。',
@@ -99,7 +100,9 @@
    auth:{storageKey:'kaixin_staging_auth_preview_v1',persistSession:true,
     autoRefreshToken:true,detectSessionInUrl:true}
   });
-  flow=window.KaixinStagingOnboarding.create(client);
+  const redirectTo=location.protocol==='https:'?
+    location.origin+location.pathname:null;
+  flow=window.KaixinStagingOnboarding.create(client,{redirectTo});
   busy('refresh',async()=>{await refresh();feedback('测试身份已重新核实。');});
   busy('logout',async()=>{
    await flow.logout();invite='';$('invite-value').textContent='';
