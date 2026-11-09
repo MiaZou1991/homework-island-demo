@@ -26,8 +26,8 @@ const places = [
       assert.equal(await page.evaluate(() => IslandWalk.walkable(768, 910)), true, 'pier traversable');
       assert.equal(await page.evaluate(() => IslandWalk.walkable(40, 40)), false, 'sea blocked');
 
-      // The family tree is scenery rooted on grass, not a planter on the
-      // stone plaza. It must be approachable from a walkable nearby point.
+      // The family tree belongs in the garden's circular flower bed, not on
+      // the stone plaza. Both garden and tree must remain approachable.
       const familyTree = await page.evaluate(() => {
         const {tree, areas, walkable} = IslandWalk;
         const approach = areas.find(area => area.id === 'tree');
@@ -35,13 +35,18 @@ const places = [
           trunkOnPath: walkable(tree.x, tree.y),
           approachWalkable: walkable(approach.x, approach.y),
           distance: Math.hypot(tree.x - approach.x, tree.y - approach.y),
-          trunkX: tree.x
+          trunkX: tree.x,
+          trunkY: tree.y,
+          garden: areas.find(area => area.id === 'garden')
         };
       });
       assert.equal(familyTree.trunkOnPath, false, 'family tree should grow off the paved path');
       assert.equal(familyTree.approachWalkable, true, 'family tree reachable from plaza');
-      assert.ok(familyTree.distance < 185, 'family tree entrance near the grassy bank');
-      assert.ok(familyTree.trunkX < 510, 'family tree planted on left grass, clear of central square');
+      assert.ok(familyTree.distance < 160, 'family tree entrance near the garden flower bed');
+      assert.ok(familyTree.trunkX >= 260 && familyTree.trunkX <= 375 && familyTree.trunkY >= 480 && familyTree.trunkY <= 580,
+        'family tree rooted in the central round garden flower bed');
+      assert.ok(familyTree.garden.x > 480 && familyTree.garden.x < 590,
+        'garden entrance remains a distinct walkable location');
 
       assert.equal(await page.locator('#visit').isVisible(), true, 'pier action on arrival');
 
