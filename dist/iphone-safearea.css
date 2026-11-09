@@ -90,11 +90,11 @@ body[data-mode="child"]:has(.up-main[data-route="today"]){
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone{
     /* Single scenery: original island geometry and continuous upper sky/lower beach.
        No full-height stretching or artificial tint gradient. */
-    background-color:#2ab3f4!important;
-    background-image:url("assets/hd/today-island-continuous-v2.svg"),url("assets/hd/today-island-reference-v1.webp")!important;
-    background-size:cover,cover!important;
-    background-position:center top,center top!important;
-    background-repeat:no-repeat,no-repeat!important;
+    background-color:#fae5b3!important;
+    background-image:url("assets/hd/today-island-reference-v1.webp")!important;
+    background-size:100% auto!important;
+    background-position:center top!important;
+    background-repeat:no-repeat!important;
   }
   body[data-mode="child"] .tf-today .tf-hero::before,
   body[data-mode="child"] .tf-today .tf-hero::after{
@@ -137,25 +137,50 @@ body[data-mode="child"] .phone>.up-nav{
   }
 }
 
-/* iOS 26 Safari tints its browser chrome from the edge's computed background.
-   The top keeps the existing sky body tint. Sample sand only at the bottom.
-   This is a small solid edge sample, not a visible overlay on the island. */
+/* iPhone Safari V6: stable layout in expanded/collapsed browser chrome.
+   The document's upper and lower edge use the sky and sand palette respectively.
+   Never place a fixed strip over artwork or over the system's bottom toolbar. */
 @media(max-width:450px){
+  html:has(body[data-mode="child"] .up-main[data-route="today"]){
+    background:linear-gradient(to bottom,
+      #2ab3f4 0%,
+      #5dc7ed 30%,
+      #f5dba9 78%,
+      #fae5b3 100%) fixed!important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]){
+    background:transparent!important;
+    min-height:100dvh;
+    padding:0!important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"])::before,
   body[data-mode="child"]:has(.up-main[data-route="today"])::after{
-    content:""!important;
-    display:block!important;
-    position:fixed;
-    left:0;right:0;bottom:0;
-    height:8px;min-height:8px;
-    background-color:#fae6b3;
-    z-index:9999;
-    pointer-events:auto;
+    content:none!important;
+    display:none!important;
   }
-  body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-companion-spot{
-    transform:translateY(2px);
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone{
+    /* Width-anchored scenery: does not move when Safari changes viewport height. */
+    background-color:#fae5b3!important;
+    background-size:100% auto!important;
+    background-position:center top,center top!important;
+    background-repeat:no-repeat,no-repeat!important;
   }
-}
-/* Contrast safeguard: no pseudo sky mask returns for this route. */
-body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-hero::before{
-  content:none!important;display:none!important;
+  body[data-mode="child"] .up-main[data-route="today"] .tf-today{
+    min-height:0!important;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero{
+    flex:0 0 93cqw!important;
+    height:93cqw!important;
+    min-height:93cqw!important;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top{
+    /* env() can be 0 in browser tabs. 68px still clears iPhone status text. */
+    top:max(68px,calc(var(--island-safe-top) + 12px))!important;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-status{
+    display:none!important;
+  }
+  body[data-mode="child"] .phone>.up-nav{
+    margin-top:auto;
+  }
 }

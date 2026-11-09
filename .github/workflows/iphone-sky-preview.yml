@@ -1,7 +1,7 @@
-name: Preview iPhone Sky Continuity
+name: Preview iPhone Safari Chrome V6
 on:
   push:
-    branches: [feat/iphone-sky-continuity]
+    branches: [feat/iphone-sky-continuity, fix/iphone-safari-chrome-v6]
 permissions:
   contents: read
 jobs:
@@ -18,7 +18,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: iphone-sky-previews
-          path: /tmp/iphone-sky-preview-*.png
+          name: iphone-safari-v6-previews
+          path: /tmp/iphone-safari-v6-*.png
           if-no-files-found: ignore
           retention-days: 5
