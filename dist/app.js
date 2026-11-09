@@ -3232,13 +3232,24 @@ function mateRewardItems(data) {
 }
 
 function findMateItem(data, emoji) {
-    return mateRewardItems(data).find(i => i.emoji === emoji) || null;
+    const aliases = { '🦊':'🐺', '🦉':'🐦', '🦁':'🐯', '🦄':'🐴' };
+    const canonical = aliases[emoji] || emoji;
+    const historical = mateRewardItems(data).find(i => i.emoji === canonical || i.emoji === emoji);
+    if (historical) return historical;
+    // The six new companions are not points-shop rewards.
+    const catalog = typeof DemoCore !== 'undefined' && DemoCore.companions;
+    const mate = catalog && catalog.find(i => i.emoji === canonical);
+    return mate ? { id:'companion_'+mate.id, type:'mate', emoji:mate.emoji, name:mate.name, points:0, active:true } : null;
 }
 
-// 已经兑换到手的伙伴
+// Preserve saved order and all historical economy records.
 function getUnlockedRewards(data) {
-    const owned = data.rewardsUnlocked || [];
-    return mateRewardItems(data).filter(i => owned.includes(i.emoji));
+    const seen = new Set();
+    return (data.rewardsUnlocked || []).map(emoji => findMateItem(data, emoji)).filter(mate => {
+        if (!mate || seen.has(mate.emoji)) return false;
+        seen.add(mate.emoji);
+        return true;
+    });
 }
 
 // 取今天陪写的伙伴（跨天自动回到已兑换的某一个）
@@ -3271,7 +3282,7 @@ function closeMatePicker() {
 function pickMate(emoji, name) {
     const data = getData();
     if (!(data.rewardsUnlocked || []).includes(emoji)) {
-        showToast('这个伙伴还没兑换哦，先去「积分兑换」请它上岛吧');
+        showToast('请先在伙伴图鉴中认识这位伙伴。');
         return;
     }
     const r = findMateItem(data, emoji) || { emoji, name: name || '伙伴' };
