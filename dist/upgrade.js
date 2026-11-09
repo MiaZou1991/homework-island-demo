@@ -222,7 +222,10 @@ window.openMatePicker=function(event){event?.stopPropagation();if(ready)matePick
 gotoChildView=function(view){if(!ready)return;if(view==='home')navigate('today');else if(view==='calendar')navigate('plan');else if(view==='mates')navigate('mates');else if(view==='report')navigate('report');else legacy(view);};
 gotoParentView=function(view){if(!ready)return;if(view==='home')navigate('today');else if(view==='settings')navigate('family');else if(view==='classes')legacy('classes');else if(view==='report')navigate('report');else legacy(view);};
 window.addEventListener('storage',ev=>{if(ev.key===DEMO_KEY){generateRecurringTasks();after();}});
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if(!b)return;const a=b.dataset.up,id=b.dataset.id;const d=data();
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if(!b)return;const a=b.dataset.up,id=b.dataset.id;
+ // Navigating and closing dialogs must not synchronously parse an attachment-heavy family snapshot twice.
+
+ const d=data();
  if(a==='family-filter'){ui.familyMember=b.dataset.member;render();return;}
  if(a==='small-event-edit'){smallEventEditor(id);return;}
  if(a==='small-event-delete'){confirmSmallEvent(id);return;}
