@@ -42,7 +42,7 @@
   } catch (_) { history = []; }
   function trace(event, details = {}) {
     const safe = {};
-    for (const field of ['operation', 'httpStatus', 'durationMs', 'retryMs', 'revision', 'attempt', 'reason']) {
+    for (const field of ['operation', 'httpStatus', 'durationMs', 'requestBytes', 'retryMs', 'revision', 'attempt', 'reason']) {
       const value = details[field];
       if (typeof value === 'number' && Number.isFinite(value)) safe[field] = value;
       else if (typeof value === 'string') safe[field] = value.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
@@ -304,13 +304,15 @@
         if (Date.now() < retryAfter) throw new Error('云端暂不可用，稍后重试');
         const operation = name === '__revision' ? 'revision' : name === 'family_load' ? 'load' : 'save';
         const startedAt = Date.now();
-        trace('rpc_started', { operation });
+        const body = name === '__revision' ? undefined : JSON.stringify(payload);
+        const requestBytes = body ? (typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(body).length : body.length) : 0;
+        trace('rpc_started', { operation, requestBytes });
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
           const response = await fetch(SUPABASE_URL + (name === '__revision' ? '/rest/v1/kaixin_sync_signal?id=eq.KAIXIN&select=revision&limit=1' : '/rest/v1/rpc/' + name), {
             method: name === '__revision' ? 'GET' : 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-            body: name === '__revision' ? undefined : JSON.stringify(payload), signal: controller.signal
+            body, signal: controller.signal
           });
           if (!response.ok) {
             const error = new Error('云端请求失败：' + response.status);
@@ -318,7 +320,8 @@
             throw error;
           }
           const data = await response.json();
-          trace('rpc_succeeded', { operation, httpStatus: response.status || 200, durationMs: Date.now() - startedAt });
+          if (data?.ok === false) trace('rpc_business_rejected', { operation, httpStatus: response.status || 200 });
+          else trace('rpc_succeeded', { operation, httpStatus: response.status || 200, durationMs: Date.now() - startedAt });
           failures = 0;
           retryAfter = 0;
           return { data, error: null };
