@@ -6,8 +6,9 @@
   const ctx = canvas.getContext('2d');
   const W = 1536, H = 1024;
   const SPAWN = Object.freeze({x: 768, y: 925});
-  // Set the family tree beside the central walkway, not in the middle of it.
-  const tree = Object.freeze({x: 645, y: 555});
+  // The tree grows on the grassy bank southwest of the central plaza.
+  // Keep its trunk outside the paved paths so the routes remain unobstructed.
+  const tree = Object.freeze({x: 480, y: 642});
 
   // Landing points are on the walkable stone paths, not inside buildings/flowerbeds.
   const areas = Object.freeze([
@@ -17,7 +18,7 @@
     {id: 'garden', title: '花园', x: 445, y: 488, radius: 130, focus: '0% 47%',
       action: '走进花园', intro: '花园里有鲜花、长椅和一条被阳光照亮的小路。',
       later: '下一阶段会接入花朵与装饰物的收藏、摆放。'},
-    {id: 'tree', title: '家庭树', x: 730, y: 580, radius: 143, focus: '42% 55%',
+    {id: 'tree', title: '家庭树', x: 600, y: 570, radius: 126, focus: '32% 62%',
       action: '看看家庭树', intro: '一棵陪着我们长大的树，把家庭里温暖的时光留在这里。',
       later: '家庭便签、成长记录和爱心互动将在后续阶段接入。'},
     {id: 'treehouse', title: '森林书屋', x: 766, y: 340, radius: 119, focus: '50% 5%',
@@ -161,7 +162,7 @@
     ctx.save(); ctx.scale(scale, scale); ctx.translate(-camera.x, -camera.y);
     ctx.drawImage(images.map, 0, 0, W, H);
     if (state.y < tree.y) drawPerson(time, moving);
-    ctx.drawImage(images.tree, tree.x - 72, tree.y - 210, 144, 216);
+    ctx.drawImage(images.tree, tree.x - 58, tree.y - 174, 116, 178);
     if (state.y >= tree.y) drawPerson(time, moving);
     if (state.overview) drawMarkers();
     ctx.restore();
@@ -332,7 +333,7 @@
   }
 
   // Read-only testing surface. This scene never touches homework or cloud data.
-  window.IslandWalk = {state, areas, polygons, walkable, nearestLandmark, goTo, openDetail, toggleMap, stop, sourceFor};
+  window.IslandWalk = {state, tree, areas, polygons, walkable, nearestLandmark, goTo, openDetail, toggleMap, stop, sourceFor};
   configurePreviewArtwork();
   loadIsland();
 })();
