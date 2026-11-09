@@ -1,5 +1,6 @@
 name: Staging REAL Anonymous Auth JWT Integration
 # One-shot staging harness. Never touches the production Supabase project.
+# Current acceptance also exercises real Postgres Changes WebSocket subscriptions.
 # Retry after user confirmed staging Anonymous Sign-Ins on Nov 9; production untouched.
 # A human/operator enrolls its four synthetic user UUIDs via a separate staging SQL action.
 on:
@@ -20,4 +21,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Register four temporary anonymous Auth identities and test real JWT RPC after enrollment
-        run: node checks/staging-real-auth-ephemeral.cjs
+        run: |
+          node --version
+          node checks/staging-real-auth-ephemeral.cjs
