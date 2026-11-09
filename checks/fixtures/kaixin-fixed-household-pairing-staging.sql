@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS kaixin_private.child_pairing_invites (
   expires_at timestamptz NOT NULL,
   redeemed_at timestamptz,
   redeemed_by uuid,
+  revoked_at timestamptz,
   CHECK (expires_at > created_at)
 );
 CREATE INDEX IF NOT EXISTS kaixin_child_invites_expires
@@ -62,9 +63,9 @@ BEGIN
   PERFORM 1 FROM public.family_cloud_data_v2
     WHERE family_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid FOR UPDATE;
   UPDATE kaixin_private.child_pairing_invites
-    SET expires_at=now()
+    SET revoked_at=clock_timestamp()
     WHERE family_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid
-      AND redeemed_at IS NULL AND expires_at>now();
+      AND redeemed_at IS NULL AND revoked_at IS NULL AND expires_at>now();
 
   v_token=replace(gen_random_uuid()::text,'-','')||
           replace(gen_random_uuid()::text,'-','');
