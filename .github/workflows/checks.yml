@@ -1,7 +1,7 @@
 name: Check Homework Island
 on:
   pull_request:
-    branches: [main]
+    branches: [main, feat/island-explore-stage1-20261109]
   push:
     branches: [main]
 permissions:
@@ -23,6 +23,7 @@ jobs:
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
+          node checks/family-tree-model.cjs
       - name: Install fonts for mobile rendering
         run: |
           sudo apt-get update -qq
@@ -35,6 +36,7 @@ jobs:
           node checks/family-schedule.cjs
           node checks/companions-mobile.cjs
           node checks/island-explore.cjs
+          node checks/family-tree-mobile.cjs
       - name: Upload companion gallery QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,6 +51,14 @@ jobs:
         with:
           name: island-exploration-mobile-qa
           path: /tmp/island-explore-*.png
+          if-no-files-found: ignore
+          retention-days: 5
+      - name: Upload family tree mobile QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: family-tree-mobile-qa
+          path: /tmp/family-tree-*.png
           if-no-files-found: ignore
           retention-days: 5
       - name: Build optimized WebP assets without publishing
