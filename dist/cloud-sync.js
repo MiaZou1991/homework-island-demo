@@ -402,7 +402,7 @@
   async function retryNow() {
     trace('manual_retry');
     if (!started || !client) throw new Error('同步尚未初始化');
-    if (busy || revisionBusy) { trace('manual_retry_skipped', { reason: 'busy' }); return { ...syncState }; }
+    if (busy) { trace('manual_retry_skipped', { reason: 'busy' }); return { ...syncState }; }
     retryAfter = 0; // A deliberate retry is allowed to bypass automatic backoff.
     if (pending) await flush();
     else await pull();
