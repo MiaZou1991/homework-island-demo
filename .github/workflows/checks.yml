@@ -71,3 +71,18 @@ jobs:
           PGUSER: postgres
           PGPASSWORD: postgres
         run: node checks/postgres-v2-contract.cjs
+
+  webkit-v2:
+    name: v2-outbox-webkit-mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Playwright WebKit and dependencies
+        run: |
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps webkit
+      - name: Verify IndexedDB outbox recovery across page reload in mobile WebKit
+        run: |
+          python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-webkit-server.log 2>&1 &
+          PLAYWRIGHT_BROWSER=webkit node checks/v2-browser-idb.cjs
