@@ -114,6 +114,9 @@ REVOKE ALL ON FUNCTION public.family_save_v2(uuid,jsonb,integer,uuid) FROM PUBLI
 GRANT EXECUTE ON FUNCTION public.family_load_v2(uuid) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.family_save_v2(uuid,jsonb,integer,uuid) TO authenticated;
 
+-- Match staging hardening: private privileged implementation, public invoker wrappers.
+\\ir supabase-v2-staging-privileged-wrapper.sql
+
 INSERT INTO public.family_cloud_data_v2(family_id,payload,revision) VALUES
 ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','{"homework":[{"id":"existing","subject":"QA"}]}',1),
 ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','{"homework":[]}',1);
