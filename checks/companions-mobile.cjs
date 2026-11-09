@@ -19,13 +19,24 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
      return {src:img.getAttribute('src'),ok:img.naturalWidth>0};
    })));
    assert.equal(images.length,16);
-   assert.ok(images.find(i=>i.src?.endsWith('companion-rabbit-v5.png')),'rabbit should use the corrected transparent PNG');
-   const rabbitAlpha=await p.locator('.island-mate-tile[data-id="rabbit"] img').evaluate(img=>{
-      const cvs=document.createElement('canvas');cvs.width=img.naturalWidth;cvs.height=img.naturalHeight;
-      const ctx=cvs.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
-      return {gap:ctx.getImageData(210,58,1,1).data[3],face:ctx.getImageData(250,190,1,1).data[3]};
-   });
-   assert.ok(rabbitAlpha.gap<12 && rabbitAlpha.face>240,'rabbit card background must be transparent '+width);
+   assert.ok(images.every(i=>/^assets\/characters\/companion-[a-z]+-v6\.png$/.test(i.src)),'all 16 images must use v6');
+   const alphas=await p.locator('.island-mate-tile img').evaluateAll(imgs=>imgs.map(img=>{
+     const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+     const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+     const sample=(x,y)=>ctx.getImageData(x,y,1,1).data[3];
+     const region=ctx.getImageData(92,93,328,378).data;let opaque=0;
+     for(let i=3;i<region.length;i+=4)if(region[i]>220)opaque++;
+     return {id:img.closest('[data-id]')?.dataset.id,w:img.naturalWidth,h:img.naturalHeight,
+       edges:[sample(256,20),sample(20,256),sample(490,256),sample(256,492)],
+       fill:opaque/(328*378)};
+   }));
+   for(const sample of alphas){
+     assert.equal(sample.w,512,sample.id+' width');
+     assert.equal(sample.h,512,sample.id+' height');
+     assert.ok(sample.edges.every(a=>a<12),sample.id+' must have transparent outside, '+sample.edges);
+     assert.ok(sample.fill>0.3 && sample.fill<0.965,sample.id+' must not contain old opaque beige panel '+sample.fill);
+   }
+   assert.ok((await p.locator('.tf-companion-art').first().getAttribute('src'))?.endsWith('-v6.png'),'today mascot must use v6');
    assert.ok(images.every(i=>i.ok),JSON.stringify(images.filter(i=>!i.ok)));
    const gridColumns=await p.locator('.island-mate-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
    assert.equal(gridColumns,width<360?3:4,'adaptive columns '+width);
