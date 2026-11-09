@@ -38,10 +38,12 @@ BEGIN
  IF v_invite->>'ok' <> 'true' OR length(v_invite->>'token') <> 64
  THEN RAISE EXCEPTION 'random one-time pairing token unavailable'; END IF;
  v_first_token:=v_invite->>'token';
- IF NOT EXISTS (SELECT 1 FROM kaixin_private.child_pairing_invites
-  WHERE token_hash=extensions.digest(v_first_token,'sha256')
-  AND family_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid)
- THEN RAISE EXCEPTION 'only a hash of pairing token should be stored'; END IF;
+ -- The signed-in caller must NOT be able to query the private token table.
+ BEGIN
+  PERFORM 1 FROM kaixin_private.child_pairing_invites LIMIT 1;
+  RAISE EXCEPTION 'direct pairing-token table read was unexpectedly permitted';
+ EXCEPTION WHEN insufficient_privilege THEN NULL;
+ END;
 
  -- A second pairing code cancels the first, including across parent devices.
  v_new:=public.kaixin_create_child_invite();
