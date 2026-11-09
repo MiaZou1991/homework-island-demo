@@ -174,8 +174,16 @@ function createDefaultData() {
 
 function saveData(data) {
     localStorage.setItem(activeStorageKey(), JSON.stringify(data));
-    // 保存到本地后再同步到云端（跨设备共享同一份作业数据）
-    if (typeof IslandSync !== 'undefined') IslandSync.schedulePush(data);
+    // 本机存储已成功时，云端排队失败不能打断发布后的关闭弹窗和成功反馈。
+    // 同步状态另行提示，避免用户误以为没保存而重复点击。
+    if (typeof IslandSync !== 'undefined') {
+        try { IslandSync.schedulePush(data); }
+        catch (error) {
+            console.warn('[开心岛] 本机已保存，云端同步排队失败', error);
+            return false;
+        }
+    }
+    return true;
 }
 
 // 云端拉到更新的数据后，按当前页面重新渲染
@@ -1641,7 +1649,11 @@ function buildParentItem(hw) {
     return el;
 }
 
+let manualPublishInFlight = false;
 async function addManualHomework() {
+    // 图片压缩和存储均可能异步/耗时；连点只能发布一次。
+    if (manualPublishInFlight) return;
+
     const subject = $('manual-subject').value;
     const content = $('manual-content').value.trim();
     const deadline = $('manual-deadline').value;
@@ -1656,57 +1668,91 @@ async function addManualHomework() {
         return;
     }
 
-    const data = getData();
-    const attachments = await mergeAttachments([], attachInput ? attachInput.files : []);
-
-    if (isRecurring) {
-        // ---- 周期作业：存为模板，由 generateRecurringTasks 每天自动派生 ----
-        const frequency = $('manual-frequency').value;
-        const task = {
-            id: generateId(),
-            subject,
-            content,
-            frequency,
-            duration,
-            points,
-            active: true,
-            createdAt: new Date().toISOString()
-        };
-        if (frequency === 'weekly') {
-            task.weeklyDay = parseInt($('manual-weekly-day').value, 10);
-        } else if (frequency === 'monthly') {
-            task.monthlyDay = parseInt($('manual-monthly-day').value, 10) || 1;
-        }
-        task.attachments = attachments;
-        data.recurringTasks.push(task);
-        saveData(data);
-
-        resetManualForm();
-        generateRecurringTasks();
-        closePublishSheet();
-        gotoParentView('home');
-        showToast('周期作业已发布，会自动重复哦 🔄');
-        return;
+    const button = $('btn-publish-hw');
+    const originalLabel = button ? button.textContent : '';
+    manualPublishInFlight = true;
+    if (button) {
+        button.disabled = true;
+        button.textContent = '⏳ 正在发布…';
     }
 
-    // ---- 普通作业：一次性 ----
-    data.homework.push({
-        id: generateId(),
-        subject,
-        content,
-        deadline: deadline || null,
-        duration,
-        points,
-        done: false,
-        attachments,
-        createdAt: new Date().toISOString()
-    });
-    saveData(data);
+    let saved = false;
+    let syncQueued = true;
+    try {
+        const data = getData();
+        const attachments = await mergeAttachments([], attachInput ? attachInput.files : []);
 
-    resetManualForm();
-    closePublishSheet();
-    gotoParentView('home');
-    showToast('作业发布成功！');
+        if (isRecurring) {
+            // 周期模板持久化后，按原有规则派生今天的任务。
+            const frequency = $('manual-frequency').value;
+            const task = {
+                id: generateId(),
+                subject,
+                content,
+                frequency,
+                duration,
+                points,
+                active: true,
+                createdAt: new Date().toISOString()
+            };
+            if (frequency === 'weekly') {
+                task.weeklyDay = parseInt($('manual-weekly-day').value, 10);
+            } else if (frequency === 'monthly') {
+                task.monthlyDay = parseInt($('manual-monthly-day').value, 10) || 1;
+            }
+            task.attachments = attachments;
+            data.recurringTasks.push(task);
+        } else {
+            data.homework.push({
+                id: generateId(),
+                subject,
+                content,
+                deadline: deadline || null,
+                duration,
+                points,
+                done: false,
+                attachments,
+                createdAt: new Date().toISOString()
+            });
+        }
+
+        // 成功保存本机之后，立即退出编辑弹窗；后续 UI 更新故障不应造成误点重发。
+        syncQueued = saveData(data);
+        saved = true;
+        closePublishSheet();
+        try {
+            resetManualForm();
+            if (isRecurring) generateRecurringTasks();
+        } catch (error) {
+            console.warn('[开心岛] 作业已保存，表单复位或周期任务生成失败', error);
+        }
+        try { gotoParentView('home'); }
+        catch (error) { console.warn('[开心岛] 作业已保存，首页刷新失败', error); }
+
+        const status = typeof IslandSync !== 'undefined' ? IslandSync.getStatus?.() : null;
+        const syncWarning = status && /标记写入失败/.test(status.message || '');
+        const feedback = !syncQueued
+            ? '作业已保存本机，云端同步暂不可用'
+            : syncWarning
+                ? '作业已保存本机，请保持页面打开直到同步完成'
+                : isRecurring ? '周期作业已保存，正在同步 🔄' : '作业已保存，正在同步到孩子端 ✅';
+        showToast(feedback);
+    } catch (error) {
+        console.warn('[开心岛] 发布作业失败', error);
+        if (saved) {
+            // 仅 UI 更新失败：明确告诉家长已保存，不要重复发布。
+            try { closePublishSheet(); } catch (_) {}
+            showToast('作业已保存，页面更新异常，请刷新查看');
+        } else {
+            showToast('发布失败，作业未保存，请检查后重试');
+        }
+    } finally {
+        manualPublishInFlight = false;
+        if (button) {
+            button.disabled = false;
+            if (!saved) button.textContent = originalLabel;
+        }
+    }
 }
 
 function resetManualForm() {
