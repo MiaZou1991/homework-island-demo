@@ -13,7 +13,7 @@
   const UUID=/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i;
   const CODE=/^[0-9a-f]{64}$/;
   function fail(code) {const error=new Error(code);error.code=code;return error;}
-  function create(client) {
+  function create(client,{redirectTo}={}) {
     if (!client?.auth?.getUser || typeof client.rpc!=='function')throw fail('missing_supabase_client');
     async function call(name,args) {
       const {data,error}=await client.rpc(name,args||{});
@@ -38,8 +38,10 @@
     }
     async function signupParent(email,password) {
       if(!email?.trim()||!password)throw fail('email_and_password_required');
+      if(!redirectTo || !/^https:\/\//.test(redirectTo))throw fail('verified_https_redirect_required');
       const {data,error}=await client.auth.signUp({
-        email:email.trim(),password
+        email:email.trim(),password,
+        options:{emailRedirectTo:redirectTo}
       });
       if(error)throw fail('signup_failed');
       // A successful signup does not grant parent access; an authorized
