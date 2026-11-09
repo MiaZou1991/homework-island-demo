@@ -28,6 +28,7 @@ jobs:
       - name: Verify settlement and data isolation
         run: |
           node checks/domain.test.cjs
+          node checks/companions-v4.cjs
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
@@ -42,6 +43,7 @@ jobs:
           npm install --no-save --no-package-lock playwright
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
+          node checks/companions-mobile.cjs
       - name: Upload calendar QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
