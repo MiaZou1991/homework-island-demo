@@ -173,7 +173,13 @@ function createDefaultData() {
 }
 
 function saveData(data) {
-    localStorage.setItem(activeStorageKey(), JSON.stringify(data));
+    try {
+        localStorage.setItem(activeStorageKey(), JSON.stringify(data));
+        if (typeof IslandSync !== 'undefined') IslandSync.recordEvent?.('local_saved');
+    } catch (error) {
+        if (typeof IslandSync !== 'undefined') IslandSync.recordEvent?.('local_save_failed');
+        throw error;
+    }
     // 本机存储已成功时，云端排队失败不能打断发布后的关闭弹窗和成功反馈。
     // 同步状态另行提示，避免用户误以为没保存而重复点击。
     if (typeof IslandSync !== 'undefined') {
