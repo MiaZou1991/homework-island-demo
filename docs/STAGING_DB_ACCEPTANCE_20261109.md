@@ -51,3 +51,35 @@
 ## 结论
 
 真实 Supabase 测试库**已经证明新的服务端数据库设计具备防盲覆盖、权限限制及版本一致性**。但生产端沿用旧接口，客户端 V2 尚未接入；不能宣称两台手机的历史同步故障已经修复。当前 PR #12 必须保留 Draft，正式生产数据不能更改。
+
+## 第二阶段真实 HTTP、安全加固与客户端验证（追加）
+
+### A. 真实 HTTP（不使用模拟 SQL 会话）
+
+- CI [Staging Anonymous HTTP Security Smoke #42639279836](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42639279836) 在独立 staging **真实访问 Supabase HTTPS API**。
+- 四个无登录身份的接口请求均得到 HTTP 401：`family_load_v2`、`family_save_v2`、直接读取家庭表、直接读取家庭通知表。**四项 PASS**。
+- 真实 Auth 配置只读探测（[CI #42639763609](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42639763609)）：匿名用户登录功能当前关闭，邮箱自动确认未开启。无法在无凭证条件下生成真实的家长/孩子 JWT；有 Auth 身份的 REST/Realtime 测试仍为 **NOT RUN**。
+- 不读取或上传真实孩子资料；无匿名请求写入。
+
+### B. 真实 staging SQL 权限加固
+
+- 已在隔离项目实际执行迁移 `kaixin_v2_privileged_function_wrappers`（[源文件](../checks/fixtures/supabase-v2-staging-privileged-wrapper.sql)）。
+- 将真正的 `SECURITY DEFINER` 数据库逻辑移到未暴露的 `kaixin_private` schema；对外 `public.family_load_v2`/`family_save_v2` 改为 `SECURITY INVOKER` 受控包装层。
+- 已只读确认：两个 public 函数 `prosecdef=false`，仅 authenticated 有执行权限，anon 没有；两个 private 函数 `prosecdef=true`，同样禁止匿名；认证角色在测试 SQL 会话中仍可正确读取自身家庭版本。
+- 重新运行 Supabase Security Advisor：**此前两条“公开 Security Definer 函数” WARN 已消失**。剩余两条 INFO 是刻意禁止直接访问的内部家庭/幂等表启用了 RLS 但没有直接行策略。不可把 INFO 写成新安全漏洞，也不可简单授予 anon SELECT。
+- 同一套包装层已纳入独立 PostgreSQL 17 CI fixture，防止回归为 public definer。
+
+### C. 实验性客户端 V2（未接入生产）
+
+- [dist/v2-sync-client.js](../dist/v2-sync-client.js)：新增作业以独立操作进入 IndexedDB，使用真实 `family_load_v2`/ `family_save_v2` 的 Bearer JWT 协议、CAS 版本保护、失败后保留操作、相同操作重复确认防重、冲突时重读最新家庭数据并重试。
+- [checks/v2-sync-client.cjs](../checks/v2-sync-client.cjs)：两设备冲突、断网 HTTP 503、响应丢失、未授权、重复作业 ID 保护和脱敏事件日志的模拟回归。
+- [checks/v2-browser-idb.cjs](../checks/v2-browser-idb.cjs)：在真实 Chrome 中测试 IndexedDB 的操作保存、页面刷新后恢复和删除。**没有验证 Safari WebKit**，不得把 Chrome 结果视为 iPhone 实机通过。
+- 这些代码仅在独立修复 PR 内，正式应用仍运行旧版家庭码接口；当前 V2 客户端只支持「新增作业」增量操作，不包括完成、编辑、日程、附件更新和真实 Auth 绑定。
+
+### D. 新阶段未通过／上线阻断
+
+- [ ] staging 创建受控的真实 Supabase Auth 测试用户并进行 JWT HTTP 读写、跨家庭拒绝；需仅在 staging 启用适当 Auth 测试登录方式或建立专用测试账号。
+- [ ] 真实 Realtime WebSocket、手机后台恢复与真实故障注入；日志以操作 ID、revision、HTTP 状态、耗时对应，不含作业内容。
+- [ ] V2 身份与客户端接入家庭正式产品；全量作业/完成/日程均不丢数据，不能只验证新增。
+- [ ] 客户端与服务端集中告警、真实数据备份恢复、两个 iPhone 实机测试。
+- [ ] 当前修复 PR 与最新主线仍有冲突，尚未完成整合与最终验收；**禁止上线**。
