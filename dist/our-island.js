@@ -6,19 +6,19 @@
   const ctx = canvas.getContext('2d');
   const W = 1536, H = 1024;
   const SPAWN = Object.freeze({x: 768, y: 925});
-  // The tree grows on the grassy bank southwest of the central plaza.
-  // Keep its trunk outside the paved paths so the routes remain unobstructed.
-  const tree = Object.freeze({x: 480, y: 642});
+  // The family tree is rooted in the circular flower bed at the heart of the garden.
+  // Leave the garden walkway and central island paths clear for walking.
+  const tree = Object.freeze({x: 322, y: 550});
 
   // Landing points are on the walkable stone paths, not inside buildings/flowerbeds.
   const areas = Object.freeze([
     {id: 'pier', title: '码头', x: 768, y: 910, radius: 130, focus: '50% 100%',
       action: '逛逛码头', intro: '沿着木栈桥来到小岛，海风轻轻吹过，这里是每次冒险的起点。',
       later: '钓鱼和码头布置将在后续阶段加入。'},
-    {id: 'garden', title: '花园', x: 445, y: 488, radius: 130, focus: '0% 47%',
+    {id: 'garden', title: '花园', x: 540, y: 525, radius: 120, focus: '18% 50%',
       action: '走进花园', intro: '花园里有鲜花、长椅和一条被阳光照亮的小路。',
       later: '下一阶段会接入花朵与装饰物的收藏、摆放。'},
-    {id: 'tree', title: '家庭树', x: 600, y: 570, radius: 126, focus: '32% 62%',
+    {id: 'tree', title: '家庭树', x: 432, y: 490, radius: 115, focus: '22% 50%',
       action: '看看家庭树', intro: '一棵陪着我们长大的树，把家庭里温暖的时光留在这里。',
       later: '家庭便签、成长记录和爱心互动将在后续阶段接入。'},
     {id: 'treehouse', title: '森林书屋', x: 766, y: 340, radius: 119, focus: '50% 5%',
@@ -142,7 +142,7 @@
   }
   function drawMarkers() {
     for (const area of areas) {
-      const pos = area.id === 'tree' ? {x: 865, y: 640} : {x: area.x, y: area.y - 24};
+      const pos = area.id === 'tree' ? {x: 370, y: 565} : {x: area.x, y: area.y - 24};
       ctx.fillStyle = '#fff5d7';
       ctx.strokeStyle = '#769b66';
       ctx.lineWidth = 5;
