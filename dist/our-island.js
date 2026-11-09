@@ -8,7 +8,7 @@
   const SPAWN = Object.freeze({x: 768, y: 925});
   // The family tree is rooted in the circular flower bed at the heart of the garden.
   // Leave the garden walkway and central island paths clear for walking.
-  const tree = Object.freeze({x: 322, y: 550});
+  const tree = Object.freeze({x: 322, y: 473});
 
   // Landing points are on the walkable stone paths, not inside buildings/flowerbeds.
   const areas = Object.freeze([
@@ -142,7 +142,7 @@
   }
   function drawMarkers() {
     for (const area of areas) {
-      const pos = area.id === 'tree' ? {x: 370, y: 565} : {x: area.x, y: area.y - 24};
+      const pos = area.id === 'tree' ? {x: 330, y: 468} : {x: area.x, y: area.y - 24};
       ctx.fillStyle = '#fff5d7';
       ctx.strokeStyle = '#769b66';
       ctx.lineWidth = 5;
@@ -162,7 +162,7 @@
     ctx.save(); ctx.scale(scale, scale); ctx.translate(-camera.x, -camera.y);
     ctx.drawImage(images.map, 0, 0, W, H);
     if (state.y < tree.y) drawPerson(time, moving);
-    ctx.drawImage(images.tree, tree.x - 58, tree.y - 174, 116, 178);
+    ctx.drawImage(images.tree, tree.x - 53, tree.y - 158, 106, 162);
     if (state.y >= tree.y) drawPerson(time, moving);
     if (state.overview) drawMarkers();
     ctx.restore();
