@@ -34,6 +34,14 @@ jobs:
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
           node checks/companions-mobile.cjs
+      - name: Upload companion gallery QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-gallery-mobile-qa
+          path: /tmp/companions-gallery-*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - name: Build optimized WebP assets without publishing
         run: |
           python3 -m pip install --disable-pip-version-check Pillow
