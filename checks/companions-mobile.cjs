@@ -5,7 +5,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  const browser=await chromium.launch({headless:true,channel:'chrome'});
  try{
   for(const width of [320,375,390,430]){
-   const p=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:2});
+   const p=await browser.newPage({viewport:{width,height:850},deviceScaleFactor:width===390?3:2});
    const errors=[];p.on('pageerror',e=>errors.push(e.message));
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
