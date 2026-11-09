@@ -25,6 +25,24 @@ const places = [
       assert.equal(await page.evaluate(() => IslandWalk.areas.length), 5, 'five landmarks');
       assert.equal(await page.evaluate(() => IslandWalk.walkable(768, 910)), true, 'pier traversable');
       assert.equal(await page.evaluate(() => IslandWalk.walkable(40, 40)), false, 'sea blocked');
+
+      // The family tree is scenery rooted on grass, not a planter on the
+      // stone plaza. It must be approachable from a walkable nearby point.
+      const familyTree = await page.evaluate(() => {
+        const {tree, areas, walkable} = IslandWalk;
+        const approach = areas.find(area => area.id === 'tree');
+        return {
+          trunkOnPath: walkable(tree.x, tree.y),
+          approachWalkable: walkable(approach.x, approach.y),
+          distance: Math.hypot(tree.x - approach.x, tree.y - approach.y),
+          trunkX: tree.x
+        };
+      });
+      assert.equal(familyTree.trunkOnPath, false, 'family tree should grow off the paved path');
+      assert.equal(familyTree.approachWalkable, true, 'family tree reachable from plaza');
+      assert.ok(familyTree.distance < 185, 'family tree entrance near the grassy bank');
+      assert.ok(familyTree.trunkX < 510, 'family tree planted on left grass, clear of central square');
+
       assert.equal(await page.locator('#visit').isVisible(), true, 'pier action on arrival');
 
       // Regression: the old map had a 3px dead gap between the pier and
