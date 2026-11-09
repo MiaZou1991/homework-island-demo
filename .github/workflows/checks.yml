@@ -20,6 +20,7 @@ jobs:
           node checks/domain.test.cjs
           node checks/kaixin-sync.cjs
           node checks/sync-diagnostics.cjs
+          node checks/v2-sync-client.cjs
           node --check checks/staging-db-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
