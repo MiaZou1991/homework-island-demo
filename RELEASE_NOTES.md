@@ -1,5 +1,15 @@
 # 开心岛 · GitHub 发布说明
 
+## 2026-11-09｜16位陪伴伙伴偏瘦版 v7（已确认视觉）
+
+- **需求**：用户在已上线 v6 的基础上反馈伙伴稍胖，确认更轻盈的16位新造型，要求直接替换。
+- **素材**：从确认的新稿 `a_clean_png_style_illustration_sheet_16_cute_ani.png` 提取16张透明立绘 `dist/assets/characters/companion-{id}-v7.png`。每张 512×512 RGBA；原图中单只角色高度约200–270px，生成的512是高质量重采样并非原生512/4K，适合网页小尺寸展示。角色面部、身材更纤细，保留物种、颜色、服饰和关键配饰。
+- **行为保持**：`DemoCore.companions` 图片路径换成 v7，孩子/家长端的 `demo-core.js` 更新缓存号；全部16位 ID/emoji、已拥有、当天选择、家庭资料和云端状态不变。未修改任务、日程、钓鱼、积分、Logo和底部3个Tab。
+- **透明底复验**：海蓝、草绿、深色和米色背景对照没有矩形沙色光晕；新增v7清单与源图使用说明。手机端自动测试16/16图片真实alpha、320/375/390/430 CSSpx、DPR2/3、选择/刷新回显、历史数据不变。
+- **代码与测试**：[PR #24](https://github.com/MiaZou1991/homework-island-demo/pull/24)；主分支合并 SHA `fc368f740f12c2624d3203c4852236ac3cd316bc`；[PR CI](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42652285253) 全部成功；[Pages部署](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42652796701)（以该工作流的最终结果为准）。
+- **页面**：https://miazou1991.github.io/homework-island-demo/child.html?v=slim-v7 。发布前自动化浏览器检查通过，但家庭实际iPhone Safari的最终主视觉仍需使用者复核。
+- **回退**：原v6与更早版图片全部保留。若细节不符，使用新PR将 `DemoCore.companions` 切回v6并同步更新缓存版本。上版健康main SHA `979810f69911ddf6113fea02370ba3125355b67a`；不能重置或清理家庭数据。
+
 ## 2026-11-09｜16位陪伴伙伴透明底统一修复 v6
 
 - **问题来源**：实际 iPhone 截图发现小猫及小兔等伙伴在海水码头场景中有大块米色/沙色雾状底，旧 v4 只是羽化合成卡边缘，PNG RGBA 并不意味着已真正去背。单独修复小兔v5无法覆盖另外15位。
