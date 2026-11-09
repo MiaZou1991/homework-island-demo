@@ -35,8 +35,8 @@ function connect(role){
   const config={broadcast:{ack:false,self:false},presence:{enabled:false},
     postgres_changes:[{event:'*',schema:'public',table:'kaixin_sync_signal_v2',filter:'family_id=eq.'+FAMILY}],
     private:false};
-  let socket,joined=false,settled=false,done;
-  const messages=[],errors=[];
+  let socket,joined=false,settled=false;
+  const messages=[],errors=[],types={},debug={joinedWithChanges:0,rawPostgresEvents:0,ignoredRecord:0};
   const ready=new Promise((resolve,reject)=>{
     const timeout=setTimeout(()=>{if(!settled){settled=true;reject(Error('join_timeout_'+role));socket?.close();}},20000);
     const accept=()=>{if(!settled){settled=true;clearTimeout(timeout);resolve()}};
@@ -50,21 +50,24 @@ function connect(role){
     socket.onmessage=e=>{
       let msg;
       try{msg=JSON.parse(typeof e.data==='string'?e.data:String(e.data))}catch(_){return;}
+      types[msg.event]=(types[msg.event]||0)+1;
       if(msg.event==='phx_reply'&&msg.topic===topic&&msg.ref==='1'){
+        debug.joinedWithChanges=msg.payload?.response?.postgres_changes?.length||0;
         if(msg.payload?.status==='ok'&&msg.payload.response?.postgres_changes?.length){
           joined=true;accept();
         }else fail('join_rejected');
       }
       if(msg.event==='postgres_changes'&&msg.topic===topic){
+        debug.rawPostgresEvents++;
         const d=msg.payload?.data;
         if(d?.schema==='public'&&d.table==='kaixin_sync_signal_v2'&&d.record?.family_id===FAMILY
           &&Number.isInteger(d.record.revision)){
           messages.push({revision:d.record.revision,receivedAt:now()});
-        }
+        } else debug.ignoredRecord++;
       }
     };
   });
-  return {role,ready,messages,errors,close(){socket?.close()}};
+  return {role,ready,messages,errors,types,debug,close(){socket?.close()}};
 }
 async function until(predicate,ms){
   const deadline=now()+ms;
@@ -81,7 +84,7 @@ async function until(predicate,ms){
       try{await client.ready}
       catch(error){if(client.role!=='outsider')throw error;}
     }));
-    await pause(1200); // make sure WAL subscription is active
+    await pause(6500); // warm up Realtime CDC slot and allow subscriptions to activate
     const remote=await rpc('family_load_v2',jwt.a,{p_family_id:FAMILY});
     assert.ok(remote?.payload?.homework?.length);
     const id='qa-ws-'+randomUUID();
@@ -91,24 +94,25 @@ async function until(predicate,ms){
       p_family_id:FAMILY,p_payload:payload,p_expected_revision:remote.revision,p_operation_id:randomUUID()
     });
     assert.equal(saved.revision,remote.revision+1,'revision must advance exactly once');
-    const gotMember=await until(()=>member.messages.some(m=>m.revision===saved.revision),14000);
-    const gotChild=await until(()=>child.messages.some(m=>m.revision===saved.revision),8000);
+    const gotMember=await until(()=>member.messages.some(m=>m.revision===saved.revision),18000);
+    const gotChild=await until(()=>child.messages.some(m=>m.revision===saved.revision),10000);
     await pause(2400); // allow delayed unauthorized events to surface
     const leaked=outsider.messages.some(m=>m.revision===saved.revision);
     const fresh=await rpc('family_load_v2',jwt.b,{p_family_id:FAMILY});
     assert.equal(fresh.revision,saved.revision);
     assert.ok(fresh.payload.homework.some(h=>h.id===id));
     const metrics={
-      test:'REAL_STAGING_POSTGRES_CHANGES_WEBSOCKET',conclusion:'PASS',
+      test:'REAL_STAGING_POSTGRES_CHANGES_WEBSOCKET',
       memberJoin:member.errors.length?'error':'ok',childJoin:child.errors.length?'error':'ok',
       outsideJoin:outsider.errors.length?'denied':'joined_without_access',
       expectedRevision:saved.revision,gotMember,gotChild,outsiderLeak:leaked,
-      elapsedMs:now()-start
+      elapsedMs:now()-start,
+      counts:clients.map(c=>({role:c.role,events:c.types,details:c.debug}))
     };
-    console.log(JSON.stringify(metrics));
     assert.equal(gotMember,true,'parent B did not receive realtime revision');
     assert.equal(gotChild,true,'child did not receive realtime revision');
     assert.equal(leaked,false,'SECURITY: outside-family JWT received private revision');
+    console.log(JSON.stringify({...metrics,conclusion:'PASS'}));
   }finally{clients.forEach(c=>c.close())}
 })().catch(error=>{
   console.error('STAGING_REALTIME_FAIL '+String(error.message||'unknown').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,100));
