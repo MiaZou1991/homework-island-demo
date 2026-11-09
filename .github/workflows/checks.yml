@@ -45,6 +45,7 @@ jobs:
         run: |
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
+          node checks/kaixin-staging-onboarding-ui.cjs
           node checks/companions-mobile.cjs
       - name: Upload companion gallery QA screenshots
         if: always()
