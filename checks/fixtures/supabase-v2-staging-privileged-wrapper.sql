@@ -3,7 +3,7 @@
 CREATE SCHEMA IF NOT EXISTS kaixin_private;
 REVOKE ALL ON SCHEMA kaixin_private FROM PUBLIC,anon,authenticated;
 GRANT USAGE ON SCHEMA kaixin_private TO authenticated;
-CREATE OR REPLACE FUNCTION public.family_load_v2(p_family_id uuid) RETURNS jsonb
+CREATE OR REPLACE FUNCTION kaixin_private.family_load_v2(p_family_id uuid) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public, auth AS $$
 DECLARE v_payload jsonb; v_revision integer;
 BEGIN
@@ -18,7 +18,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.family_save_v2(
+CREATE OR REPLACE FUNCTION kaixin_private.family_save_v2(
   p_family_id uuid, p_payload jsonb, p_expected_revision integer, p_operation_id uuid
 ) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = pg_catalog, public, auth AS $$
