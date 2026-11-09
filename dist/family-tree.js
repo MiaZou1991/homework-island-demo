@@ -11,7 +11,6 @@ if(/(^|\.)githack\.com$/i.test(location.hostname)){
   style.textContent=
     '.ft-hero-picture{background-image:url("'+base+'our-island-v1/map.webp")!important}'+
     '.ft-hero-plaque,.ft-editor h2{background-image:url("'+base+'hd/dialogs-v3/plaque.webp")!important}'+
-    '.ft-primary{background-image:url("'+base+'hd/dialogs-v3/button-primary.webp")!important}'+
     '.ft-paper,.ft-editor{border-image-source:url("'+base+'hd/dialogs-v3/panel.webp")!important}';
   document.head.append(style);
 }
