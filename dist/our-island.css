@@ -60,4 +60,5 @@ dialog::backdrop{background:#264e4d99;backdrop-filter:blur(2px)}
 }
 @media(max-width:355px){#toolbar h1{min-width:139px;padding:20px 18px;font-size:22px}#mapToggle{padding:8px 10px;font-size:12px}#stick{left:12px}#mapPanel{right:8px;width:54%}#detailTitle{font-size:21px}}
 @media(max-height:550px){#hint{top:87px;font-size:12px}#visit{bottom:calc(130px + env(safe-area-inset-bottom))}#stick{width:100px;height:100px}#knob{left:28px;top:28px}.arrows{font-size:17px;line-height:28px}#mapPanel{top:97px;max-height:calc(100% - 107px)}.detail-scene{height:clamp(125px,36dvh,230px)}}
+@media(max-width:600px) and (max-height:550px){#mapPanel{top:auto;max-height:min(50%,165px)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
