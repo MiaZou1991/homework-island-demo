@@ -3,7 +3,7 @@
   "date": "2026-11-09",
   "source": "用户确认的16位陪伴伙伴设计稿",
   "format": "PNG RGBA",
-  "notes": "从设计图提取、轻柔透明化的独立角色图，边缘可能含少量奶油纸色；不等于原生4K插画。",
+  "notes": "从设计图提取、轻柔透明化的独立角色图，边缘可能含少量奶油纸色；不等于原生4K插画。 小兔已单独更新v5真实透明抠图；其他伙伴的奶油色底纹仍待专项复核。",
   "characters": [
     {
       "id": "bear",
@@ -17,9 +17,10 @@
       "id": "rabbit",
       "name": "小兔",
       "legacyEmoji": "🐰",
-      "src": "assets/characters/companion-rabbit-v4.png",
+      "src": "assets/characters/companion-rabbit-v5.png",
       "width": 420,
-      "height": 416
+      "height": 416,
+      "revision": "v5 transparent-cutout repair, 2026-11-09"
     },
     {
       "id": "fox",
