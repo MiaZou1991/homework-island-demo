@@ -6,7 +6,8 @@
   const ctx = canvas.getContext('2d');
   const W = 1536, H = 1024;
   const SPAWN = Object.freeze({x: 768, y: 925});
-  const tree = Object.freeze({x: 768, y: 555});
+  // Set the family tree beside the central walkway, not in the middle of it.
+  const tree = Object.freeze({x: 645, y: 555});
 
   // Landing points are on the walkable stone paths, not inside buildings/flowerbeds.
   const areas = Object.freeze([
@@ -16,7 +17,7 @@
     {id: 'garden', title: '花园', x: 445, y: 488, radius: 130, focus: '0% 47%',
       action: '走进花园', intro: '花园里有鲜花、长椅和一条被阳光照亮的小路。',
       later: '下一阶段会接入花朵与装饰物的收藏、摆放。'},
-    {id: 'tree', title: '家庭树', x: 768, y: 655, radius: 143, focus: '50% 55%',
+    {id: 'tree', title: '家庭树', x: 730, y: 580, radius: 143, focus: '42% 55%',
       action: '看看家庭树', intro: '一棵陪着我们长大的树，把家庭里温暖的时光留在这里。',
       later: '家庭便签、成长记录和爱心互动将在后续阶段接入。'},
     {id: 'treehouse', title: '森林书屋', x: 766, y: 340, radius: 119, focus: '50% 5%',
@@ -54,11 +55,12 @@
   // on the approved map illustration. Movement is blocked at shore/flowers.
   const polygons = [
     [[692,817],[850,817],[956,1010],[556,1010]],
-    [[687,817],[850,817],[835,620],[665,620]],
+    // Overlap adjacent paths by 15-30px; touching edges alone leaves impassable seams.
+    [[687,817],[850,817],[835,600],[665,600]],
     [[515,465],[598,421],[918,421],[1017,476],[1000,560],[902,617],[650,617],[530,564]],
-    [[718,421],[816,421],[800,290],[733,290]],
-    [[990,486],[1115,467],[1258,436],[1280,465],[1135,515],[1000,541]],
-    [[532,487],[445,470],[409,447],[368,471],[445,521],[529,540]]
+    [[718,450],[816,450],[800,290],[733,290]],
+    [[970,486],[1115,467],[1258,436],[1280,465],[1135,515],[970,550]],
+    [[555,487],[445,470],[409,447],[368,471],[445,521],[555,540]]
   ];
   const state = {x: SPAWN.x, y: SPAWN.y, dir: 0, overview: false, ready: false, near: null};
   const keys = new Set(), axis = {x: 0, y: 0}, images = {};
