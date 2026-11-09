@@ -61,6 +61,7 @@ await page.locator('#treeEnter').click();
 assert.equal(await page.locator('#treeExperience').evaluate(x=>x.open),true,'tree portal opens');
 await page.frameLocator('#treeFrame').locator('#momentsTitle').waitFor();
 await page.frameLocator('#treeFrame').locator('#backIsland').click();
+await page.waitForFunction(() => !document.getElementById('treeExperience').open, null, {timeout:5000});
 assert.equal(await page.locator('#treeExperience').evaluate(x=>x.open),false,'tree portal closes back to island');
 assert.equal(await page.evaluate(()=>IslandWalk.state.near),'tree','keeps tree location');
 await page.close();
