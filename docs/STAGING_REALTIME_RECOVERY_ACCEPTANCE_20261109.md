@@ -43,7 +43,8 @@ Supabase 官方文档指出，WebSocket 已订阅和数据库变更监听真正�
 - [x] 真实数据库写入、CAS 并发冲突、重复提交去重、真实 Auth JWT/RLS 权限。
 - [x] 真实 WebSocket Realtime `postgres_changes` 成员收取与外部家庭隔离，且等待 `system` 就绪后再发布测试修改。
 - [x] 真实数据库下的 503、超时、丢失回执恢复（控制传输故障）。
-- [ ] WebKit iPhone 近似环境中的 IndexedDB 持久性，以及两台**实体 iPhone**的 Safari 前后台及网络切换测试；WebKit 桌面仿真不等于 iOS 真机。
+- [x] **WebKit 移动仿真**：在独立 GitHub Actions Ubuntu WebKit 中实际验证 V2 IndexedDB 待上传操作在页面 reload 后保留、确认后清除；[CI #42649768943](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42649768943) 的 WebKit Job 返回 PASS。浏览器引擎仿真不等于 iOS 真机。
+- [ ] 两台**实体 iPhone**的 Safari 后台、锁屏、蜂窝/Wi-Fi 切换、失败重试，仍需实机验收。
 - [ ] 正式产品 V2 身份/家长认领与数据迁移；当前实验客户端只支持新增作业，尚未覆盖编辑、完成、课程、日程及附件。
 - [ ] 真正的客户端联动刷新、服务器集中日志和自动故障报警；尤其需要记录来自手机的分阶段上传、版本、失败次数和耗时，但不记孩子内容。
 - [ ] 当前 PR #12 与 main 仍存在冲突；需安全处理、重新测试，并在用户批准后才可上线。
