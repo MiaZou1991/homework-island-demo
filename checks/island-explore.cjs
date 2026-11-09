@@ -27,6 +27,43 @@ const places = [
       assert.equal(await page.evaluate(() => IslandWalk.walkable(40, 40)), false, 'sea blocked');
       assert.equal(await page.locator('#visit').isVisible(), true, 'pier action on arrival');
 
+      // Regression: the old map had a 3px dead gap between the pier and
+      // central plaza plus a tree-trunk collider straight across the route.
+      // Check EVERY 1px along the entire northbound path; no jumping gaps.
+      const blockedY = await page.evaluate(() => {
+        const ys = [];
+        for (let y = 910; y >= 340; y--) {
+          if (!IslandWalk.walkable(768, y)) ys.push(y);
+        }
+        return ys;
+      });
+      assert.deepEqual(blockedY, [], width + ': uninterrupted pier-to-treehouse path');
+      if (width === 320) {
+        // At 2px increments the old path polygons were in separate reachable
+        // components; ensure ALL five regions can be reached by actual steps.
+        const connectivity = await page.evaluate(() => {
+          const step = 2, key = (x,y) => x + ',' + y;
+          const start = [Math.round(768/step), Math.round(910/step)];
+          const queue = [start], seen = new Set([key(...start)]);
+          for (let index = 0; index < queue.length; index++) {
+            const [x,y] = queue[index];
+            for (const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+              const nx=x+dx, ny=y+dy, id=key(nx,ny);
+              if (!seen.has(id) && IslandWalk.walkable(nx*step,ny*step)) {
+                seen.add(id);
+                queue.push([nx,ny]);
+              }
+            }
+          }
+          return IslandWalk.areas.map(area => ({
+            id:area.id,
+            reachable:seen.has(key(Math.round(area.x/step),Math.round(area.y/step)))
+          }));
+        });
+        assert.ok(connectivity.every(item => item.reachable),
+          'continuous pedestrian routes for every landmark: ' + JSON.stringify(connectivity));
+      }
+
       await page.locator('#mapToggle').click();
       assert.equal(await page.locator('#mapToggle').getAttribute('aria-expanded'), 'true');
       assert.equal(await page.locator('#mapPanel').isVisible(), true);
@@ -52,12 +89,18 @@ const places = [
           before, id + ': keeps location');
       }
 
+      // No teleport: physically walk from the pier, past the family tree, to
+      // the forest bookhouse using a single held direction (same as joystick).
       await page.locator('#home').click();
-      const initialY = await page.evaluate(() => IslandWalk.state.y);
+      assert.equal(await page.evaluate(() => IslandWalk.state.y), 910);
       await page.keyboard.down('ArrowUp');
-      await page.waitForTimeout(230);
-      await page.keyboard.up('ArrowUp');
-      assert.ok(await page.evaluate(() => IslandWalk.state.y) < initialY, width + ': keyboard movement');
+      try {
+        await page.waitForFunction(() => IslandWalk.state.y < 380, null, {timeout: 12000});
+      } finally {
+        await page.keyboard.up('ArrowUp');
+      }
+      assert.ok(await page.evaluate(() => IslandWalk.state.y < 380),
+        width + ': walks beyond family tree to forest bookhouse without teleport');
       assert.equal(await page.evaluate(() => IslandWalk.walkable(IslandWalk.state.x, IslandWalk.state.y)),
         true, 'movement remains on path');
 
