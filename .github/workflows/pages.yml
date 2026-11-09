@@ -52,6 +52,14 @@ jobs:
           path: /tmp/family-calendar-*.png
           if-no-files-found: ignore
           retention-days: 3
+      - name: Upload companion gallery mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: companion-gallery-mobile-qa
+          path: /tmp/companions-gallery-*.png
+          if-no-files-found: ignore
+          retention-days: 3
       - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
