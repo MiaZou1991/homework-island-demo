@@ -43,7 +43,7 @@ const places = [
       assert.equal(familyTree.trunkOnPath, false, 'family tree should grow off the paved path');
       assert.equal(familyTree.approachWalkable, true, 'family tree reachable from plaza');
       assert.ok(familyTree.distance < 160, 'family tree entrance near the garden flower bed');
-      assert.ok(familyTree.trunkX >= 260 && familyTree.trunkX <= 375 && familyTree.trunkY >= 480 && familyTree.trunkY <= 580,
+      assert.ok(familyTree.trunkX >= 300 && familyTree.trunkX <= 350 && familyTree.trunkY >= 450 && familyTree.trunkY <= 495,
         'family tree rooted in the central round garden flower bed');
       assert.ok(familyTree.garden.x > 480 && familyTree.garden.x < 590,
         'garden entrance remains a distinct walkable location');
