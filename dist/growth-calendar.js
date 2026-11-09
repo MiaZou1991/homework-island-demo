@@ -35,8 +35,11 @@ function period(it){
  if(!clock||!Number.isFinite(h))return it.kind==='homework'?'pm':'all';
  return h<12?'am':h<18?'pm':'night';
 }
-function tile(it){const k=kind(it),info=k==='homework'?(SUBJECT_ICON[it.hw.subject]||'作'):k==='class'?'课':'事';
- return '<div class="gc-tile gc-tile-'+k+'" title="'+esc(label(it))+'"><span class="gc-tile-icon">'+info+'</span><b>'+esc(label(it))+'</b>'+(when(it)?'<small>'+esc(when(it))+'</small>':'')+'</div>';
+function tile(it){
+ const k=kind(it),subject=it.kind==='homework'?it.hw.subject:label(it),names={'语文':'chinese','数学':'math','英语':'english','音乐':'music','钢琴':'music','科学':'science','美术':'art','体育':'sports','足球':'sports','游泳':'sports'};
+ const found=Object.keys(names).find(x=>String(subject).includes(x));
+ const art=found?'assets/hd/subjects-v12/'+names[found]+'.png':k==='event'?'assets/hd/course/calendar-clock.png':'assets/hd/today-icons/course-v1.webp';
+ return '<div class="gc-tile gc-tile-'+k+'" title="'+esc(label(it))+'"><span class="gc-tile-icon"><img src="'+art+'" alt="" loading="lazy" decoding="async"></span><b>'+esc(label(it))+'</b>'+(when(it)?'<small>'+esc(when(it))+'</small>':'')+'</div>';
 }
 function familyFilters(ctx){const labels=[['all','全家'],['child','开心'],['dad','爸爸'],['mom','妈妈']];return '<div class="gc-family" aria-label="家庭成员筛选">'+labels.map(([id,name])=>'<button type="button" data-up="family-filter" data-member="'+id+'" aria-pressed="'+(ctx.familyMember===id)+'">'+name+'</button>').join('')+'</div>';}
 function controls(ctx,month,dates){
