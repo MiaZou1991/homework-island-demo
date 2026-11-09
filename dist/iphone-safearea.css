@@ -82,17 +82,40 @@ body[data-mode="child"]{
 body[data-mode="child"]:has(.up-main[data-route="today"]){
   background-color:#53c9f0;
 }
-/* 8px edge sampler colors Safari's translucent status-bar chrome on iOS 26/27.
-   In Home Screen mode it fills the hardware unsafe zone, not the controls. */
+/* The old fixed blue mask caused the conspicuous horizontal seam above
+   the island image. No separate solid-colour cover may obscure the artwork. */
 body[data-mode="child"]::before{
-  content:"";
-  position:fixed;
-  top:0;
-  left:0;
-  right:0;
-  height:max(8px,var(--island-safe-top));
-  background:#53c9f0;
-  z-index:9000;
+  content:none!important;
+  display:none!important;
+}
+/* Safari tab chrome is system-painted. Blend its sky-coloured edge into the
+   island's EXISTING full-height background instead of splicing a new strip. */
+@media (max-width:450px){
+  html:has(body[data-mode="child"] .up-main[data-route="today"]){
+    background:#74c6eb url("assets/hd/today-island-reference-v1.webp") center top / cover no-repeat;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-today .tf-hero::before{
+    content:"";
+    position:absolute;
+    z-index:1;
+    top:0;left:0;right:0;
+    height:124px;
+    pointer-events:none;
+    background:linear-gradient(to bottom,
+       #74c6eb 0px,
+       #74c6eb 46px,
+       rgba(116,198,235,.67) 72px,
+       rgba(116,198,235,.18) 104px,
+       rgba(116,198,235,0) 124px);
+  }
+  /* Installed full-screen web app: its background can run under the notch.
+     Show the continuous original painting instead of the Safari tab blend. */
+  @media (display-mode:standalone){
+    body[data-mode="child"] .tf-today .tf-hero::before{
+      content:none;
+      display:none;
+    }
+  }
 }
 body[data-mode="child"] .tf-today .tf-top{
   top:calc(2.8cqw + var(--island-safe-top));
