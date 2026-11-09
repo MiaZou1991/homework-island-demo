@@ -1,43 +1,339 @@
-(()=>{'use strict';
-const $=id=>document.getElementById(id),canvas=$('world'),ctx=canvas.getContext('2d'),W=1536,H=1024;
-const state={x:768,y:925,dir:0,overview:false,ready:false},keys=new Set(),axis={x:0,y:0};let pointer=null,last=0,frame=0,camera={x:0,y:0},vw=0,vh=0,scale=1;
-const images={};const tree={x:768,y:555};
-const polygons=[[[692,817],[850,817],[956,1010],[556,1010]],[[687,817],[850,817],[835,620],[665,620]],[[515,465],[598,421],[918,421],[1017,476],[1000,560],[902,617],[650,617],[530,564]],[[718,421],[816,421],[800,290],[733,290]],[[990,486],[1115,467],[1258,436],[1280,465],[1135,515],[1000,541]],[[532,487],[445,470],[409,447],[368,471],[445,521],[529,540]]];
-function inside(x,y,p){let c=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])c=!c}return c}
-function walkable(x,y){return polygons.some(p=>inside(x,y,p))&&Math.hypot((x-tree.x)/1.3,y-tree.y)>32}
-function stop(){keys.clear();axis.x=axis.y=0;pointer=null;$('knob').style.transform='';}
-function resize(){vw=canvas.clientWidth;vh=canvas.clientHeight;const d=Math.min(devicePixelRatio||1,2);canvas.width=vw*d;canvas.height=vh*d;ctx.setTransform(d,0,0,d,0,0);scale=state.overview?Math.min(vw/W,vh/H):Math.max(vh/H,vw/W,.9);}
-function drawPerson(t,moving){let col=state.dir%4,row=state.dir>=4?1:0;if(moving)col+=Math.floor(t/190)%2;const iw=images.girl.width/4,ih=images.girl.height/2;ctx.save();ctx.fillStyle='#57432238';ctx.beginPath();ctx.ellipse(state.x,state.y-2,22,7,0,0,Math.PI*2);ctx.fill();ctx.drawImage(images.girl,col*iw,row*ih,iw,ih,state.x-50,state.y-124,100,133);ctx.restore()}
-function draw(t){frame=requestAnimationFrame(draw);const dt=Math.min((t-last)/1000||0,.035);last=t;if(!state.ready)return;const active=!$('closeup').open&&!document.hidden;let dx=active?(axis.x+(keys.has('ArrowRight')||keys.has('d')?1:0)-(keys.has('ArrowLeft')||keys.has('a')?1:0)):0,dy=active?(axis.y+(keys.has('ArrowDown')||keys.has('s')?1:0)-(keys.has('ArrowUp')||keys.has('w')?1:0)):0;const n=Math.hypot(dx,dy);if(n>1){dx/=n;dy/=n}if(n){state.dir=Math.abs(dx)>Math.abs(dy)?(dx<0?4:6):(dy<0?0:2);const nx=state.x+dx*155*dt,ny=state.y+dy*155*dt;if(walkable(nx,state.y))state.x=nx;if(walkable(state.x,ny))state.y=ny;}
-const target=state.overview?{x:(W-vw/scale)/2,y:(H-vh/scale)/2}:{x:Math.max(0,Math.min(W-vw/scale,state.x-vw/scale/2)),y:Math.max(0,Math.min(H-vh/scale,state.y-vh/scale*.62))};const k=matchMedia('(prefers-reduced-motion:reduce)').matches?1:1-Math.exp(-dt*9);camera.x+=(target.x-camera.x)*k;camera.y+=(target.y-camera.y)*k;
-ctx.clearRect(0,0,vw,vh);ctx.save();ctx.scale(scale,scale);ctx.translate(-camera.x,-camera.y);ctx.drawImage(images.map,0,0,W,H);if(state.y<tree.y)drawPerson(t,n>0);ctx.drawImage(images.tree,tree.x-72,tree.y-210,144,216);if(state.y>=tree.y)drawPerson(t,n>0);
-if(state.overview){ctx.font='bold 19px system-ui';ctx.textAlign='center';for(const [s,x,y] of [['森林书屋',770,278],['我的小屋',1280,450],['花园',260,443],['家庭树',768,335],['码头',768,840]]){ctx.fillStyle='#fff3d9';ctx.fillRect(x-58,y-24,116,32);ctx.fillStyle='#633b20';ctx.fillText(s,x,y)}}ctx.restore();$('visit').hidden=Math.hypot(state.x-tree.x,state.y-tree.y)>145||$('closeup').open;
-}
-$('stick').addEventListener('pointerdown',e=>{if(pointer!==null)return;pointer=e.pointerId;$('stick').setPointerCapture(pointer);move(e)});function move(e){if(e.pointerId!==pointer)return;const r=$('stick').getBoundingClientRect();let x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,n=Math.hypot(x,y);const f=Math.min(n,36)/(n||1);x*=f;y*=f;axis.x=n<9?0:x/36;axis.y=n<9?0:y/36;$('knob').style.transform=`translate(${x}px,${y}px)`} $('stick').addEventListener('pointermove',move);for(const ev of ['pointerup','pointercancel','lostpointercapture'])$('stick').addEventListener(ev,stop);
-window.addEventListener('keydown',e=>{if($('closeup').open||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)){e.preventDefault();keys.add(e.key)}});window.addEventListener('keyup',e=>keys.delete(e.key));window.addEventListener('blur',stop);document.addEventListener('visibilitychange',stop);window.addEventListener('pagehide',()=>{stop();cancelAnimationFrame(frame)});
-$('visit').onclick=()=>{stop();$('closeup').showModal();$('back').focus()};$('back').onclick=()=>$('closeup').close();$('closeup').addEventListener('close',()=>{stop();$('visit').focus()});$('home').onclick=()=>{stop();state.x=768;state.y=925};$('mapToggle').onclick=()=>{stop();state.overview=!state.overview;$('mapToggle').textContent=state.overview?'继续漫步':'看看地图';resize()};new ResizeObserver(resize).observe(canvas);
-let loadingAttempt=0;
-async function loadIsland(){
- const attempt=++loadingAttempt,box=$('loading');box.hidden=false;
- const names=['map','girl','tree'];let complete=names.filter(n=>images[n]).length;
- const progress=()=>{box.textContent=`正在加载小岛画面 ${complete}/3…`;};progress();
- try{
-  await Promise.all(names.map(name=>images[name]?Promise.resolve():new Promise((resolve,reject)=>{
-   const im=new Image();let finished=false;
-   const timer=setTimeout(()=>finish(new Error('timeout')),12000);
-   function finish(error){if(finished)return;finished=true;clearTimeout(timer);im.onload=im.onerror=null;
-    if(error){im.src='';reject(error);return;}
-    if(attempt===loadingAttempt){images[name]=im;complete++;progress();}resolve();}
-   im.onload=()=>finish();im.onerror=()=>finish(new Error('image'));im.src=`assets/our-island-v1/${name}.png`;
-  })));
-  if(attempt!==loadingAttempt)return;
-  state.ready=true;resize();camera.x=Math.max(0,Math.min(W-vw/scale,state.x-vw/scale/2));camera.y=Math.max(0,H-vh/scale);box.hidden=true;cancelAnimationFrame(frame);draw(0);
- }catch(_){if(attempt!==loadingAttempt)return;loadingAttempt++;box.replaceChildren();
-  const panel=document.createElement('div'),message=document.createElement('p'),retry=document.createElement('button'),back=document.createElement('a');
-  message.textContent='小岛画面加载较慢或未成功，你的记录没有改变。';retry.textContent='重试加载';retry.onclick=loadIsland;
-  back.textContent='返回今日任务';back.href='child.html';back.style.cssText='display:block;margin-top:20px;color:inherit';panel.style.cssText='padding:24px;text-align:center';panel.append(message,retry,back);box.append(panel);
- }
-}
-loadIsland();
-window.IslandWalk={state,walkable,polygons,stop};
+(() => {
+  'use strict';
+
+  const $ = id => document.getElementById(id);
+  const canvas = $('world');
+  const ctx = canvas.getContext('2d');
+  const W = 1536, H = 1024;
+  const SPAWN = Object.freeze({x: 768, y: 925});
+  // The family tree is rooted in the circular flower bed at the heart of the garden.
+  // Leave the garden walkway and central island paths clear for walking.
+  const tree = Object.freeze({x: 322, y: 473});
+
+  // Landing points are on the walkable stone paths, not inside buildings/flowerbeds.
+  const areas = Object.freeze([
+    {id: 'pier', title: '码头', x: 768, y: 910, radius: 130, focus: '50% 100%',
+      action: '逛逛码头', intro: '沿着木栈桥来到小岛，海风轻轻吹过，这里是每次冒险的起点。',
+      later: '钓鱼和码头布置将在后续阶段加入。'},
+    {id: 'garden', title: '花园', x: 540, y: 525, radius: 120, focus: '18% 50%',
+      action: '走进花园', intro: '花园里有鲜花、长椅和一条被阳光照亮的小路。',
+      later: '下一阶段会接入花朵与装饰物的收藏、摆放。'},
+    {id: 'tree', title: '家庭树', x: 432, y: 490, radius: 115, focus: '22% 50%',
+      action: '看看家庭树', intro: '一棵陪着我们长大的树，把家庭里温暖的时光留在这里。',
+      later: '家庭便签、成长记录和爱心互动将在后续阶段接入。'},
+    {id: 'treehouse', title: '森林书屋', x: 766, y: 340, radius: 119, focus: '50% 5%',
+      action: '走进森林书屋', intro: '顺着石阶往上走，花丛和瀑布旁藏着一间安静的森林书屋。',
+      later: '书屋内部布置和阅读收藏将在后续阶段开放。'},
+    {id: 'house', title: '我的小屋', x: 1182, y: 475, radius: 127, focus: '100% 42%',
+      action: '走进我的小屋', intro: '蓝色屋顶的小屋就在花丛旁，这里是属于我们的温暖角落。',
+      later: '小屋家具布置会在后续阶段与已有收藏连接。'}
+  ]);
+  const byId = Object.fromEntries(areas.map(area => [area.id, area]));
+
+  // raw.githack is for code preview only. Its image gateway can be unreliable on
+  // mobile, so for this public demo reuse the identical published image files.
+  // Normal production and local preview continue loading relative assets.
+  const PREVIEW_HOST = /(^|\.)githack\.com$/i.test(location.hostname);
+  const PUBLIC_ASSETS = 'https://miazou1991.github.io/homework-island-demo/';
+  function sourceFor(path) {
+    return PREVIEW_HOST ? new URL(path, PUBLIC_ASSETS).href : path;
+  }
+  function configurePreviewArtwork() {
+    if (!PREVIEW_HOST) return;
+    $('detailMap').src = sourceFor('assets/our-island-v1/map.webp');
+    $('detailTree').src = sourceFor('assets/our-island-v1/tree.webp');
+    $('detailKid').style.backgroundImage = 'url("' + sourceFor('assets/our-island-v1/girl.webp') + '")';
+    const rules = document.createElement('style');
+    const img = name => 'url("' + sourceFor('assets/hd/dialogs-v3/' + name + '.webp') + '")';
+    rules.textContent =
+      '#toolbar h1,#detailTitle{background-image:' + img('plaque') + '!important}' +
+      '#visit,#back{background-image:' + img('button-primary') + '!important}' +
+      '#mapPanel,.detail-copy{border-image-source:' + img('panel') + '!important}';
+    document.head.append(rules);
+  }
+
+  // Walkable polygons match the pier, central square and three outgoing paths
+  // on the approved map illustration. Movement is blocked at shore/flowers.
+  const polygons = [
+    [[692,817],[850,817],[956,1010],[556,1010]],
+    // Overlap adjacent paths by 15-30px; touching edges alone leaves impassable seams.
+    [[687,817],[850,817],[835,600],[665,600]],
+    [[515,465],[598,421],[918,421],[1017,476],[1000,560],[902,617],[650,617],[530,564]],
+    [[718,450],[816,450],[800,290],[733,290]],
+    [[970,486],[1115,467],[1258,436],[1280,465],[1135,515],[970,550]],
+    [[555,487],[445,470],[409,447],[368,471],[445,521],[555,540]]
+  ];
+  const state = {x: SPAWN.x, y: SPAWN.y, dir: 0, overview: false, ready: false, near: null};
+  const keys = new Set(), axis = {x: 0, y: 0}, images = {};
+  let pointer = null, last = 0, frame = 0, vw = 0, vh = 0, scale = 1;
+  let camera = {x: 0, y: 0}, loadingAttempt = 0, lastHint = '';
+
+  function inside(x, y, poly) {
+    let contained = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const a = poly[i], b = poly[j];
+      if ((a[1] > y) !== (b[1] > y) &&
+          x < ((b[0] - a[0]) * (y - a[1]) / (b[1] - a[1]) + a[0])) contained = !contained;
+    }
+    return contained;
+  }
+  function walkable(x, y) {
+    return polygons.some(poly => inside(x, y, poly)) &&
+      Math.hypot((x - tree.x) / 1.3, y - tree.y) > 32;
+  }
+  function stop() {
+    keys.clear(); axis.x = 0; axis.y = 0; pointer = null;
+    $('knob').style.transform = '';
+  }
+  function nearestLandmark() {
+    return areas
+      .filter(area => Math.hypot(state.x - area.x, state.y - area.y) <= area.radius)
+      .sort((a, b) => Math.hypot(state.x - a.x, state.y - a.y) -
+                      Math.hypot(state.x - b.x, state.y - b.y))[0] || null;
+  }
+  function setHint(message) {
+    if (lastHint !== message) {
+      $('hint').textContent = message;
+      lastHint = message;
+    }
+  }
+  function syncNearby(message) {
+    const area = !state.overview && state.ready ? nearestLandmark() : null;
+    state.near = area ? area.id : null;
+    const visit = $('visit');
+    visit.hidden = !area;
+    if (area) {
+      visit.textContent = area.action;
+      visit.dataset.place = area.id;
+    } else {
+      delete visit.dataset.place;
+    }
+    if (message) setHint(message);
+    else if (state.overview) setHint('选一个地点快速抵达，或者收起地图继续漫步');
+    else if (area) setHint('你来到' + area.title + '附近啦');
+    else setHint('沿着石头小路走，还能发现更多地方');
+  }
+  function cameraTarget() {
+    if (state.overview) return {x: (W - vw / scale) / 2, y: (H - vh / scale) / 2};
+    return {
+      x: Math.max(0, Math.min(W - vw / scale, state.x - vw / scale / 2)),
+      y: Math.max(0, Math.min(H - vh / scale, state.y - vh / scale * .62))
+    };
+  }
+  function snapCamera() { camera = cameraTarget(); }
+  function resize() {
+    vw = canvas.clientWidth; vh = canvas.clientHeight;
+    if (!(vw > 0 && vh > 0)) return;
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(vw * d); canvas.height = Math.round(vh * d);
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    scale = state.overview ? Math.min(vw / W, vh / H) : Math.max(vw / W, vh / H, .9);
+    snapCamera();
+  }
+  function drawPerson(time, moving) {
+    const col = state.dir % 4 + (moving ? Math.floor(time / 190) % 2 : 0);
+    const row = state.dir >= 4 ? 1 : 0;
+    const image = images.girl, iw = image.width / 4, ih = image.height / 2;
+    ctx.save();
+    ctx.fillStyle = '#57432238';
+    ctx.beginPath(); ctx.ellipse(state.x, state.y - 2, 22, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.drawImage(image, col * iw, row * ih, iw, ih, state.x - 50, state.y - 124, 100, 133);
+    ctx.restore();
+  }
+  function drawMarkers() {
+    for (const area of areas) {
+      const pos = area.id === 'tree' ? {x: 330, y: 468} : {x: area.x, y: area.y - 24};
+      ctx.fillStyle = '#fff5d7';
+      ctx.strokeStyle = '#769b66';
+      ctx.lineWidth = 5;
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 29, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#416c4a';
+      ctx.beginPath(); ctx.arc(pos.x, pos.y, 12, 0, Math.PI * 2); ctx.fill();
+      ctx.font = 'bold 41px "PingFang SC",system-ui,sans-serif';
+      ctx.textAlign = 'center';
+      ctx.lineWidth = 7; ctx.strokeStyle = '#fff9e8';
+      ctx.strokeText(area.title, pos.x, pos.y - 48);
+      ctx.fillStyle = '#5e452b'; ctx.fillText(area.title, pos.x, pos.y - 48);
+    }
+  }
+  function paint(time, moving) {
+    if (!vw || !vh) return;
+    ctx.clearRect(0, 0, vw, vh);
+    ctx.save(); ctx.scale(scale, scale); ctx.translate(-camera.x, -camera.y);
+    ctx.drawImage(images.map, 0, 0, W, H);
+    if (state.y < tree.y) drawPerson(time, moving);
+    ctx.drawImage(images.tree, tree.x - 53, tree.y - 158, 106, 162);
+    if (state.y >= tree.y) drawPerson(time, moving);
+    if (state.overview) drawMarkers();
+    ctx.restore();
+  }
+  function tick(time) {
+    frame = requestAnimationFrame(tick);
+    const dt = Math.min((time - last) / 1000 || 0, .035);
+    last = time;
+    if (!state.ready) return;
+    const active = !$('detail').open && !state.overview && !document.hidden;
+    let dx = active ? axis.x + Number(keys.has('ArrowRight') || keys.has('d')) -
+                  Number(keys.has('ArrowLeft') || keys.has('a')) : 0;
+    let dy = active ? axis.y + Number(keys.has('ArrowDown') || keys.has('s')) -
+                  Number(keys.has('ArrowUp') || keys.has('w')) : 0;
+    const length = Math.hypot(dx, dy);
+    if (length > 1) { dx /= length; dy /= length; }
+    if (length > 0 && active) {
+      state.dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 4 : 6) : (dy < 0 ? 0 : 2);
+      const nx = state.x + dx * 155 * dt, ny = state.y + dy * 155 * dt;
+      if (walkable(nx, state.y)) state.x = nx;
+      if (walkable(state.x, ny)) state.y = ny;
+    }
+    const target = cameraTarget();
+    const reduced = matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const ease = reduced ? 1 : 1 - Math.exp(-dt * 9);
+    camera.x += (target.x - camera.x) * ease;
+    camera.y += (target.y - camera.y) * ease;
+    paint(time, length > 0 && active);
+    syncNearby();
+  }
+  function toggleMap(force) {
+    stop();
+    state.overview = typeof force === 'boolean' ? force : !state.overview;
+    $('island').classList.toggle('is-map', state.overview);
+    $('mapPanel').hidden = !state.overview;
+    $('mapToggle').textContent = state.overview ? '继续漫步' : '看看地图';
+    $('mapToggle').setAttribute('aria-expanded', String(state.overview));
+    resize();
+    syncNearby();
+  }
+  function goTo(id) {
+    const place = byId[id];
+    if (!state.ready || !place || !walkable(place.x, place.y)) return false;
+    stop();
+    state.x = place.x; state.y = place.y;
+    state.dir = id === 'treehouse' ? 0 : 2;
+    if (state.overview) toggleMap(false);
+    snapCamera();
+    syncNearby('已经来到' + place.title + '附近，点下方按钮可以进去看看');
+    return true;
+  }
+  function openDetail(id) {
+    const place = byId[id];
+    if (!state.ready || !place || state.overview || $('detail').open) return false;
+    // The canvas visit action cannot enter an area from across the island.
+    if (Math.hypot(state.x - place.x, state.y - place.y) > place.radius) return false;
+    stop();
+    $('detailTitle').textContent = place.id === 'tree' ? '我们的家庭树' : place.title;
+    $('detailDescription').textContent = place.intro;
+    $('detailFuture').textContent = place.later;
+    $('detailMap').style.objectPosition = place.focus;
+    $('detailScene').dataset.place = place.id;
+    $('detailTree').hidden = place.id !== 'tree';
+    $('detailKid').hidden = place.id !== 'tree';
+    $('detail').showModal();
+    $('back').focus();
+    return true;
+  }
+  function closeDetail() { if ($('detail').open) $('detail').close(); }
+  $('visit').addEventListener('click', () => { if (state.near) openDetail(state.near); });
+  $('back').addEventListener('click', closeDetail);
+  $('detailClose').addEventListener('click', closeDetail);
+  $('detail').addEventListener('close', () => {
+    stop(); syncNearby(); if (!$('visit').hidden) $('visit').focus(); else $('mapToggle').focus();
+  });
+  $('mapToggle').addEventListener('click', () => toggleMap());
+  $('keepWalking').addEventListener('click', () => { toggleMap(false); $('mapToggle').focus(); });
+  $('mapPanel').addEventListener('click', event => {
+    const button = event.target.closest('button[data-go]');
+    if (button && goTo(button.dataset.go) && !$('visit').hidden) $('visit').focus();
+  });
+  $('home').addEventListener('click', () => goTo('pier'));
+
+  const stick = $('stick');
+  stick.addEventListener('pointerdown', event => {
+    if (pointer !== null || !state.ready || state.overview || $('detail').open) return;
+    pointer = event.pointerId; stick.setPointerCapture(pointer); moveStick(event);
+  });
+  function moveStick(event) {
+    if (event.pointerId !== pointer) return;
+    const rect = stick.getBoundingClientRect();
+    let x = event.clientX - rect.left - rect.width / 2;
+    let y = event.clientY - rect.top - rect.height / 2;
+    const length = Math.hypot(x, y), factor = Math.min(length, 36) / (length || 1);
+    x *= factor; y *= factor;
+    axis.x = length < 9 ? 0 : x / 36;
+    axis.y = length < 9 ? 0 : y / 36;
+    $('knob').style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  }
+  stick.addEventListener('pointermove', moveStick);
+  for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) stick.addEventListener(type, stop);
+  window.addEventListener('keydown', event => {
+    if ($('detail').open || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName)) return;
+    if (event.key === 'Escape' && state.overview) { toggleMap(false); return; }
+    if (!state.overview && ['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(event.key)) {
+      event.preventDefault(); keys.add(event.key);
+    }
+  });
+  window.addEventListener('keyup', event => keys.delete(event.key));
+  window.addEventListener('blur', stop);
+  document.addEventListener('visibilitychange', stop);
+  window.addEventListener('pagehide', () => { stop(); cancelAnimationFrame(frame); frame = 0; });
+  window.addEventListener('pageshow', () => {
+    if (state.ready && !frame) { last = 0; frame = requestAnimationFrame(tick); }
+  });
+  new ResizeObserver(resize).observe(canvas);
+
+  async function loadIsland() {
+    const attempt = ++loadingAttempt, loading = $('loading');
+    loading.hidden = false;
+    const sources = {
+      map: 'assets/our-island-v1/map.webp',
+      girl: 'assets/our-island-v1/girl.webp',
+      tree: 'assets/our-island-v1/tree.webp'
+    };
+    let completed = Object.keys(sources).filter(name => images[name]).length;
+    loading.textContent = '正在加载小岛画面 ' + completed + '/3…';
+    try {
+      await Promise.all(Object.entries(sources).map(([name, src]) =>
+        images[name] ? Promise.resolve() : new Promise((resolve, reject) => {
+          const img = new Image();
+          let finished = false;
+          // A slow image CDN is not a broken island. Allow more time, and use
+          // the published asset host directly for third-party HTML previews.
+          const timer = setTimeout(() => finish(new Error('timeout')), 30000);
+          function finish(error) {
+            if (finished) return;
+            finished = true; clearTimeout(timer); img.onload = img.onerror = null;
+            if (error) { img.src = ''; reject(error); return; }
+            if (attempt === loadingAttempt) {
+              images[name] = img; completed += 1;
+              loading.textContent = '正在加载小岛画面 ' + completed + '/3…';
+            }
+            resolve();
+          }
+          img.onload = () => finish();
+          img.onerror = () => finish(new Error('image'));
+          img.src = sourceFor(src);
+        })
+      ));
+      if (attempt !== loadingAttempt) return;
+      state.ready = true; resize(); loading.hidden = true;
+      syncNearby();
+      if (!frame) { last = 0; frame = requestAnimationFrame(tick); }
+    } catch (_) {
+      if (attempt !== loadingAttempt) return;
+      loadingAttempt++;
+      const panel = document.createElement('div');
+      const message = document.createElement('p');
+      const retry = document.createElement('button');
+      const back = document.createElement('a');
+      message.textContent = '小岛画面没有加载成功，但家庭记录不会改变。';
+      retry.type = 'button'; retry.textContent = '重新加载'; retry.addEventListener('click', loadIsland);
+      back.textContent = '返回今日任务'; back.href = 'child.html';
+      panel.append(message, retry, document.createElement('br'), back);
+      loading.replaceChildren(panel);
+    }
+  }
+
+  // Read-only testing surface. This scene never touches homework or cloud data.
+  window.IslandWalk = {state, tree, areas, polygons, walkable, nearestLandmark, goTo, openDetail, toggleMap, stop, sourceFor};
+  configurePreviewArtwork();
+  loadIsland();
 })();
