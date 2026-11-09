@@ -1,6 +1,6 @@
 # 开发与发布最高优先级规则（2026-11-09）
 
-所有 ChatGPT 开发对话必须先阅读 [开发协作与版本发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md)。**开发对话只在独立分支开发并提交 PR，禁止未经用户明确授权直接更新 main 或部署 GitHub Pages。** 项目已批准 PR #3 将 Pages 改为手动发布并添加 CI；**分支保护仍须 GitHub Settings 管理员单独启用**。在 PR 合并前，推送 main 仍会自动上线。开工记录 main SHA，交付记录 PR、测试、回滚和真实发布状态；不得用旧对话或个人 Library 里的内容取代仓库现状。
+所有 ChatGPT 开发对话必须先阅读 [开发协作与版本发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md)。**每个任务使用独立分支并提交 PR，不得直接向 main 推送。** PR 检查通过且用户确认可上线后，由负责整合的对话合并 PR；**合并 main 会自动运行部署工作流，测试通过后自动发布**，无需额外手动发布。仅演示、预览或未验收的改动禁止合并。GitHub Ruleset/分支保护仍须仓库管理员在 Settings 中启用，规则文字不能替代技术限制。开工记录 main SHA，交付记录 PR、测试、回退和真实发布状态；不得用旧对话或个人 Library 内容取代仓库现状。
 
 ---
 

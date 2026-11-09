@@ -1,5 +1,8 @@
 # 开心岛 · 首次发布管控基线（2026-11-09）
 
+> **后续流程更新（2026-11-09）：** 经用户确认恢复自动发布：独立分支 → PR 自动检查 → 经确认合并 main → Pages 自动进行发布前测试并上线。本页下面关于“仅手动发布”的段落是历史配置记录，不是现行指令。GitHub main 分支保护仍需管理员启用。
+
+
 - **正式站点：** https://miazou1991.github.io/homework-island-demo/
 - **核验时 main SHA：** `2fb8cc6467db4f431440a0cb5545738753eea01c`
 - **GitHub Actions 部署：** https://github.com/MiaZou1991/homework-island-demo/actions/runs/42549689792
