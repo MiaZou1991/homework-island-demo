@@ -37,7 +37,8 @@ const requests=[
  const settings=await settingsResponse.json().catch(()=>({}));
  report.authCapabilities={
    settingsHttpStatus:settingsResponse.status,
-   anonymousProviderEnabled:!!(settings.external?.anonymous || settings.external?.anonymous_signup || settings.enable_anonymous_sign_ins),
+   anonymousProviderEnabled:!!settings.external?.anonymous_users,
+   disableSignup:!!settings.disable_signup,
    emailAutoConfirm:!!settings.mailer_autoconfirm
  };
  console.log(JSON.stringify({...report,conclusion:'PASS'},null,2));
