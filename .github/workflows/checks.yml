@@ -43,6 +43,14 @@ jobs:
           path: /tmp/companions-gallery-*.png
           if-no-files-found: ignore
           retention-days: 3
+      - name: Upload island exploration screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: island-exploration-mobile-qa
+          path: /tmp/island-explore-*.png
+          if-no-files-found: ignore
+          retention-days: 5
       - name: Build optimized WebP assets without publishing
         run: |
           python3 -m pip install --disable-pip-version-check Pillow
