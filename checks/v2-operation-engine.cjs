@@ -110,4 +110,41 @@ const malicious=JSON.parse('{"id":"h1","__proto__":{"hacked":true}}');
 assert.throws(()=>op('homework',base,malicious),/unsafe_field/);
 assert.equal({}.hacked,undefined);
 
-console.log('PASS 36+ V2 operation assertions: add/patch/delete across homework/events/classes/recurring, idempotency, independent field merge, conflict blocking, stale deletes, family history preservation, malicious input and batch integrity');
+
+// Transition planner: changes to historical points/rewards are never silently dropped.
+let plannedId=0;
+const factory=()=> 'transition-'+(++plannedId);
+const planned=ops.planTransition(original,{
+  ...original,
+  homework:[...original.homework,newHomework],
+  events:[{...eventBase,title:'傍晚游泳'}],
+  classes:[{...classBase,bring:['课本','泳帽']}]
+},factory);
+assert.equal(planned.safe,true);
+assert.equal(planned.operations.length,3);
+assert.deepEqual(planned.operations.map(x=>x.entity),['homework','events','classes']);
+assert.equal(ops.applyBatch(original,planned.operations).outcome,'ready');
+const extra=ops.planTransition(original,{
+  ...original,points:original.points+10,totalCompleted:1,
+  demoGrowth:{...original.demoGrowth,room:{desk:'changed'}},
+  homework:[{...base,done:true}]
+},factory);
+assert.equal(extra.safe,false,'legacy reward/points side effects must block auto-sync');
+assert.deepEqual(new Set(extra.unsupportedTopLevelKeys),new Set(['points','totalCompleted','demoGrowth']));
+assert.equal(extra.operations.length,1,'change classification must still capture homework details');
+assert.equal(extra.operations[0].action,'patch');
+
+const orderBase={...original,events:[{id:'first'},{id:'second'}]};
+const orderSwap={...orderBase,events:[{id:'second'},{id:'first'}]};
+assert.equal(ops.planTransition(orderBase,orderSwap,factory).safe,false,'record order must not change invisibly');
+assert.ok(ops.planTransition(orderBase,orderSwap,factory).unsupportedTopLevelKeys.includes('order_changed:events'));
+const dropped={...original};delete dropped.classes;
+assert.equal(ops.planTransition(original,dropped,factory).safe,false,'missing entire array must not become mass delete');
+assert.ok(ops.planTransition(original,dropped,factory).unsupportedTopLevelKeys.includes('schema_removed:classes'));
+assert.throws(()=>ops.planTransition(original,{...original,events:[eventBase,eventBase]},factory),/duplicate_record_id/);
+assert.throws(()=>ops.planTransition(original,{...original,events:[{title:'no id'}]},factory),/missing_stable_record_id/);
+assert.throws(()=>ops.planTransition(original,{...original,homework:[...original.homework,newHomework],
+  events:[{...eventBase,title:'another time'}]},()=> 'reused-op-id'),/duplicate_operation_id/);
+assert.deepEqual(original,starting,'transition planner must not mutate source objects');
+
+console.log('PASS 45+ V2 operation assertions: add/patch/delete across homework/events/classes/recurring, idempotency, independent field merge, conflict blocking, stale deletes, family history preservation, malicious input and batch integrity');
