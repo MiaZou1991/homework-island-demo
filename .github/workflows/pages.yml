@@ -28,7 +28,7 @@ jobs:
       - name: Verify settlement and data isolation
         run: |
           node checks/domain.test.cjs
-          node checks/companions-v6.cjs
+          node checks/companions-v7.cjs
           node checks/kaixin-sync.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
