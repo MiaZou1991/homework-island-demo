@@ -145,7 +145,7 @@ function cloudPage(){
  const current=s.current==='synced'?'已同步到当前数据':s.current==='pending'?'本机改动待上传':'尚未确认';
  const names={
   sync_start:'启动同步',pending_queued:'本机改动进入待上传队列',pending_restored:'恢复未上传的本机改动',
-  rpc_started:'开始云端请求',rpc_succeeded:'云端请求成功',rpc_failed:'云端请求失败',
+  rpc_started:'开始云端请求',rpc_succeeded:'云端请求成功',rpc_business_rejected:'数据库拒绝处理请求',rpc_failed:'云端请求失败',
   cloud_loaded:'已读取云端家庭版本',cloud_load_empty:'云端尚无记录',cloud_recheck_before_upload:'上传前重新检查云端',
   pull_started:'开始拉取最新记录',pull_finished:'拉取结束',pull_failed:'拉取失败',pull_skipped:'暂缓拉取',
   remote_applied:'本机已更新到云端数据',upload_started:'开始上传本机改动',upload_failed:'上传失败',
@@ -159,7 +159,7 @@ function cloudPage(){
  const entries=(diag.events||[]).slice(-15).reverse();
  const logRows=entries.map(item=>{
    const t=new Date(item.at).toLocaleTimeString('zh-CN',{hour12:false});
-   const details=[item.operation,item.httpStatus?'HTTP '+item.httpStatus:'',Number.isFinite(item.revision)?'v'+item.revision:'',item.reason||''].filter(Boolean).join(' · ');
+   const details=[item.operation,item.httpStatus?'HTTP '+item.httpStatus:'',item.requestBytes?'请求 '+Math.ceil(item.requestBytes/1024)+' KB':'',Number.isFinite(item.revision)?'v'+item.revision:'',item.reason||''].filter(Boolean).join(' · ');
    return '<li class="up-sync-log"><time>'+e(t)+'</time><span>'+e(names[item.event]||item.event)+'</span><small>'+e(details)+'</small></li>';
  }).join('');
  return `<div class="up-eyebrow">家庭空间</div><h1>家庭云端数据</h1>
