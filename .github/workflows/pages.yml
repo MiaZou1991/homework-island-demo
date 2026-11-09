@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
+    needs: database-contract
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -68,3 +69,34 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           artifact_name: github-pages-${{ github.run_attempt }}
+  database-contract:
+    name: postgres-v2-contract
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: kaixin_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d kaixin_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install PostgreSQL client for real SQL contract checks
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client
+      - name: Validate auth role checks, CAS, duplicate retries and concurrency on real Postgres
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: 5432
+          PGDATABASE: kaixin_ci
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: node checks/postgres-v2-contract.cjs
