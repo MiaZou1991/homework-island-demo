@@ -49,6 +49,15 @@ dialog::backdrop{background:#264e4d99;backdrop-filter:blur(2px)}
 .detail-future{margin:0 auto 13px;max-width:310px;font-size:12px;line-height:1.55;color:#806a4e}
 #back{min-width:150px;min-height:50px;border:none;border-radius:25px;padding:12px 24px 14px;background:#a6d875 url("assets/hd/dialogs-v3/button-primary.webp") center / 100% 100% no-repeat;color:#31582b;font-size:16px;font-weight:800;text-shadow:0 1px #eaffd8}
 #detailClose{align-self:center;flex:none;width:46px;height:46px;margin-top:-8px;padding:0;border:3px solid #fff4d9;border-radius:50%;background:#f9e9d5;box-shadow:0 3px 0 #b1a78c;color:#96745b;font-size:29px;line-height:1}
+/* On a phone the full map stays visible: destinations become a bottom rail. */
+@media(max-width:600px){
+ #mapPanel{top:auto;left:9px;right:9px;bottom:calc(8px + env(safe-area-inset-bottom));width:auto;max-height:min(45%,190px);padding:0 3px 1px;border-width:16px;border-image-width:16px}
+ #mapPanel h2{margin:0 0 7px}
+ #mapPanel p{display:none}
+ .map-places{display:flex;gap:7px;overflow-x:auto;scrollbar-width:thin;padding:2px 1px 5px;overscroll-behavior-x:contain}
+ .map-places button{flex:0 0 106px;min-width:106px;justify-content:center;white-space:nowrap}
+ #keepWalking{margin-top:5px;min-height:38px}
+}
 @media(max-width:355px){#toolbar h1{min-width:139px;padding:20px 18px;font-size:22px}#mapToggle{padding:8px 10px;font-size:12px}#stick{left:12px}#mapPanel{right:8px;width:54%}#detailTitle{font-size:21px}}
 @media(max-height:550px){#hint{top:87px;font-size:12px}#visit{bottom:calc(130px + env(safe-area-inset-bottom))}#stick{width:100px;height:100px}#knob{left:28px;top:28px}.arrows{font-size:17px;line-height:28px}#mapPanel{top:97px;max-height:calc(100% - 107px)}.detail-scene{height:clamp(125px,36dvh,230px)}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
