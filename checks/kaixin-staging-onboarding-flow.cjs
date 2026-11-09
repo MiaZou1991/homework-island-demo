@@ -6,8 +6,9 @@ const calls=[],token='f'.repeat(64);
 const client={
  auth:{
   async getUser(){return {data:{user},error:null};},
-  async signUp({email,password}){
+  async signUp({email,password,options}){
    signups++;assert.equal(email,'parent@example.test');assert.equal(password,'TEST_PASSWORD_ONLY');
+   assert.equal(options?.emailRedirectTo,'https://qa-preview.example.test/kaixin-staging-onboarding.html');
    return {data:{user:{id:'11111111-1111-4111-8111-111111111111'},session:null},error:null};
   },
   async signInWithPassword({email,password}){
@@ -47,10 +48,12 @@ const client={
  }
 };
 (async()=>{
- const flow=qa.create(client);
+ const flow=qa.create(client,{redirectTo:'https://qa-preview.example.test/kaixin-staging-onboarding.html'});
  assert.deepEqual(await flow.current(),{kind:'signed_out'});
  const registered=await flow.signupParent(' parent@example.test ','TEST_PASSWORD_ONLY');
  assert.equal(registered.kind,'verification_required');
+ await assert.rejects(qa.create(client).signupParent('parent@example.test','TEST_PASSWORD_ONLY'),e=>e.code==='verified_https_redirect_required');
+ await assert.rejects(qa.create(client,{redirectTo:'http://localhost:3000/'}).signupParent('parent@example.test','TEST_PASSWORD_ONLY'),e=>e.code==='verified_https_redirect_required');
  assert.equal(signups,1);assert.deepEqual(await flow.current(),{kind:'signed_out'},'Signup must not create parent authorization');
  let state=await flow.loginParent(' parent@example.test ','TEST_PASSWORD_ONLY');
  assert.equal(loginCount,1);assert.equal(state.kind,'unbound');
