@@ -1,5 +1,15 @@
 # 开心岛 · GitHub 发布说明
 
+## 2026-11-09｜16位陪伴伙伴透明底统一修复 v6
+
+- **问题来源**：实际 iPhone 截图发现小猫及小兔等伙伴在海水码头场景中有大块米色/沙色雾状底，旧 v4 只是羽化合成卡边缘，PNG RGBA 并不意味着已真正去背。单独修复小兔v5无法覆盖另外15位。
+- **本轮修复**：根据16位已确认的物种、服装与颜色重新绘制、切图，全部输出 512×512 真透明 RGBA PNG（`dist/assets/characters/companion-{id}-v6.png`），建立 `companions-v6.json` 与说明；不是旧像素一比一抠出，因此个别表情/配饰可能略有差异。
+- **页面接入**：`DemoCore.companions` 将全部16位改用v6，儿童/家长端 `demo-core.js` 添加独立版本参数以清除旧 Safari 缓存；旧v4和小兔v5仍保留。原有10位Emoji/ID、选中/拥有记录、作业积分及全部家庭数据未改动。没有更改课程/物品只提醒不打卡的规则，也没有改动小岛日程或钓鱼场景。
+- **防回归与验证**：蓝色海水、绿色草地、深色和奶油色背景对照无大面积背景残留；[PR自动检查](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42641572310) 成功，16/16 张图片路径与RGBA尺寸、浏览器canvas透明像素/中部不透明度、320/375/390/430px、DPR2/3和旧数据兼容均通过。
+- **提交与部署**：[PR #20](https://github.com/MiaZou1991/homework-island-demo/pull/20)，主线合并 SHA `e96be334610eee8cc0eb1ce73ebeb76efc02c719`。[Pages 自动发布工作流](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42641951765)（最终成功/失败以该运行记录为准）。正式地址：https://miazou1991.github.io/homework-island-demo/child.html?v=all-companions-v6 。
+- **回退方式**：仅回退 `DemoCore` 资源路径和对应缓存版本；保留全部v4/v5资产，不重置云端家庭数据、存储、历史积分与伙伴记录。变更前健康主线 SHA `b82a80aa8d936b741691c00886c476b66cdaa427`。
+- **验收边界**：自动化在隔离的预览数据中进行；尚未宣称真实家庭 iPhone Safari 手工复核已完成。
+
 ## 2026-11-09｜小兔角色透明底修复（今日任务白色光晕）
 
 - **现场问题**：用户 iPhone 截图中，首页码头上的小兔背后显示大块白色/奶油色的矩形雾状背景，并非 iPhone 渲染错误。先前 v4 图片只将矩形外缘柔化半透明，卡片内部多数像素仍是高不透明度，原来的素材验收仅验证 PNG 文件、RGBA 和图片加载，未验证实际抠图质量，故未拦住该缺陷。
