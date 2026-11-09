@@ -1,0 +1,37 @@
+name: Check Homework Island
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  quality:
+    name: domain-sync-and-mobile-qa
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Verify settlement, sync, traffic and data isolation
+        run: |
+          node checks/domain.test.cjs
+          node checks/kaixin-sync.cjs
+          node checks/sync-traffic.cjs
+          node checks/realtime-signal.cjs
+      - name: Install fonts for mobile rendering
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk
+          fc-cache -f
+      - name: Mobile family calendar QA (320 / 375 / 390 / 430)
+        run: |
+          npm install --no-save --no-package-lock playwright
+          python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
+          node checks/family-schedule.cjs
+      - name: Build optimized WebP assets without publishing
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow
+          python3 .github/optimize_artwork.py

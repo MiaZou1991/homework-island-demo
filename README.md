@@ -1,3 +1,5 @@
+> **2026-11-09 开发与发布约定：** 以 [开发协作与发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md) 为准。新的 `checks.yml` 在 PR 和 main 执行检查，`pages.yml` 不再因为推送 main 自动上线，而是由负责人在 GitHub Actions 手动触发，并填写当前 main 的完整 SHA。既有文档下方提到的“每次推送 main 自动发布”属于历史流程。main 分支保护仍需在 GitHub Settings 管理员手工开启；具体可回退基线见 [发布基线](docs/RELEASE_BASELINE_20261109.md)。
+
 # 开心岛 · 项目与发布记录
 
 **最新功能发布说明：** [2026-11-09 · 小岛日程「出门记得带」自动隐藏空卡片](RELEASE_NOTES.md)。当天无物品时不显示空卡片；有课程但无物品时「今日任务」保留课程提示，不显示空书包区。

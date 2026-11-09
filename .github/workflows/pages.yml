@@ -1,8 +1,11 @@
 name: Publish Homework Island
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: 'The exact 40-character SHA currently on main; do not auto-release any other revision'
+        required: true
+        type: string
 permissions:
   contents: read
   pages: write
@@ -18,6 +21,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v6
+      - name: Require explicit main release SHA
+        env:
+          EXPECTED_SHA: ${{ inputs.expected_sha }}
+          EVENT_REF: ${{ github.ref }}
+        run: |
+          test "$EVENT_REF" = 'refs/heads/main' || { echo 'Deploy must run from main'; exit 1; }
+          [[ "$EXPECTED_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'Provide full 40-digit expected SHA'; exit 1; }
+          ACTUAL_SHA=$(git rev-parse HEAD)
+          test "$ACTUAL_SHA" = "$EXPECTED_SHA" || { echo "Expected $EXPECTED_SHA but checked out $ACTUAL_SHA"; exit 1; }
+          echo "Releasing reviewed main SHA: $ACTUAL_SHA"
+
       - name: Verify settlement and data isolation
         run: |
           node checks/domain.test.cjs
