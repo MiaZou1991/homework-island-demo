@@ -1,0 +1,20 @@
+name: Staging Anonymous HTTP Security Smoke
+on:
+  push:
+    branches:
+      - fix/p0-sync-diagnostics-recovery-20261109
+permissions:
+  contents: read
+concurrency:
+  group: staging-anon-smoke-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  staging-anon-http:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      KAIXIN_STAGE_PUBLIC_KEY: sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check real Supabase staging rejects anonymous family access
+        run: node checks/staging-anon-http.cjs
