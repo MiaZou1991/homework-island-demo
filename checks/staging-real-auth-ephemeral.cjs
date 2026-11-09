@@ -92,6 +92,13 @@ async function checkMembership() {
   if(ws.stderr)process.stderr.write(ws.stderr);
   if(ws.error||ws.status!==0)throw new Error('real_staging_websocket_validation_failed');
   console.log('PASS REAL SUPABASE WEBSOCKET + MEMBERSHIP REVISIONS - STAGING ONLY');
+  const recovery=spawnSync(process.execPath,['checks/staging-v2-recovery.cjs'],{
+    env,encoding:'utf8',timeout:140000,maxBuffer:150000
+  });
+  if(recovery.stdout)process.stdout.write(recovery.stdout);
+  if(recovery.stderr)process.stderr.write(recovery.stderr);
+  if(recovery.error||recovery.status!==0)throw new Error('v2_recovery_real_rpc_checks_failed');
+  console.log('PASS REAL SUPABASE V2 RECOVERY - STAGING ONLY');
 })().catch(error => {
   console.error('QA_FAILURE ' + String(error?.message || 'unknown').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,120));
   process.exitCode = 1;
