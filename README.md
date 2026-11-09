@@ -1,4 +1,4 @@
-> **2026-11-09 开发与发布约定：** 以 [开发协作与发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md) 为准。新的 `checks.yml` 在 PR 和 main 执行检查，`pages.yml` 不再因为推送 main 自动上线，而是由负责人在 GitHub Actions 手动触发，并填写当前 main 的完整 SHA。既有文档下方提到的“每次推送 main 自动发布”属于历史流程。main 分支保护仍需在 GitHub Settings 管理员手工开启；具体可回退基线见 [发布基线](docs/RELEASE_BASELINE_20261109.md)。
+> **2026-11-09 开发与发布约定（自动发布）：** 以 [开发协作与版本发布规范](docs/DEVELOPMENT_RELEASE_STANDARD.md) 为准。功能开发先走独立分支与 PR，`checks.yml` 对 PR 执行自动校验，**仅在 PR 通过检查且获准合并到 main 后**，`pages.yml` 才随 main 更新自动执行发布前检查与 GitHub Pages 部署。发布失败则不替换线上版本。`workflow_dispatch` 仍可用于维护应急，但正常流程不需要手动发布。GitHub 的 main PR 必经 Ruleset/分支保护**尚需管理员在 Settings 启用**。最新历史基线见 [发布基线](docs/RELEASE_BASELINE_20261109.md)。
 
 # 开心岛 · 项目与发布记录
 
