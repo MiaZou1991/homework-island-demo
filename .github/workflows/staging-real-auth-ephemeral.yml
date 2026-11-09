@@ -1,0 +1,21 @@
+name: Staging REAL Anonymous Auth JWT Integration
+# One-shot staging harness. Never touches the production Supabase project.
+# A human/operator enrolls its four synthetic user UUIDs via a separate staging SQL action.
+on:
+  push:
+    branches:
+      - fix/p0-sync-diagnostics-recovery-20261109
+    paths:
+      - .github/workflows/staging-real-auth-ephemeral.yml
+permissions:
+  contents: read
+jobs:
+  staging-real-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAIXIN_STAGE_PUBLIC_KEY: sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV
+    steps:
+      - uses: actions/checkout@v6
+      - name: Register four temporary anonymous Auth identities and test real JWT RPC after enrollment
+        run: node checks/staging-real-auth-ephemeral.cjs
