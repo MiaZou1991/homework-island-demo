@@ -9,6 +9,9 @@ assert.throws(()=>M.applyPublic(pub,'dad',{type:'editMoment',id:'g1',day:'2026-1
 assert.throws(()=>M.applyPublic(pub,'kid',{type:'editMoment',id:'g1',day:'2026-02-30',category:'growth',text:'错日期'}),/无效/);
 pub=M.applyPublic(pub,'kid',{type:'editMoment',id:'g1',day:'2026-11-08',category:'together',text:'全家一起玩'},time);
 assert.equal(pub.moments[0].category,'together');
+pub=M.applyPublic(pub,'mom',{type:'addReply',targetType:'moment',momentId:'g1',text:'我记得这个开心瞬间'},time,'r-growth');
+assert.equal(pub.replies.find(r=>r.id==='r-growth').momentId,'g1','memory supports family replies');
+
 pub=M.applyPublic(pub,'mom',{type:'addNote',text:'一起去公园'},time,'n1');
 pub=M.applyPublic(pub,'dad',{type:'addReply',noteId:'n1',text:'周六一起去'},time,'r1');
 assert.equal(pub.replies[0].author,'dad');
@@ -31,6 +34,17 @@ assert.throws(()=>M.applyPrivate(priv,'dad',{type:'readHeart',id:'h1'}),/只有�
 assert.throws(()=>M.applyPrivate(priv,'kid',{type:'sendHeart',to:'kid',text:'给自己'}),/送达/);
 priv=M.applyPrivate(priv,'mom',{type:'readHeart',id:'h1'},time);
 assert.equal(priv.hearts[0].readAt,time);
+assert.deepEqual(M.treeGrowth(priv).levels,[0,3,8,16],'growth stages are driven by hearts');
+assert.equal(M.treeGrowth(priv).count,2);
+assert.equal(M.treeGrowth(priv).stage,0);
+priv=M.applyPrivate(priv,'mom',{type:'sendHeart',to:'dad',text:'谢谢你'},time,'h3');
+assert.equal(M.treeGrowth(priv).stage,1,'third heart unlocks new stage');
+assert.equal(M.treeGrowth(8).stage,2);
+assert.equal(M.treeGrowth(16).stage,3);
+assert.equal(M.treeGrowth(0).stage,0);
+
+pub=M.applyPublic(pub,'kid',{type:'deleteMoment',id:'g1'});
+assert.equal(pub.replies.some(r=>r.id==='r-growth'),false,'deleting a memory removes its replies');
 assert.equal(pub.hasOwnProperty('hearts'),false,'public records contain no private hearts');
 assert.equal(priv.hasOwnProperty('notes'),false,'private store contains no shared notes');
 console.log('PASS family tree model: moments, notes, reply ownership, dates, private hearts');
