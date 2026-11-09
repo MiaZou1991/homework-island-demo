@@ -28,7 +28,7 @@ assert.deepEqual(M.visibleHearts(priv,'mom').map(x=>x.id),['h1']);
 assert.deepEqual(M.visibleHearts(priv,'dad').map(x=>x.id),['h2']);
 assert.deepEqual(M.visibleHearts(priv,'stranger'),[]);
 assert.throws(()=>M.applyPrivate(priv,'dad',{type:'readHeart',id:'h1'}),/只有收信人/);
-assert.throws(()=>M.applyPrivate(priv,'kid',{type:'sendHeart',to:'kid',text:'给自己'}),/收/);
+assert.throws(()=>M.applyPrivate(priv,'kid',{type:'sendHeart',to:'kid',text:'给自己'}),/送达/);
 priv=M.applyPrivate(priv,'mom',{type:'readHeart',id:'h1'},time);
 assert.equal(priv.hearts[0].readAt,time);
 assert.equal(pub.hasOwnProperty('hearts'),false,'public records contain no private hearts');
