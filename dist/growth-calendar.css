@@ -1,0 +1,131 @@
+/* 开心岛成长日历 V1：沿用品牌木牌、奶油纸张和底部 Tab，不触及其他页面 */
+body[data-mode=child]:has(.up-main[data-route=plan]) .phone{
+ background:#fff5e6 url("assets/hd/family-calendar/coast-empty-v2.webp") center top/100% auto no-repeat!important;
+}
+body[data-mode=child] .up-main[data-route=plan] .gc-page,
+body[data-mode=child] .up-main[data-route=plan] .gc-page *{box-sizing:border-box}
+body[data-mode=child] .up-main[data-route=plan] .gc-page{
+ --gc-ink:#663f29;--gc-muted:#9d8166;--gc-cream:#fffaf0;
+ position:relative;display:block;min-height:calc(100dvh - var(--tf-nav-height,80px));
+ padding:64px 12px 22px;background:linear-gradient(#fff8e883,#fff4e7 170px,#fff1dd 100%);
+ color:var(--gc-ink);overflow:hidden;
+}
+.gc-page button{font:inherit;cursor:pointer;color:inherit}
+.gc-page button:focus-visible{outline:3px solid #65ae45;outline-offset:2px}
+.gc-top{margin-bottom:12px}
+.gc-top-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:70px}
+.gc-top-row h1{display:grid;place-items:center;margin:0;width:154px;height:62px;
+ background:url("assets/hd/dialogs-v3/plaque.webp") center/100% 100% no-repeat;
+ font-size:19px!important;line-height:1.2;color:#633a20;font-weight:800!important}
+.gc-switch{display:flex;align-items:center;flex:none;padding:4px;background:#fff9eb;
+ border:2px solid white;border-radius:999px;box-shadow:0 2px 0 #e6c49a}
+.gc-switch button{padding:7px 9px;border:0;border-radius:100px;background:none;white-space:nowrap;font-size:12px;font-weight:700;color:#815b37}
+.gc-switch button[aria-pressed=true]{color:white;background:linear-gradient(#a2e871,#47b83b);box-shadow:inset 0 1px #c6f8a9,0 2px 0 #6da959}
+.gc-range{display:flex;align-items:center;gap:8px;margin-top:5px}
+.gc-range strong{flex:1;min-width:0;display:grid;place-items:center;min-height:43px;padding:7px 5px;
+ background:#fff9ed;border:2px solid white;border-radius:50px;box-shadow:0 3px 0 #e5cfa8;
+ text-align:center;font-size:14px;color:#654227}
+.gc-range button{flex:none;display:grid;place-items:center;width:40px;height:41px;background:#fff9ed;
+ border:2px solid white;border-radius:50%;box-shadow:0 3px 0 #e5cfa8;font-size:28px;line-height:1}
+.gc-panel{background:#fffaf1f5;border:2px solid #fff;border-radius:27px;padding:13px 11px 15px;
+ box-shadow:0 4px 0 #ead4ab,0 7px 12px #b28f6540;margin-bottom:14px}
+.gc-panel h2{margin:0 0 11px;color:#67412a;font-size:17px!important;letter-spacing:0;font-weight:800!important}
+.gc-panel h2 small{font-size:10px;color:#a18464;font-weight:400;padding-left:3px}
+.gc-week-dates{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;margin:0 1px 10px}
+.gc-week-dates button{display:grid;justify-items:center;gap:2px;padding:8px 1px 6px;border-radius:16px;background:#fff9ee;
+ border:2px solid #fff;box-shadow:0 2px #dec9a2;font-size:11px}
+.gc-week-dates button b{font-size:18px}
+.gc-week-dates button.selected,.gc-week-head button.selected{background:linear-gradient(#91db61,#43b938);color:white;border-color:#fff}
+.gc-week-head,.gc-week-row{display:grid;grid-template-columns:43px repeat(7,minmax(0,1fr));}
+.gc-week-head{min-height:42px;border-bottom:1px solid #ecdcc1}
+.gc-week-head button{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;
+ border:0;border-left:1px dashed #ecdcc1;background:transparent;padding:2px 0;font-size:11px}
+.gc-week-head button b{font-size:14px}
+.gc-timehead{font-size:10px;text-align:center;color:#8b6b4f;align-self:center}
+.gc-markers{display:flex;align-items:center;justify-content:center;gap:1px;min-height:13px;white-space:nowrap}
+.gc-mark{display:inline-grid;place-items:center;width:13px;height:13px;line-height:1;font-size:14px;vertical-align:middle}
+.gc-mark img{display:block;width:15px;height:15px;object-fit:contain}
+.gc-mark-done{color:#ffbe31;text-shadow:0 1px #bb772e}
+.gc-mark-habit{color:#62b653;font-size:19px}
+.gc-mark-moment{color:#ed86ad;font-size:18px}
+.gc-more{display:inline-block;font-size:9px;color:#bd8151;font-weight:700}
+.gc-week-row{min-height:130px;border-bottom:1px solid #ebdbc2}
+.gc-week-row:last-child{border-bottom:0}
+.gc-period{display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;color:#7c5436;font-size:12px;border-right:1px solid #ead7b5}
+.gc-period span{font-size:22px;color:#dda44d}
+.gc-week-cell{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:4px;
+ min-width:0;padding:5px 2px;border:0;border-left:1px dashed #eadcc4;background:transparent;text-align:center}
+.gc-tile{min-width:0;padding:6px 2px;border-radius:11px;display:flex;flex-direction:column;align-items:center;gap:2px;overflow:hidden;line-height:1.2}
+.gc-tile-homework{background:#ffedc5;color:#946026}
+.gc-tile-class{background:#eeddfc;color:#7652a5}
+.gc-tile-event{background:#e6f1d4;color:#5a8b45}
+.gc-tile-icon{display:grid;place-items:center;width:23px;height:23px;border-radius:8px;background:#ffffff75;font-size:13px;font-weight:700}
+.gc-tile b{font-size:10px!important;font-weight:600!important;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.gc-tile small{font-size:9px;color:inherit;font-weight:500}
+.gc-overflow{font-size:9px;color:#aa8061}
+.gc-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.gc-section-title h2{margin:0!important}
+.gc-section-title button,.gc-detail button{border:1px solid #dcbf8d;border-radius:18px;background:#fff1d5;
+ color:#7e5935;padding:7px 9px;font-size:11px;font-weight:700}
+.gc-goals{background:#fffaf0}
+.gc-habit-mini{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px;font-size:12px}
+.gc-habit-mini b{font-weight:600}.gc-habit-mini span{color:#9c805f}
+.gc-progress{grid-column:1/-1;height:10px;border-radius:100px;background:#ebdfc9;overflow:hidden}
+.gc-progress i{display:block;height:100%;border-radius:100px;background:linear-gradient(90deg,#a1d35c,#60b848)}
+.gc-muted{font-size:12px;color:#99846a;line-height:1.7}
+.gc-companion{display:flex;align-items:center;gap:10px;padding:4px 12px 8px;min-height:97px}
+.gc-companion-art{width:85px;height:92px;flex:none;display:flex;align-items:end;justify-content:center}
+.gc-buddy{width:100%;height:100%;object-fit:contain}
+.gc-companion p{flex:1;border-radius:28px;padding:12px;background:#fff9ed;border:2px solid white;text-align:center;color:#755338;font-size:13px;line-height:1.5}
+.gc-month-head,.gc-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.gc-month-head span{padding:4px 0 8px;text-align:center;color:#916c49;font-size:11px}
+.gc-month-grid{border-top:1px solid #edd9b9;border-left:1px solid #edd9b9}
+.gc-month-day,.gc-month-blank{min-width:0;min-height:51px;padding:4px 0 2px;border:0;
+ border-right:1px solid #edd9b9;border-bottom:1px solid #edd9b9;background:#fff9eb;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px}
+.gc-month-day b{font-size:14px}
+.gc-month-day.selected{background:#79c74b;color:#fff;box-shadow:inset 0 0 0 2px #a2e481}
+.gc-month-day.selected .gc-more{color:#fff}
+.gc-month-blank{background:#fff8e9a3}
+.gc-legend{display:flex;justify-content:space-around;flex-wrap:wrap;gap:5px;margin-top:11px}
+.gc-legend span{display:flex;align-items:center;gap:3px;color:#886d51;font-size:10px}
+.gc-legend i{font-style:normal;font-size:16px}
+.gc-legend-mood{color:#ef7794}.gc-legend-done{color:#eab035}.gc-legend-habit{color:#72c15a}.gc-legend-moment{color:#ec87a4}
+.gc-journal-card{position:relative;border-color:#fff8e7;background:linear-gradient(115deg,#fffaea,#fff0d7)}
+.gc-journal-card h2,.gc-challenge h2{font-size:16px!important}
+.gc-journal-card p{padding:8px 9px;margin:0 0 6px;background:#ffffffa8;border-radius:12px;font-size:13px;line-height:1.7;white-space:pre-wrap}
+.gc-journal-card small,.gc-challenge p{font-size:11px;color:#997b56}
+.gc-challenge>b{font-size:14px;color:#62462d}
+.gc-challenge .gc-progress{margin-top:10px}
+.gc-detail{max-height:70dvh;overflow:auto;padding:3px 3px 15px;color:#67472e;line-height:1.6}
+.gc-detail h1{margin:8px 0 16px;font-size:21px;color:#69452b}
+.gc-detail h2{font-size:15px!important;color:#7e5438;margin:0 0 6px!important}
+.gc-detail-date{text-align:center;color:#8b6c4f;font-weight:700}
+.gc-detail section{margin:10px 0;padding:11px 12px;background:#fff9e9;border:1px solid #ecd6b6;border-radius:17px}
+.gc-detail section p{margin:5px 0 9px;font-size:12px}
+.gc-detail ul{margin:7px 0 0;padding-left:18px;font-size:12px}
+.gc-detail-marks{display:flex;gap:8px;flex-wrap:wrap}
+.gc-detail-marks>span{padding:5px 8px;border-radius:15px;background:#fff6df;font-size:11px}
+.gc-handwriting{font-size:15px!important;white-space:pre-wrap}
+.gc-detail-habit{display:flex;align-items:center;justify-content:space-between;gap:7px;margin:7px 0;font-size:12px}
+.gc-detail-habit button{white-space:nowrap}
+.gc-detail input,.gc-detail textarea{display:block;margin:8px 0 12px;width:100%;background:white;border:1px solid #dfbc8e;border-radius:12px;padding:10px;color:#62452f;font:inherit;font-size:15px}
+.gc-detail>button{background:linear-gradient(#dcf4bc,#a9df77);border-color:#8dc65d;font-size:14px}
+#gc-growth-error{color:#bb5939}
+@media(max-width:359px){
+ body[data-mode=child] .up-main[data-route=plan] .gc-page{padding-inline:8px}
+ .gc-top-row h1{width:135px;height:56px;font-size:17px!important}
+ .gc-switch button{padding-inline:6px}
+ .gc-week-head,.gc-week-row{grid-template-columns:38px repeat(7,minmax(0,1fr))}
+ .gc-week-cell{padding-inline:1px}
+ .gc-tile{padding:4px 1px}.gc-tile b{font-size:9px!important}
+ .gc-month-day{min-height:47px}
+}
+
+/* Member filters remain a lightweight aid, not an access-control boundary. */
+.gc-family{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 15px}
+.gc-family button{min-width:0;background:#fff9ed;border:2px solid #fff;border-radius:22px;padding:8px 2px;
+ font-size:12px;color:#845a37;box-shadow:0 2px 0 #e2c79b;font-weight:600}
+.gc-family button[aria-pressed=true]{background:linear-gradient(#93db60,#4abc39);color:#fff}
+.gc-page .gc-section-title h2{margin-bottom:0!important}
+
+.gc-tile-icon img{display:block;width:24px;height:24px;object-fit:contain}

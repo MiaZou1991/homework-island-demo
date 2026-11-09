@@ -23,6 +23,7 @@ jobs:
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
+          node checks/growth-calendar.cjs
       - name: Install fonts for mobile rendering
         run: |
           sudo apt-get update -qq
