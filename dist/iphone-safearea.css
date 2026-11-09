@@ -66,61 +66,43 @@ body[data-mode=child] .island-dialog .up-dialog-body{
   body[data-mode=child] .tf-today .tf-hero{min-height:130px}
 }
 
-/* 2026-11-09 · iPhone Safari / Dynamic Island follow-up.
-   A Safari tab owns the system status bar: match its tint to the sea-sky;
-   standalone PWA uses the real top inset for controls and full-bleed art. */
+/* iPhone Safari · natural continuous island background (no three-layer sky).
+   Unlike the old cover/bottom rule, show the WHOLE illustration from the top.
+   Safari's system status bar is outside web content: its tint matches the
+   first row of the painted sky, not a separate artificial overlay. */
 html:has(body[data-mode="child"]){
-  background-color:#53c9f0;
+  background-color:#2ab3f4;
   color-scheme:light;
 }
 body[data-mode="child"]{
   --island-safe-top:env(safe-area-inset-top,0px);
   --island-safe-bottom:env(safe-area-inset-bottom,0px);
-  background-color:#53c9f0;
   overscroll-behavior-y:contain;
 }
-body[data-mode="child"]:has(.up-main[data-route="today"]){
-  background-color:#53c9f0;
-}
-/* The old fixed blue mask caused the conspicuous horizontal seam above
-   the island image. No separate solid-colour cover may obscure the artwork. */
 body[data-mode="child"]::before{
   content:none!important;
   display:none!important;
 }
-/* Safari tab chrome is system-painted. Blend its sky-coloured edge into the
-   island's EXISTING full-height background instead of splicing a new strip. */
+body[data-mode="child"]:has(.up-main[data-route="today"]){
+  background-color:#2ab3f4;
+}
 @media (max-width:450px){
-  html:has(body[data-mode="child"] .up-main[data-route="today"]){
-    background:#74c6eb url("assets/hd/today-island-reference-v1.webp") center top / cover no-repeat;
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone{
+    /* One scenic layer. Prevent background-cover from cutting off the sky. */
+    background-color:#2ab3f4!important;
+    background-image:url("assets/hd/today-island-reference-v1.webp")!important;
+    background-size:100% 100%!important;
+    background-position:center top!important;
+    background-repeat:no-repeat!important;
   }
-  body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-today .tf-hero::before{
-    content:"";
-    position:absolute;
-    z-index:1;
-    top:0;left:0;right:0;
-    height:124px;
-    pointer-events:none;
-    background:linear-gradient(to bottom,
-       #74c6eb 0px,
-       #74c6eb 46px,
-       rgba(116,198,235,.67) 72px,
-       rgba(116,198,235,.18) 104px,
-       rgba(116,198,235,0) 124px);
-  }
-  /* Installed full-screen web app: its background can run under the notch.
-     Show the continuous original painting instead of the Safari tab blend. */
-  @media (display-mode:standalone){
-    body[data-mode="child"] .tf-today .tf-hero::before{
-      content:none;
-      display:none;
-    }
+  body[data-mode="child"] .tf-today .tf-hero::before,
+  body[data-mode="child"] .tf-today .tf-hero::after{
+    content:none!important;
+    display:none!important;
   }
 }
 body[data-mode="child"] .tf-today .tf-top{
   top:calc(2.8cqw + var(--island-safe-top));
-  left:max(5cqw,calc(env(safe-area-inset-left,0px) + 8px));
-  right:max(5cqw,calc(env(safe-area-inset-right,0px) + 8px));
 }
 body[data-mode="child"] .tf-today .tf-hero{
   min-height:calc(42cqw + var(--island-safe-top));
@@ -139,7 +121,7 @@ body[data-mode="child"]:has(.up-main[data-route="plan"]){
 body[data-mode="child"] .phone>.up-nav{
   padding-bottom:calc(12px + var(--island-safe-bottom));
 }
-@media (display-mode:standalone){
+@media(display-mode:standalone){
   body[data-mode="child"] .tf-today .tf-top{
     top:calc(var(--island-safe-top) + 12px);
   }
@@ -148,7 +130,7 @@ body[data-mode="child"] .phone>.up-nav{
     min-height:calc(var(--island-safe-top) + 12px);
   }
 }
-@media (orientation:landscape) and (max-height:500px){
+@media(orientation:landscape) and (max-height:500px){
   body[data-mode="child"] .tf-today .tf-hero{
     min-height:calc(130px + var(--island-safe-top));
   }
