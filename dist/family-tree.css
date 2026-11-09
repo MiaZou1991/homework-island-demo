@@ -90,3 +90,64 @@ dialog::backdrop{background:#3b534fa6;backdrop-filter:blur(3px)}
  .ft-paper{border-width:18px;border-image-width:18px}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+
+/* 2026-11-10: 两入口家庭树；木牌/奶油纸保留，减少绿色高饱和大面积铺色。 */
+.ft-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:6px;background:#ece5d4}
+.ft-tabs button{min-height:48px;font-size:16px;letter-spacing:.02em;font-weight:800}
+.ft-tabs button[aria-current="page"]{background:#fff9e9;color:#4b6c44;box-shadow:0 3px 9px #58493420}
+.ft-tabs button:not([aria-current="page"]){color:#7b6650}
+.ft-section-head{align-items:center}
+.ft-section-head p{max-width:350px;line-height:1.55}
+.ft-story-filters{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:10px 3px 17px}
+.ft-story-filters button{padding:7px 14px;border:1px solid #e3d6bf;border-radius:22px;background:#fffaf0;color:#7c6b55;font-size:12px;font-weight:650;min-height:38px}
+.ft-story-filters button[aria-pressed="true"]{background:#e5eddb;border-color:#b4c5a4;color:#42633a}
+.ft-write-button,.ft-primary,.ft-primary.ft-small{
+  background:#5d8151!important;color:#fffdf1!important;
+  border:2px solid #e4f0cf!important;text-shadow:none!important;
+  box-shadow:0 3px 0 #405c38,0 6px 12px #62765324;
+  font-weight:800;line-height:1.2;letter-spacing:.01em;
+}
+.ft-primary.ft-small{font-size:14px;padding:10px 15px;min-height:48px}
+.ft-primary:active{box-shadow:0 1px 0 #405c38;transform:translateY(2px)}
+.ft-story-item{transition:box-shadow .15s ease}
+.ft-story-item.is-note .ft-category{color:#946c4f;background:#f8e6ce}
+.ft-story-item.is-moment .ft-category{color:#507b56;background:#e1edd9}
+.ft-story-item .ft-paper-copy{font-size:15px}
+.ft-story-item .ft-replies{margin-top:15px}
+.ft-growth-summary{
+ position:absolute;z-index:3;right:13px;bottom:15px;width:min(190px,48%);
+ padding:12px 13px 11px;text-align:center;
+ border:1px solid #fdf0d7;border-radius:23px;
+ box-shadow:0 5px 16px #4d594338,0 1px 0 #ffffffb8 inset;
+ background:linear-gradient(150deg,#fffaf2f2,#f5e8d5eb);
+ backdrop-filter:blur(3px);
+}
+.ft-growth-caption{font-size:13px;font-weight:800;color:#785637}
+.ft-growth-count{display:flex;justify-content:center;align-items:baseline;gap:5px;margin:3px 0 1px;color:#a95e5d}
+.ft-growth-count strong{font-size:29px;line-height:1.15;font-weight:850;font-variant-numeric:tabular-nums}
+.ft-growth-count span{font-size:12px;color:#8c7861}
+.ft-growth-stage{display:inline-block;margin:4px 0 7px;padding:3px 11px;border-radius:20px;color:#4e714b;background:#e2e9d4;font-size:12px;font-weight:800}
+.ft-growth-progress{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:1px 3px}
+.ft-growth-progress span{height:7px;border-radius:10px;background:#e6ddc4;border:1px solid #d5caaa}
+.ft-hero[data-growth-stage="0"] .ft-growth-progress span:nth-child(1),
+.ft-hero[data-growth-stage="1"] .ft-growth-progress span:nth-child(-n+2),
+.ft-hero[data-growth-stage="2"] .ft-growth-progress span:nth-child(-n+3),
+.ft-hero[data-growth-stage="3"] .ft-growth-progress span{background:#93b67d;border-color:#74965f}
+.ft-growth-summary p{margin:8px 0 0;font-size:10px;line-height:1.45;color:#8a795e}
+#editorTypeWrap{display:grid;gap:8px}
+#editorTypeWrap select{height:45px;border:1px solid #cfbfa1;border-radius:13px;padding:8px;background:#fffdf5}
+.ft-hero-content{top:23px}
+.ft-hero-content p{font-size:12px}
+@media(max-width:410px){
+ .ft-hero-content{top:22px}
+ .ft-hero-plaque{width:165px;height:74px}
+ .ft-hero-plaque h1{font-size:27px}
+ .ft-hero-content p{display:none}
+ .ft-growth-summary{right:10px;bottom:10px;width:162px;padding:9px 10px}
+ .ft-growth-count strong{font-size:26px}
+ .ft-section-head{align-items:flex-start;gap:9px}
+ .ft-section-head h2{font-size:18px}
+ .ft-section-head p{font-size:11px}
+ .ft-primary.ft-small{font-size:13px;padding:8px 10px}
+}
