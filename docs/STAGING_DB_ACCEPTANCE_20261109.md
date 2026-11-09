@@ -83,3 +83,12 @@
 - [ ] V2 身份与客户端接入家庭正式产品；全量作业/完成/日程均不丢数据，不能只验证新增。
 - [ ] 客户端与服务端集中告警、真实数据备份恢复、两个 iPhone 实机测试。
 - [ ] 当前修复 PR 与最新主线仍有冲突，尚未完成整合与最终验收；**禁止上线**。
+
+## 真实匿名 JWT 验证的新增阻断记录（2026-11-09）
+
+- 用户在测试项目 `kaixin-island-staging` 控制台打开了 **Allow anonymous sign-ins**，但真实 GoTrue Auth 服务的 `GET /auth/v1/settings` 返回 `external.anonymous_users=false`、`disable_signup=false`。该字段已按 Supabase 实际 Auth 运行时 API 正确读取。
+- 连续两次使用官方 `signInAnonymously()` 所对应的 `POST /auth/v1/signup` 请求格式均返回 **HTTP 422**，没有创建测试身份。第二次请求已包含 `gotrue_meta_security.captcha_token`。四个测试用户的真实 JWT **没有生成**，不得将此前的模拟用户 UUID 当作真实登录结果。
+- 真实运行依据：[第一次 Auth CI #42644840922](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42644840922)、[第二次 Auth CI #42645104318](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42645104318)；[正确运行时设置查询 #42645297253](https://github.com/MiaZou1991/homework-island-demo/actions/runs/42645297253)。
+- 在用户确认控制台设置保存并刷新后仍保持开启之前，不再反复执行 Auth signup；必要时可以检查测试项目配置变更是否真正传播到 GoTrue 服务。**不会重启/暂停正式 Supabase 项目**。
+- 已建只读测试库诊断 Notebook：[开心岛 P0｜测试库同步诊断与安全验收](https://supabase.com/dashboard/project/tgnznizqhheiwgdhvwdc/explorer/notebook/cf231dc5-4f01-47dd-af46-a0bcdcce4407)。记录 QA 数据版本、公开 RPC 权限、API HTTP 状态聚合，不读取真实孩子的作业正文；Notebook 不是自动报警。
+- 此阻断不影响已完成的 PostgreSQL 和 staging SQL/CAS/RLS 测试，但 **JWT HTTP + Realtime WebSocket + 真机** 仍为 NOT RUN。
