@@ -140,9 +140,36 @@ function openKidNameEditor(d){modal(`<div class="up-eyebrow">家庭资料</div><
 function family(d){return `<div class="up-eyebrow">陪伴，也有自己的节奏</div><h1>${child?'我的资料':'我们的家庭'}</h1><div class="up-profile">${buddy(d)}<div><div class="up-profile-name"><h2>${e(d.kidName||'小岛主')}</h2>${button('编辑','profile','up-link','aria-label="编辑孩子姓名"')}</div><p>${e(d.kidMood||'一起把每一天，过成喜欢的样子。')}</p></div></div>${[['report','学习回顾','近期学习记录与日周月统计'],['reward','奖励与积分管理','自定义家庭奖励、兑现和加扣分'],['cloud','家庭云端数据',window.IslandSync?.getStatus?.()?.message||'同步状态尚未确认']].map(([a,n,s])=>`<button class="up-row" data-up="${a}"><span class="up-row-main"><b>${n}</b><small>${s}</small></span><span class="up-chevron">›</span></button>`).join('')}`;}
 function cloudPage(){
  const s=window.IslandSync?.getStatus?.()||{cloudRecord:'unknown',current:'unknown',message:'同步状态尚未确认'};
+ const diag=window.IslandSync?.getDiagnostics?.()||{events:[]};
  const record=s.cloudRecord==='yes'?'有有效记录':s.cloudRecord==='no'?'暂无记录':'尚未确认';
  const current=s.current==='synced'?'已同步到当前数据':s.current==='pending'?'本机改动待上传':'尚未确认';
- return `<div class="up-eyebrow">家庭空间</div><h1>家庭云端数据</h1><div class="up-project"><h2>${e(s.message)}</h2><p>“云端有记录”表示服务器存有家庭数据；只有当前数据核对或上传成功，才会显示“已同步到当前数据”。</p><dl class="up-data-stats"><dt>家庭空间</dt><dd>${e(window.IslandSync?.getCode?.()||'未设置')}</dd><dt>云端记录</dt><dd>${record}</dd><dt>当前数据</dt><dd>${current}</dd></dl></div>${button('重新检查同步','sync-now','up-secondary')}${button('导出家庭备份','export','up-secondary')}`;
+ const names={
+  sync_start:'启动同步',pending_queued:'本机改动进入待上传队列',pending_restored:'恢复未上传的本机改动',
+  rpc_started:'开始云端请求',rpc_succeeded:'云端请求成功',rpc_failed:'云端请求失败',
+  cloud_loaded:'已读取云端家庭版本',cloud_load_empty:'云端尚无记录',cloud_recheck_before_upload:'上传前重新检查云端',
+  pull_started:'开始拉取最新记录',pull_finished:'拉取结束',pull_failed:'拉取失败',pull_skipped:'暂缓拉取',
+  remote_applied:'本机已更新到云端数据',upload_started:'开始上传本机改动',upload_failed:'上传失败',
+  push_confirmed:'云端确认保存',pending_cleared:'清除待上传标记',upload_retry_scheduled:'已安排上传重试',
+  revision_checked:'云端版本检查完成',revision_check_failed:'云端版本检查失败',
+  connection_resume:'网络或页面状态恢复',sync_initialization_failed:'首次云端核对失败',
+  manual_retry:'手动发起重试',manual_retry_skipped:'已有同步任务运行中',
+  local_saved:'本机数据保存成功',local_save_failed:'本机数据保存失败',page_error:'页面脚本异常',
+  unhandled_rejection:'出现未处理的异步异常'
+ };
+ const entries=(diag.events||[]).slice(-15).reverse();
+ const logRows=entries.map(item=>{
+   const t=new Date(item.at).toLocaleTimeString('zh-CN',{hour12:false});
+   const details=[item.operation,item.httpStatus?'HTTP '+item.httpStatus:'',Number.isFinite(item.revision)?'v'+item.revision:'',item.reason||''].filter(Boolean).join(' · ');
+   return '<li class="up-sync-log"><time>'+e(t)+'</time><span>'+e(names[item.event]||item.event)+'</span><small>'+e(details)+'</small></li>';
+ }).join('');
+ return `<div class="up-eyebrow">家庭空间</div><h1>家庭云端数据</h1>
+ <div class="up-project"><h2>${e(s.message)}</h2><p>本机保存不代表云端已收到。只有云端写入确认或读取核对成功，才能显示“已同步到当前数据”。</p>
+ <dl class="up-data-stats"><dt>家庭空间</dt><dd>${e(window.IslandSync?.getCode?.()||'未设置')}</dd><dt>云端记录</dt><dd>${record}</dd><dt>当前数据</dt><dd>${current}</dd><dt>实时通知</dt><dd>${s.notifications==='connected'?'已连接':s.notifications==='disconnected'?'暂未连接':'尚未确认'}</dd></dl></div>
+ ${button('立即重试同步','sync-now','up-primary')}
+ <div class="up-project"><h2>最近同步日志</h2><p class="up-muted">仅记录操作时间、结果、错误类型及版本号；不记录作业内容、照片或密钥。最多保留最近 120 条。</p>
+ <ol class="up-sync-logs" style="max-height:360px;overflow:auto;padding-left:18px;font-size:13px;line-height:1.7">${logRows||'<li>尚无可用日志</li>'}</ol></div>
+ ${button('导出诊断日志','sync-export','up-secondary')}
+ ${button('导出家庭备份','export','up-secondary')}`;
 }
 function modal(content,cls=''){const previous=document.getElementById('up-dialog');const opener=previous?previous._opener:document.activeElement;previous?.close();previous?.remove();const d=document.createElement('dialog');d._opener=opener;d.id='up-dialog';d.className='up-dialog '+cls;d.innerHTML=`<div class="up-dialog-header">${button('关闭','close','up-close','aria-label="关闭弹层"')}</div><div class="up-dialog-body">${content}</div>`;if(child){d.classList.add('island-dialog');const title=d.querySelector('.up-dialog-body h1');if(title){title.id='island-dialog-title';title.classList.add('island-dialog-title');d.querySelector('.up-dialog-header').prepend(title);d.setAttribute('aria-labelledby',title.id);}d.querySelector('.up-close').textContent='×';const surface=document.createElement('div');surface.className='island-dialog-surface';while(d.firstChild)surface.append(d.firstChild);surface.append(surface.querySelector('.up-close'));d.append(surface);}document.body.append(d);d.showModal();d.addEventListener('click',ev=>{if(ev.target===d)d.close();});d.addEventListener('close',()=>{d.remove();if(!document.getElementById('up-dialog')&&opener?.isConnected)opener.focus();});return d;}
 function smallEventEditor(id=null){
@@ -234,7 +261,25 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if
  if(a==='class'){const c=d.classes.find(x=>x.id===id);if(c){modal(`<div class="up-eyebrow">课程与准备</div><h1>${e(c.name)}</h1><div id="up-course-content"></div>${!child?button('编辑课程','edit-class','up-secondary',`data-id="${attr(id)}"`):''}`);const it=dayItems(d).find(x=>x.kind==='class'&&x.id===id)||{cls:c,date:ui.date,checkin:classCheckin(d,id,ui.date),done:!!classCheckin(d,id,ui.date)?.done};document.getElementById('up-course-content').innerHTML=renderTlClass({...it,date:ui.date},mode);}return;}
  if(a==='event'){const v=d.events.find(x=>x.id===id);if(v){modal(`<div class="up-eyebrow">${v.owner==='child'?'自己安排的':'家长安排'}</div><h1>${e(v.title)}</h1><div id="up-event-content"></div>${(!child||v.owner==='child'?button('编辑日程','edit-event','up-secondary',`data-id="${attr(id)}"`):'')}`);document.getElementById('up-event-content').innerHTML=renderTlEvent({ev:v,date:ui.date,done:v.done},mode);}return;}
  if(a==='family-code'){window.openFamilyCodeDialog?.();return;}
-  if(a==='sync-now'){window.IslandSync?.pull?.().catch(()=>showToast('云端暂时不可用，请稍后重试'));return;}
+  if(a==='sync-now'){
+    window.IslandSync?.retryNow?.().then(status=>{
+      render();
+      showToast(status?.current==='synced'?'已和云端核对一致':status?.current==='pending'?'本机数据仍待上传，请查看下方日志':'核对完成，请查看同步状态');
+    }).catch(()=>{render();showToast('本次检查失败，本机记录仍保留，请导出诊断日志');});
+    return;
+  }
+  if(a==='sync-export'){
+    const diag=window.IslandSync?.getDiagnostics?.();
+    if(!diag){showToast('暂无可导出的诊断日志');return;}
+    const blob=new Blob([JSON.stringify(diag,null,2)],{type:'application/json'});
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(blob);
+    link.download='开心岛-同步诊断-'+new Date().toISOString().slice(0,10)+'.json';
+    document.body.append(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(link.href),2000);
+    showToast('诊断日志已导出，不包含作业内容或照片');
+    return;
+  }
  if(a==='save-kid-name'){const name=(document.getElementById('up-kid-name')?.value||'').trim();if(!name){showToast('请填写孩子姓名');return;}d.kidName=name.slice(0,12);saveData(d);document.getElementById('up-dialog')?.close();after();showToast('孩子姓名已更新');return;}if(['publish','ocr','edit-task','delete-task','edit-class','edit-event','profile'].includes(a)){document.getElementById('up-dialog')?.close();if(a==='publish'||a==='ocr')openPublishSheet(a==='ocr'?'ocr':'manual');if(a==='edit-task')openHomeworkEditor(id);if(a==='delete-task')deleteHomework(id);if(a==='edit-class')openClassEditor(id);if(a==='edit-event')openEventEditor(id);if(a==='profile'){if(child)openMeEditor();else openKidNameEditor(d);return;}return;}
   if(a==='add-class-event'){modal(`<div class="up-eyebrow">安排生活与学习</div><h1>添加课程或日程</h1><p class="up-muted">每周重复的课程和临时安排，都会出现在孩子的计划里。</p>${button('＋ 每周固定课程','new-class','up-primary')}${button('＋ 一次性日程','new-event','up-secondary')}`);return;}
   if(a==='add-menu'){if(child){openEventEditor(null);$('ev-datetime').value=ui.date+'T17:30';}else modal(`<h1>想安排什么？</h1>${button('发布作业','publish','up-primary')}${button('每周固定课程','new-class','up-secondary')}${button('一次性自由日程','new-event','up-secondary')}${button('截图或文字录入','ocr','up-link')}`);return;}
