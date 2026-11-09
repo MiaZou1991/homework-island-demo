@@ -23,6 +23,16 @@ jobs:
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
+      - name: Install Playwright for smoke and mobile QA
+        run: npm install --no-save --no-package-lock playwright
+      - name: Build optimized images and approved UI WOFF2 fonts without publishing
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow 'fonttools[woff]'
+          python3 .github/optimize_artwork.py
+      - name: Cold child page performance smoke (optimized artifact)
+        run: |
+          python3 -m http.server 8190 --bind 127.0.0.1 --directory build/pages >/tmp/kaixin-pages-perf-server.log 2>&1 &
+          node checks/loading-performance.cjs
       - name: Install fonts for mobile rendering
         run: |
           sudo apt-get update -qq
@@ -30,7 +40,6 @@ jobs:
           fc-cache -f
       - name: Mobile family calendar QA (320 / 375 / 390 / 430)
         run: |
-          npm install --no-save --no-package-lock playwright
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
           node checks/companions-mobile.cjs
@@ -42,7 +51,3 @@ jobs:
           path: /tmp/companions-gallery-*.png
           if-no-files-found: ignore
           retention-days: 3
-      - name: Build optimized WebP assets without publishing
-        run: |
-          python3 -m pip install --disable-pip-version-check Pillow
-          python3 .github/optimize_artwork.py

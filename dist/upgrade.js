@@ -1,6 +1,8 @@
 /* Presentation and growth layer on the exported application's real domain functions. */
 (()=>{
 const mode=document.body.dataset.mode,child=mode==='child';
+// Set before DOMContentLoaded so app.js can skip building the hidden legacy UI.
+window.__ISLAND_UPGRADE_LOADED__=true;
 const calendarPreview=child&&new URLSearchParams(location.search).get('view')==='calendar';
 const ui={route:calendarPreview?'plan':'today',date:todayStr(),range:child?(calendarPreview&&new URLSearchParams(location.search).get('calendarView')==='month'?'month':'day'):'week',planType:'all',familyMember:'all',project:'garden',roomEdit:false,selectedItem:'shell',remove:false,active:null,showDone:false,legacy:null};
 const projects=[{id:'garden',name:'小岛花园',cost:20,desc:'在家门前种一片花，留一张可以歇脚的长椅。'},{id:'dock',name:'海边码头',cost:30,desc:'顺着石板路走到海边，给小船留一个停靠的地方。'},{id:'library',name:'森林书屋',cost:40,desc:'在树林里，建一间属于所有伙伴的阅读小屋。'}];
@@ -198,12 +200,12 @@ function legacy(view,keepStack=false){
  const backName={today:'今天',plan:child?'计划':'安排',island:'我们的岛',family:'家庭',reward:'奖励与积分管理',review:'确认完成',classes:'固定课表'}[origin]||'上一页';
  const up=document.createElement('div');up.className='up-legacy-back';up.append(Object.assign(document.createElement('button'),{textContent:'‹ 返回'+backName,onclick:()=>ui.legacyStack?.length?legacy(ui.legacyStack.pop(),true):navigate(ui.route)}));target?.prepend(up);paintChrome();window.scrollTo({top:0,behavior:'instant'});
 }
-function paintChrome(){if(!ready)return;let d=data(),route=ui.route;header.querySelector('.up-header-points').textContent=(ISLAND_PREVIEW?'预览 · ':'')+d.points+' 积分';nav.innerHTML=(child?[['today','今日任务','clipboard'],['plan','小岛日程','calendar'],['island','我们的岛','house']]:[['today','今天','clipboard'],['plan','安排','backpack'],['family','家庭','house']]).map(([r,n,im])=>button((child?`<span class="tf-tab-art tf-library-tab" style="--tf-cell:${im==='clipboard'?1:im==='calendar'?2:0}" aria-hidden="true"></span>`:image(im))+`<span>${n}</span>`,r,(child?'up-nav-item tf-image-tab tf-nav-'+r:'up-nav-item'),`aria-label="${n}" aria-current="${r===route||r==='today'&&route==='journal'||r==='island'&&['mates','room'].includes(route)?'page':'false'}"`)).join('');}
+function paintChrome(d=data()){if(!ready)return;let route=ui.route;header.querySelector('.up-header-points').textContent=(ISLAND_PREVIEW?'预览 · ':'')+d.points+' 积分';nav.innerHTML=(child?[['today','今日任务','clipboard'],['plan','小岛日程','calendar'],['island','我们的岛','house']]:[['today','今天','clipboard'],['plan','安排','backpack'],['family','家庭','house']]).map(([r,n,im])=>button((child?`<span class="tf-tab-art tf-library-tab" style="--tf-cell:${im==='clipboard'?1:im==='calendar'?2:0}" aria-hidden="true"></span>`:image(im))+`<span>${n}</span>`,r,(child?'up-nav-item tf-image-tab tf-nav-'+r:'up-nav-item'),`aria-label="${n}" aria-current="${r===route||r==='today'&&route==='journal'||r==='island'&&['mates','room'].includes(route)?'page':'false'}"`)).join('');}
 function topRoutes(){return child?['today','plan','island']:['today','plan','family'];}
 function backLink(){const route=ui.subpageOrigin||(child?'island':'family'),name={today:'今天',plan:child?'计划':'安排',island:'我们的岛',family:'家庭'}[route]||'上一页';return button('‹ 返回'+name,'back','up-page-back',`aria-label="返回${name}"`);}
-function render(){if(!ready)return;const d=data();if(!DemoCore.homeworkProgress(d).complete)ui.roomEdit=false;paintChrome();if(ui.legacy)return;document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));root.classList.add('on');const pages={today,plan,recurring,island,mates,room,family,journal,report,cloud:cloudPage};root.dataset.route=ui.route;root.innerHTML=(topRoutes().includes(ui.route)?'':backLink())+(pages[ui.route]||today)(d);}
+function render(){if(!ready)return;const d=data();if(!DemoCore.homeworkProgress(d).complete)ui.roomEdit=false;paintChrome(d);if(ui.legacy)return;document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));root.classList.add('on');const pages={today,plan,recurring,island,mates,room,family,journal,report,cloud:cloudPage};root.dataset.route=ui.route;root.innerHTML=(topRoutes().includes(ui.route)?'':backLink())+(pages[ui.route]||today)(d);}
 function navigate(route){document.getElementById('up-dialog')?.close();if(topRoutes().includes(route))ui.subpageOrigin=null;else if(topRoutes().includes(ui.route))ui.subpageOrigin=ui.route;ui.legacy=null;ui.legacyStack=[];ui.route=route;if(route==='today')ui.date=todayStr();render();window.scrollTo({top:0,behavior:'instant'});}
-function after(){if(!ready)return;try{child?renderChild():renderParent();}catch(err){console.warn(err);}if(ui.legacy){const old=ui.legacy;document.querySelectorAll('.up-legacy-back').forEach(x=>x.remove());legacy(old,true);}else render();}
+function after(){if(!ready)return;try{if(!child)renderParent();}catch(err){console.warn(err);}if(ui.legacy){const old=ui.legacy;document.querySelectorAll('.up-legacy-back').forEach(x=>x.remove());legacy(old,true);}else render();}
 // Keep exported editing and reporting functions, replacing only settlement and navigation.
 completeHomework=function(id){const d=data(),h=d.homework.find(x=>x.id===id);if(!h||h.done)return;if(child&&h.requireReview){if(!h.pendingApproval){h.pendingApproval=true;saveData(d);}after();taskDetail(id);return;}const wasPending=h.pendingApproval;const r=DemoCore.finish(d,id);if(!child&&wasPending)h.rewardUnseen=true;saveData(d);after();showReceipt(r,h);};
 undoHomework=function(id){const d=data();if(DemoCore.undo(d,id)){saveData(d);after();showToast('已撤销完成，原来的成长记录仍会保留。');}};
@@ -220,7 +222,10 @@ window.openMatePicker=function(event){event?.stopPropagation();if(ready)matePick
 gotoChildView=function(view){if(!ready)return;if(view==='home')navigate('today');else if(view==='calendar')navigate('plan');else if(view==='mates')navigate('mates');else if(view==='report')navigate('report');else legacy(view);};
 gotoParentView=function(view){if(!ready)return;if(view==='home')navigate('today');else if(view==='settings')navigate('family');else if(view==='classes')legacy('classes');else if(view==='report')navigate('report');else legacy(view);};
 window.addEventListener('storage',ev=>{if(ev.key===DEMO_KEY){generateRecurringTasks();after();}});
-document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if(!b)return;const a=b.dataset.up,id=b.dataset.id;const d=data();
+document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if(!b)return;const a=b.dataset.up,id=b.dataset.id;
+ // Navigating and closing dialogs must not synchronously parse an attachment-heavy family snapshot twice.
+
+ const d=data();
  if(a==='family-filter'){ui.familyMember=b.dataset.member;render();return;}
  if(a==='small-event-edit'){smallEventEditor(id);return;}
  if(a==='small-event-delete'){confirmSmallEvent(id);return;}
@@ -291,6 +296,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if
 });
 document.addEventListener('input',ev=>{if(ev.target.id==='up-journal-text'){ui.journalDraft.text=ev.target.value;document.getElementById('up-journal-count').textContent=ev.target.value.length;document.getElementById('up-journal-error').textContent='';}});
 window.addEventListener('island-sync-state',()=>{if(!ready)return;if(ui.route==='cloud'&&!ui.legacy)render();if(ui.legacy==='settings'&&!child)renderParentSettings(data());});
+window.addEventListener('island-family-data-updated',()=>{if(!ready)return;if(ui.legacy)legacy(ui.legacy,true);else render();});
 document.addEventListener('change',ev=>{if(ev.target.id==='up-review-toggle'){const d=data(),h=d.homework.find(x=>x.id===ev.target.dataset.id);if(h){h.requireReview=ev.target.checked;saveData(d);}}});
 document.addEventListener('DOMContentLoaded',()=>{
 document.querySelector('.topbar').hidden=true;document.querySelector('.sky')?.remove();const phone=document.querySelector('.phone');header=document.createElement('header');header.className='up-chrome';header.innerHTML=`<a class="up-brand" href="index.html"><img src="assets/brand/kaixin-logo-final.webp" alt="开心岛"></a><span class="up-header-points"></span><a class="up-mode-switch" href="${child?'parent':'child'}.html?v=20261019r" aria-label="切换到${child?'家长':'孩子'}端">${child?'家长端':'孩子端'} ↗</a>`;phone.prepend(header);
