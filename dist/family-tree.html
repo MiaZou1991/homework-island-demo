@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e9ebd4">
+  <title>家庭树 · 开心岛</title>
+  <link rel="stylesheet" href="family-tree.css?v=20261110-v1">
+</head>
+<body>
+<main class="ft-app">
+  <header class="ft-hero" aria-label="家庭树花园">
+    <div class="ft-hero-picture" aria-hidden="true"></div>
+    <div class="ft-hero-content">
+      <div class="ft-hero-plaque"><h1>家庭树</h1></div>
+      <p>把我们一起经历的小事，慢慢长成家的回忆。</p>
+    </div>
+    <a class="ft-back" href="our-island.html" id="backIsland">‹ 回到小岛</a>
+  </header>
+
+  <section class="ft-content" aria-label="家庭树互动">
+    <div id="previewNotice" class="ft-preview" role="status" hidden>现在是独立体验模式，内容仅保存在本设备测试空间，不会写入家庭正式记录。</div>
+    <div class="ft-person-bar">
+      <label for="activeMember">此刻是谁在树下？</label>
+      <select id="activeMember" aria-label="体验成员身份">
+        <option value="kid">开心</option>
+        <option value="mom">妈妈</option>
+        <option value="dad">爸爸</option>
+      </select>
+      <span class="ft-person-note">选择家人仅用于功能演示，不等同于身份验证。</span>
+    </div>
+    <nav class="ft-tabs" aria-label="家庭树栏目">
+      <button type="button" data-section="moments" aria-current="page">成长回忆</button>
+      <button type="button" data-section="notes">家庭便签</button>
+      <button type="button" data-section="hearts">送爱心</button>
+    </nav>
+    <div id="feedback" class="ft-feedback" role="status" aria-live="polite"></div>
+
+    <section class="ft-page" data-page="moments" aria-labelledby="momentsTitle">
+      <div class="ft-section-head">
+        <div><h2 id="momentsTitle">成长回忆</h2><p>每一步长大，都值得记下来。</p></div>
+        <button type="button" class="ft-primary ft-small" data-open="moment">＋ 留下回忆</button>
+      </div>
+      <div id="momentsList" class="ft-hanging-list" aria-live="polite"></div>
+    </section>
+    <section class="ft-page" data-page="notes" aria-labelledby="notesTitle" hidden>
+      <div class="ft-section-head">
+        <div><h2 id="notesTitle">家庭便签</h2><p>写给全家看的话，大家都能回复。</p></div>
+        <button type="button" class="ft-primary ft-small" data-open="note">✎ 写给全家</button>
+      </div>
+      <div id="notesList" class="ft-notes-list" aria-live="polite"></div>
+    </section>
+    <section class="ft-page" data-page="hearts" aria-labelledby="heartsTitle" hidden>
+      <div class="ft-section-head"><div><h2 id="heartsTitle">送一份爱心</h2><p>把想说的悄悄话送给最亲近的人。</p></div></div>
+      <div class="ft-heart-compose">
+        <div class="ft-envelope" aria-hidden="true">♡</div>
+        <form id="heartForm">
+          <label for="heartTo">送给谁</label>
+          <select id="heartTo" required></select>
+          <label for="heartText">想说的话</label>
+          <textarea id="heartText" rows="3" maxlength="120" required placeholder="谢谢你今天陪我一起散步……"></textarea>
+          <p class="ft-privacy">只有发送者和收信人能够看到这封爱心。正式同步需通过独立的身份权限验收。</p>
+          <button type="submit" class="ft-coral">♡ 送出爱心</button>
+        </form>
+      </div>
+      <div class="ft-heart-tabs" role="group" aria-label="爱心信箱">
+        <button type="button" data-heart-view="received" aria-pressed="true">收到的爱心</button>
+        <button type="button" data-heart-view="sent" aria-pressed="false">送出的爱心</button>
+      </div>
+      <div id="heartsList" class="ft-hearts-list" aria-live="polite"></div>
+    </section>
+  </section>
+  <dialog id="editor" aria-labelledby="editorTitle">
+    <form id="editorForm" class="ft-editor">
+      <h2 id="editorTitle">写给家庭树</h2>
+      <div id="editorExtra"></div>
+      <label for="editorText">想说的话</label>
+      <textarea id="editorText" maxlength="300" rows="5" required></textarea>
+      <div class="ft-actions">
+        <button type="button" class="ft-secondary" id="cancelEditor">返回</button>
+        <button type="submit" class="ft-primary" id="saveEditor">挂到树上</button>
+      </div>
+    </form>
+  </dialog>
+</main>
+<script src="family-tree-model.js?v=20261110-v1"></script>
+<script src="family-tree.js?v=20261110-v1"></script>
+</body>
+</html>
