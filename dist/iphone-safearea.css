@@ -91,10 +91,10 @@ body[data-mode="child"]:has(.up-main[data-route="today"]){
     /* Single scenery: original island geometry and continuous upper sky/lower beach.
        No full-height stretching or artificial tint gradient. */
     background-color:#fae5b3!important;
-    background-image:url("assets/hd/today-island-continuous-v2.svg"),url("assets/hd/today-island-reference-v1.webp")!important;
-    background-size:100% auto,100% auto!important;
-    background-position:center top,center top!important;
-    background-repeat:no-repeat,no-repeat!important;
+    background-image:url("assets/hd/today-island-reference-v1.webp")!important;
+    background-size:100% auto!important;
+    background-position:center top!important;
+    background-repeat:no-repeat!important;
   }
   body[data-mode="child"] .tf-today .tf-hero::before,
   body[data-mode="child"] .tf-today .tf-hero::after{
@@ -161,7 +161,7 @@ body[data-mode="child"] .phone>.up-nav{
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone{
     /* Width-anchored scenery: does not move when Safari changes viewport height. */
     background-color:#fae5b3!important;
-    background-size:100% auto,100% auto!important;
+    background-size:100% auto!important;
     background-position:center top,center top!important;
     background-repeat:no-repeat,no-repeat!important;
   }
