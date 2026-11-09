@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#e9ebd4">
+  <meta name="theme-color" content="#f1eddc">
   <title>家庭树 · 开心岛</title>
-  <link rel="stylesheet" href="family-tree.css?v=20261110-v1">
+  <link rel="stylesheet" href="family-tree.css?v=20261110-family-records-v2">
 </head>
 <body>
 <main class="ft-app">
@@ -13,45 +13,50 @@
     <div class="ft-hero-picture" aria-hidden="true"></div>
     <div class="ft-hero-content">
       <div class="ft-hero-plaque"><h1>家庭树</h1></div>
-      <p>把我们一起经历的小事，慢慢长成家的回忆。</p>
+      <p>把一起经历的日子，慢慢留在树下。</p>
     </div>
     <a class="ft-back" href="our-island.html" id="backIsland">‹ 回到小岛</a>
+    <aside class="ft-growth-summary" aria-label="小树成长状态">
+      <div class="ft-growth-caption">♡ 我们的小树</div>
+      <div class="ft-growth-count"><strong id="treeHeartCount">0</strong><span>份爱心</span></div>
+      <div class="ft-growth-stage" id="treeStage">小树萌芽</div>
+      <div class="ft-growth-progress" id="treeGrowthProgress" role="progressbar" aria-label="小树成长进度" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <p id="treeNext">送出一份爱心，让小树成长</p>
+    </aside>
   </header>
 
-  <section class="ft-content" aria-label="家庭树互动">
-    <div id="previewNotice" class="ft-preview" role="status" hidden>现在是独立体验模式，内容仅保存在本设备测试空间，不会写入家庭正式记录。</div>
+  <section class="ft-content" aria-label="家庭记录与爱心">
+    <div id="previewNotice" class="ft-preview" role="status" hidden>当前是独立体验版：内容仅保存在本设备的测试空间，不会修改家庭正式记录。成员切换仅为功能演示，不等同于身份验证。</div>
     <div class="ft-person-bar">
       <label for="activeMember">此刻是谁在树下？</label>
       <select id="activeMember" aria-label="体验成员身份">
-        <option value="kid">开心</option>
-        <option value="mom">妈妈</option>
-        <option value="dad">爸爸</option>
+        <option value="kid">开心</option><option value="mom">妈妈</option><option value="dad">爸爸</option>
       </select>
-      <span class="ft-person-note">选择家人仅用于功能演示，不等同于身份验证。</span>
     </div>
+
     <nav class="ft-tabs" aria-label="家庭树栏目">
-      <button type="button" data-section="moments" aria-current="page">成长回忆</button>
-      <button type="button" data-section="notes">家庭便签</button>
-      <button type="button" data-section="hearts">送爱心</button>
+      <button type="button" data-section="stories" aria-current="page">家庭记录</button>
+      <button type="button" data-section="hearts" aria-current="false">送爱心</button>
     </nav>
     <div id="feedback" class="ft-feedback" role="status" aria-live="polite"></div>
 
-    <section class="ft-page" data-page="moments" aria-labelledby="momentsTitle">
+    <section class="ft-page" data-page="stories" aria-labelledby="storiesTitle">
       <div class="ft-section-head">
-        <div><h2 id="momentsTitle">成长回忆</h2><p>每一步长大，都值得记下来。</p></div>
-        <button type="button" class="ft-primary ft-small" data-open="moment">＋ 留下回忆</button>
+        <div><h2 id="storiesTitle">家庭记录</h2><p>成长回忆、家人便签与温暖回复，都留在这里。</p></div>
+        <button type="button" class="ft-primary ft-small ft-write-button" data-open="story">＋ 写一条记录</button>
       </div>
-      <div id="momentsList" class="ft-hanging-list" aria-live="polite"></div>
-    </section>
-    <section class="ft-page" data-page="notes" aria-labelledby="notesTitle" hidden>
-      <div class="ft-section-head">
-        <div><h2 id="notesTitle">家庭便签</h2><p>写给全家看的话，大家都能回复。</p></div>
-        <button type="button" class="ft-primary ft-small" data-open="note">✎ 写给全家</button>
+      <div class="ft-story-filters" role="group" aria-label="筛选家庭记录">
+        <button type="button" data-filter="all" aria-pressed="true">全部</button>
+        <button type="button" data-filter="moment" aria-pressed="false">成长回忆</button>
+        <button type="button" data-filter="note" aria-pressed="false">家庭便签</button>
       </div>
-      <div id="notesList" class="ft-notes-list" aria-live="polite"></div>
+      <div id="storiesList" class="ft-hanging-list" aria-live="polite"></div>
     </section>
+
     <section class="ft-page" data-page="hearts" aria-labelledby="heartsTitle" hidden>
-      <div class="ft-section-head"><div><h2 id="heartsTitle">送一份爱心</h2><p>把想说的悄悄话送给最亲近的人。</p></div></div>
+      <div class="ft-section-head"><div><h2 id="heartsTitle">送一份爱心</h2><p>每份爱心都会让家庭树长大一点。</p></div></div>
       <div class="ft-heart-compose">
         <div class="ft-envelope" aria-hidden="true">♡</div>
         <form id="heartForm">
@@ -59,7 +64,7 @@
           <select id="heartTo" required></select>
           <label for="heartText">想说的话</label>
           <textarea id="heartText" rows="3" maxlength="120" required placeholder="谢谢你今天陪我一起散步……"></textarea>
-          <p class="ft-privacy">只有发送者和收信人能够看到这封爱心。正式同步需通过独立的身份权限验收。</p>
+          <p class="ft-privacy">爱心内容只应由发送者和收信人查看。正式上线前需完成独立的成员权限验收。</p>
           <button type="submit" class="ft-coral">♡ 送出爱心</button>
         </form>
       </div>
@@ -70,20 +75,28 @@
       <div id="heartsList" class="ft-hearts-list" aria-live="polite"></div>
     </section>
   </section>
+
   <dialog id="editor" aria-labelledby="editorTitle">
     <form id="editorForm" class="ft-editor">
-      <h2 id="editorTitle">写给家庭树</h2>
+      <h2 id="editorTitle">写一条家庭记录</h2>
+      <div id="editorTypeWrap">
+        <label for="editorKind">记录类型</label>
+        <select id="editorKind" name="kind">
+          <option value="moment">成长回忆</option>
+          <option value="note">家庭便签</option>
+        </select>
+      </div>
       <div id="editorExtra"></div>
-      <label for="editorText">想说的话</label>
+      <label for="editorText">想记录的话</label>
       <textarea id="editorText" maxlength="300" rows="5" required></textarea>
       <div class="ft-actions">
         <button type="button" class="ft-secondary" id="cancelEditor">返回</button>
-        <button type="submit" class="ft-primary" id="saveEditor">挂到树上</button>
+        <button type="submit" class="ft-primary" id="saveEditor">保存记录</button>
       </div>
     </form>
   </dialog>
 </main>
-<script src="family-tree-model.js?v=20261110-v1"></script>
-<script src="family-tree.js?v=20261110-v1"></script>
+<script src="family-tree-model.js?v=20261110-family-records-v2"></script>
+<script src="family-tree.js?v=20261110-family-records-v2"></script>
 </body>
 </html>
