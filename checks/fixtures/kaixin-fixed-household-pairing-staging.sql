@@ -98,7 +98,7 @@ BEGIN
   SET redeemed_by=auth.uid(),redeemed_at=now()
   WHERE family_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'::uuid
     AND token_hash=extensions.digest(p_token,'sha256')
-    AND redeemed_at IS NULL AND expires_at>now()
+    AND redeemed_at IS NULL AND revoked_at IS NULL AND expires_at>now()
   RETURNING id INTO v_invite;
   IF v_invite IS NULL THEN RETURN jsonb_build_object('ok',false,'error','invalid_invite'); END IF;
 
