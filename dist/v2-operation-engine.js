@@ -131,7 +131,56 @@
     }
     return { outcome: 'ready', payload: state, applied };
   }
-  const api = Object.freeze({ entities: ENTITIES, make, apply, applyBatch });
+  function planTransition(beforePayload, afterPayload, operationIdFactory) {
+    if (!beforePayload || !afterPayload || Array.isArray(beforePayload) || Array.isArray(afterPayload)
+      || typeof beforePayload !== 'object' || typeof afterPayload !== 'object'
+      || typeof operationIdFactory !== 'function') throw invalid('invalid_transition');
+    const operations = [];
+    const unsupported = [];
+    const rootKeys = new Set([...Object.keys(beforePayload), ...Object.keys(afterPayload)]);
+    for (const key of rootKeys) {
+      if (!ENTITIES.includes(key) && !same(beforePayload[key], afterPayload[key])) unsupported.push(key);
+    }
+    for (const entity of ENTITIES) {
+      const previous = beforePayload[entity], next = afterPayload[entity];
+      if ((previous !== undefined && !Array.isArray(previous))
+        || (next !== undefined && !Array.isArray(next))) throw invalid('invalid_entity_array');
+      if (Array.isArray(previous) && next === undefined) {
+        unsupported.push('schema_removed:' + entity);
+        continue;
+      }
+      const left = previous || [], right = next || [];
+      const byId = list => {
+        const map = new Map();
+        for (const item of list) {
+          if (!record(item)) throw invalid('missing_stable_record_id');
+          if (map.has(item.id)) throw invalid('duplicate_record_id');
+          map.set(item.id, item);
+        }
+        return map;
+      };
+      const oldMap = byId(left), newMap = byId(right);
+      const oldCommon = left.map(x => x.id).filter(id => newMap.has(id));
+      const newCommon = right.map(x => x.id).filter(id => oldMap.has(id));
+      if (!same(oldCommon, newCommon)) unsupported.push('order_changed:' + entity);
+      // The operation queue is a projection only; no network or local state is mutated.
+      for (const [id, prior] of oldMap) {
+        const future = newMap.get(id) || null;
+        if (!future || !same(prior, future)) {
+          operations.push(make({entity,before:prior,after:future,operationId:operationIdFactory()}));
+        }
+      }
+      for (const [id, future] of newMap) {
+        if (!oldMap.has(id)) {
+          operations.push(make({entity,before:null,after:future,operationId:operationIdFactory()}));
+        }
+      }
+    }
+    const ids = operations.map(op => op.operationId);
+    if (new Set(ids).size !== ids.length) throw invalid('duplicate_operation_id');
+    return { safe: unsupported.length === 0, operations, unsupportedTopLevelKeys: unsupported };
+  }
+  const api = Object.freeze({ entities: ENTITIES, make, apply, applyBatch, planTransition });
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.KaixinV2Operations = api;
 })();
