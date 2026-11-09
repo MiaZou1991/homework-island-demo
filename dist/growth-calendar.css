@@ -127,3 +127,5 @@ body[data-mode=child] .up-main[data-route=plan] .gc-page{
  font-size:12px;color:#845a37;box-shadow:0 2px 0 #e2c79b;font-weight:600}
 .gc-family button[aria-pressed=true]{background:linear-gradient(#93db60,#4abc39);color:#fff}
 .gc-page .gc-section-title h2{margin-bottom:0!important}
+
+.gc-tile-icon img{display:block;width:24px;height:24px;object-fit:contain}
