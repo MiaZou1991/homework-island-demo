@@ -85,6 +85,13 @@ async function checkMembership() {
   if (result.stderr) process.stderr.write(result.stderr);
   if (result.error || result.status !== 0) throw new Error('real_jwt_contract_failed');
   console.log('PASS REAL SUPABASE JWT+RPC+CAS+RLS INTEGRATION - STAGING ONLY');
+  const ws=spawnSync(process.execPath,['checks/staging-realtime-ws.cjs'],{
+    env,encoding:'utf8',timeout:100000,maxBuffer:150000
+  });
+  if(ws.stdout)process.stdout.write(ws.stdout);
+  if(ws.stderr)process.stderr.write(ws.stderr);
+  if(ws.error||ws.status!==0)throw new Error('real_staging_websocket_validation_failed');
+  console.log('PASS REAL SUPABASE WEBSOCKET + MEMBERSHIP REVISIONS - STAGING ONLY');
 })().catch(error => {
   console.error('QA_FAILURE ' + String(error?.message || 'unknown').replace(/[^a-zA-Z0-9_-]/g,'').slice(0,120));
   process.exitCode = 1;
