@@ -1,13 +1,14 @@
-// Browser-level durable V2 outbox test. Local http.server and Chrome only; no Supabase traffic.
-const { chromium }=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+// Browser-level durable V2 outbox test, Chromium or WebKit. Local HTTP only; no Supabase traffic.
+const { chromium,webkit }=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const assert=require('node:assert/strict');
 const path=require('node:path');
 const script=path.resolve(__dirname,'../dist/v2-sync-client.js');
 const HOME='http://127.0.0.1:8189/child.html?preview=1&design=original';
 (async()=>{
- const browser=await chromium.launch({headless:true,channel:'chrome'});
+ const inWebKit=process.env.PLAYWRIGHT_BROWSER==='webkit';
+ const browser=await (inWebKit?webkit:chromium).launch(inWebKit?{headless:true}:{headless:true,channel:'chrome'});
  try{
-   const page=await browser.newPage({viewport:{width:390,height:844}});
+   const page=await browser.newPage({viewport:{width:390,height:844},...(inWebKit?{isMobile:true,hasTouch:true}:{})});
    await page.goto(HOME,{waitUntil:'domcontentloaded'});
    await page.addScriptTag({path:script});
    const id='qa-v2-outbox-browser-'+Date.now();
@@ -30,6 +31,6 @@ const HOME='http://127.0.0.1:8189/child.html?preview=1&design=original';
    assert.equal(stored.found,true,'pending upload must survive page reload');
    assert.equal(stored.taskId,'qa-browser-task');
    assert.equal(stored.pendingAfterCleanup,0,'acknowledged operation must clear IndexedDB');
-   console.log('PASS browser IndexedDB: durable V2 operation survives reload, ack cleanup works; no Supabase network');
+   console.log('PASS '+(inWebKit?'WebKit':'Chromium')+' IndexedDB: V2 pending operation persists over reload and acknowledged item clears');
  } finally{await browser.close()}
 })().catch(error=>{console.error(error);process.exitCode=1});
