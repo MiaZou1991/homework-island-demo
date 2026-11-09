@@ -189,6 +189,12 @@ function saveData(data) {
 // 云端拉到更新的数据后，按当前页面重新渲染
 function refreshCurrentView() {
     const bodyMode = document.body.getAttribute('data-mode');
+    // The upgraded child UI owns the visible DOM. Rebuilding the hidden legacy
+    // screens on every cloud update wastes main-thread time and misses the new tab.
+    if (bodyMode === 'child' && window.__ISLAND_UPGRADE_LOADED__) {
+        window.dispatchEvent(new Event('island-family-data-updated'));
+        return;
+    }
     try {
         if (bodyMode === 'child') renderChild();
         else if (bodyMode === 'parent') renderParent();
@@ -3614,7 +3620,7 @@ const FALLING_ITEMS = ['🍊', '🍐', '🍒', '🌸', '🍃', '🍎', '🌸', '
 const WALKERS = ['🐻', '🐰', '🐺', '🐱', '🐶', '🐼', '🐿️', '🐦', '🐯'];
 
 function startIslandEvents() {
-    if (document.body.getAttribute('data-mode') !== 'child') return;
+    if (document.body.getAttribute('data-mode') !== 'child' || window.__ISLAND_UPGRADE_LOADED__) return;
     // 开场撒一波
     for (let i = 0; i < 3; i++) {
         setTimeout(spawnFallingItem, 600 + i * 900);
@@ -4812,7 +4818,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (bodyMode === 'child') {
         currentMode = 'child';
         generateRecurringTasks();
-        renderChild();
+        // The upgraded page will render once in its own DOMContentLoaded handler.
+        // Do not build every legacy tab (charts, inventory, calendar) first.
+        if (!window.__ISLAND_UPGRADE_LOADED__) renderChild();
         startIslandEvents();
     } else if (bodyMode === 'parent') {
         currentMode = 'parent';
