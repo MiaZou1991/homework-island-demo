@@ -13,6 +13,7 @@ jobs:
   staging-real-auth:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    # Official GoTrue anonymous signup request format; retry after 422.
     env:
       KAIXIN_STAGE_PUBLIC_KEY: sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV
     steps:
