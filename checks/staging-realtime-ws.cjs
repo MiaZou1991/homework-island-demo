@@ -36,7 +36,7 @@ function connect(role){
     postgres_changes:[{event:'*',schema:'public',table:'kaixin_sync_signal_v2',filter:'family_id=eq.'+FAMILY}],
     private:false};
   let socket,joined=false,settled=false;
-  const messages=[],errors=[],types={},debug={joinedWithChanges:0,rawPostgresEvents:0,ignoredRecord:0};
+  const messages=[],errors=[],types={},debug={joinedWithChanges:0,systemReady:false,rawPostgresEvents:0,ignoredRecord:0};
   const ready=new Promise((resolve,reject)=>{
     const timeout=setTimeout(()=>{if(!settled){settled=true;reject(Error('join_timeout_'+role));socket?.close();}},20000);
     const accept=()=>{if(!settled){settled=true;clearTimeout(timeout);resolve()}};
@@ -51,6 +51,7 @@ function connect(role){
       let msg;
       try{msg=JSON.parse(typeof e.data==='string'?e.data:String(e.data))}catch(_){return;}
       types[msg.event]=(types[msg.event]||0)+1;
+      if(msg.event==='system'&&msg.payload?.extension==='postgres_changes'&&msg.payload?.status==='ok') debug.systemReady=true;
       if(msg.event==='phx_reply'&&msg.topic===topic&&msg.ref==='1'){
         debug.joinedWithChanges=msg.payload?.response?.postgres_changes?.length||0;
         if(msg.payload?.status==='ok'&&msg.payload.response?.postgres_changes?.length){
@@ -84,7 +85,10 @@ async function until(predicate,ms){
       try{await client.ready}
       catch(error){if(client.role!=='outsider')throw error;}
     }));
-    await pause(6500); // warm up Realtime CDC slot and allow subscriptions to activate
+    // Phoenix join alone does not guarantee CDC is streaming. Supabase sends a
+    // postgres_changes system status when database replication is ready.
+    const streamingReady=await until(()=>member.debug.systemReady&&child.debug.systemReady,18000);
+    assert.equal(streamingReady,true,'postgres_changes system readiness was not confirmed');
     const remote=await rpc('family_load_v2',jwt.a,{p_family_id:FAMILY});
     assert.ok(remote?.payload?.homework?.length);
     const id='qa-ws-'+randomUUID();
@@ -106,7 +110,7 @@ async function until(predicate,ms){
       memberJoin:member.errors.length?'error':'ok',childJoin:child.errors.length?'error':'ok',
       outsideJoin:outsider.errors.length?'denied':'joined_without_access',
       expectedRevision:saved.revision,gotMember,gotChild,outsiderLeak:leaked,
-      elapsedMs:now()-start,
+      elapsedMs:now()-start,cdcSystemReady:streamingReady,
       counts:clients.map(c=>({role:c.role,events:c.types,details:c.debug}))
     };
     assert.equal(gotMember,true,'parent B did not receive realtime revision');
