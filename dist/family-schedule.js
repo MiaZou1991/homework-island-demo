@@ -11,7 +11,22 @@
   if(match){let h=number(match[2]),min=match[3]!==undefined?+match[3]:match[4]==='半'?30:match[4]==='一刻'?15:match[4]==='三刻'?45:match[4]?number(match[4].replace('分','')):0;if(['下午','晚上','中午'].includes(match[1])&&h<12)h+=12;if(['上午','早上'].includes(match[1])&&h===12)h=0;if(h>=0&&h<24&&min>=0&&min<60){out.start=String(h).padStart(2,'0')+':'+String(min).padStart(2,'0');out.title=out.title.replace(match[0],'').trim();}}
   out.title=out.title.replace(/^[，,\s]+/,'')||text.trim();return out;
  }
+ // Recompute from the currently visible day's classes and event preparation lists.
+ // No completion flag is written: carrying items are read-only reminders.
+ function packingItems(items){
+  const seen=new Set();
+  for(const it of Array.isArray(items)?items:[]){
+   const source=it?.kind==='class'?it.cls?.bring:it?.kind==='event'?it.ev?.checklist:null;
+   for(const value of Array.isArray(source)?source:[]){
+    const raw=typeof value==='string'?value:value?.name;
+    if(typeof raw!=='string')continue;
+    const name=raw.trim();
+    if(name)seen.add(name);
+   }
+  }
+  return [...seen];
+ }
  function art(title){return /游泳|泳/.test(title)?'assets/hd/ui/item-swim-cap.png':/读|书|阅读/.test(title)?'assets/characters/icon_book.png':/公园|散步|外婆|骑/.test(title)?'assets/hd/nature-tree-branch.png':'assets/hd/course/calendar-clock.png';}
- root.FamilySchedule={labels,members,visible,parse,art};
+ root.FamilySchedule={labels,members,visible,parse,art,packingItems};
  if(typeof module!=='undefined')module.exports=root.FamilySchedule;
 })(typeof window!=='undefined'?window:globalThis);
