@@ -65,3 +65,68 @@ body[data-mode=child] .island-dialog .up-dialog-body{
   }
   body[data-mode=child] .tf-today .tf-hero{min-height:130px}
 }
+
+/* 2026-11-09 · iPhone Safari / Dynamic Island follow-up.
+   A Safari tab owns the system status bar: match its tint to the sea-sky;
+   standalone PWA uses the real top inset for controls and full-bleed art. */
+html:has(body[data-mode="child"]){
+  background-color:#53c9f0;
+  color-scheme:light;
+}
+body[data-mode="child"]{
+  --island-safe-top:env(safe-area-inset-top,0px);
+  --island-safe-bottom:env(safe-area-inset-bottom,0px);
+  background-color:#53c9f0;
+  overscroll-behavior-y:contain;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]){
+  background-color:#53c9f0;
+}
+/* 8px edge sampler colors Safari's translucent status-bar chrome on iOS 26/27.
+   In Home Screen mode it fills the hardware unsafe zone, not the controls. */
+body[data-mode="child"]::before{
+  content:"";
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  height:max(8px,var(--island-safe-top));
+  background:#53c9f0;
+  z-index:9000;
+}
+body[data-mode="child"] .tf-today .tf-top{
+  top:calc(2.8cqw + var(--island-safe-top));
+  left:max(5cqw,calc(env(safe-area-inset-left,0px) + 8px));
+  right:max(5cqw,calc(env(safe-area-inset-right,0px) + 8px));
+}
+body[data-mode="child"] .tf-today .tf-hero{
+  min-height:calc(42cqw + var(--island-safe-top));
+}
+body[data-mode="child"] .cp-page .cp-header{
+  height:calc(12px + var(--island-safe-top));
+  min-height:calc(12px + var(--island-safe-top));
+}
+body[data-mode="child"] .up-main:not([data-route="today"]):not([data-route="plan"]){
+  padding-top:calc(68px + var(--island-safe-top));
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]),
+body[data-mode="child"]:has(.up-main[data-route="plan"]){
+  --tf-nav-height:calc(82px + var(--island-safe-bottom));
+}
+body[data-mode="child"] .phone>.up-nav{
+  padding-bottom:calc(12px + var(--island-safe-bottom));
+}
+@media (display-mode:standalone){
+  body[data-mode="child"] .tf-today .tf-top{
+    top:calc(var(--island-safe-top) + 12px);
+  }
+  body[data-mode="child"] .cp-page .cp-header{
+    height:calc(var(--island-safe-top) + 12px);
+    min-height:calc(var(--island-safe-top) + 12px);
+  }
+}
+@media (orientation:landscape) and (max-height:500px){
+  body[data-mode="child"] .tf-today .tf-hero{
+    min-height:calc(130px + var(--island-safe-top));
+  }
+}
