@@ -38,12 +38,13 @@ function period(it){
 function tile(it){const k=kind(it),info=k==='homework'?(SUBJECT_ICON[it.hw.subject]||'作'):k==='class'?'课':'事';
  return '<div class="gc-tile gc-tile-'+k+'" title="'+esc(label(it))+'"><span class="gc-tile-icon">'+info+'</span><b>'+esc(label(it))+'</b>'+(when(it)?'<small>'+esc(when(it))+'</small>':'')+'</div>';
 }
+function familyFilters(ctx){const labels=[['all','全家'],['child','开心'],['dad','爸爸'],['mom','妈妈']];return '<div class="gc-family" aria-label="家庭成员筛选">'+labels.map(([id,name])=>'<button type="button" data-up="family-filter" data-member="'+id+'" aria-pressed="'+(ctx.familyMember===id)+'">'+name+'</button>').join('')+'</div>';}
 function controls(ctx,month,dates){
  const value=month?dt(ctx.date).getFullYear()+'年'+(dt(ctx.date).getMonth()+1)+'月':Number(dates[0].slice(5,7))+'月'+Number(dates[0].slice(8,10))+'日 — '+Number(dates[6].slice(5,7))+'月'+Number(dates[6].slice(8,10))+'日';
  return '<header class="gc-top"><div class="gc-top-row"><h1>成长日历</h1><div class="gc-switch" role="group" aria-label="日历视图">'+
  '<button type="button" data-up="plan-range" data-range="week" aria-pressed="'+(!month)+'">周视图</button>'+
  '<button type="button" data-up="plan-range" data-range="month" aria-pressed="'+month+'">月视图</button></div></div>'+
- '<div class="gc-range"><button type="button" data-up="prev" aria-label="上一个日期区间">‹</button><strong>'+value+'</strong><button type="button" data-up="next" aria-label="下一个日期区间">›</button></div></header>';
+ '<div class="gc-range"><button type="button" data-up="prev" aria-label="上一个日期区间">‹</button><strong>'+value+'</strong><button type="button" data-up="next" aria-label="下一个日期区间">›</button></div></header>'+familyFilters(ctx);
 }
 function week(ctx){
  const start=monday(ctx.date),days=DAYS.map((_,i)=>plus(start,i)),periods=[['am','☀','上午'],['pm','🌤','下午'],['night','☾','晚上']],dayItems=days.map(day=>items(ctx,day));
@@ -58,7 +59,7 @@ function week(ctx){
  }).join('');
  return '<div class="cp-page gc-page gc-week">'+controls(ctx,false,days)+
  '<div class="gc-week-dates">'+days.map((day,i)=>'<button type="button" data-up="growth-day" data-date="'+day+'" class="'+(day===ctx.date?'selected':'')+'"><small>周'+DAYS[i]+'</small><b>'+Number(day.slice(-2))+'</b></button>').join('')+'</div>'+
- '<section class="gc-panel gc-timetable"><h2>一周小课表 <small>点日期看看当天的故事</small></h2>'+head+rows+'</section>'+
+ '<section class="gc-panel gc-timetable"><div class="gc-section-title"><h2>一周小课表 <small>点日期查看详情</small></h2><button type="button" data-up="add-menu">＋ 记一件事</button></div>'+head+rows+'</section>'+
  '<section class="gc-panel gc-goals"><div class="gc-section-title"><h2>本周小目标</h2><button type="button" data-up="growth-habit-new">＋ 21天挑战</button></div>'+
  (record||'<p class="gc-muted">还没有习惯挑战，给自己选一个轻松的小目标吧。</p>')+'</section>'+
  '<div class="gc-companion"><span class="gc-companion-art">'+ctx.buddy(ctx.data,'gc-buddy')+'</span><p>安排好这一周，<br>每天都能留下小故事！</p></div></div>';
@@ -89,7 +90,7 @@ function detail(ctx,day){
  '<h1>这一天的成长手账</h1><div class="gc-detail-marks">'+(a.map(x=>'<span>'+badge(x)+' '+esc(x.text)+'</span>').join('')||'<p>这一天还没有留下记录。</p>')+'</div>'+
  '<section><h2>今天的心情</h2><p>'+(j&&j.mood?esc(MOOD_LABEL[j.mood]||'今天的心情'):'还没有记录心情')+'</p><p class="gc-handwriting">'+(j&&j.text?esc(j.text):'可以写几个字，记住这一天。')+'</p><button type="button" data-up="journal-edit" data-date="'+day+'">'+(j?'修改心情与短句':'记录心情与短句')+'</button></section>'+
  '<section><h2>任务与日程</h2><p>作业完成 '+done+' / '+h.length+' 项；课程和携带物品只作提醒。</p>'+
- (daySchedule.length?'<ul>'+daySchedule.slice(0,8).map(it=>'<li>'+esc(when(it)?when(it)+' · ':'')+esc(label(it))+'</li>').join('')+'</ul>':'<p>这一天还没有安排。</p>')+'</section>'+
+ (daySchedule.length?'<ul>'+daySchedule.slice(0,8).map(it=>'<li>'+esc(when(it)?when(it)+' · ':'')+esc(label(it))+'</li>').join('')+'</ul>':'<p>这一天还没有安排。</p>')+'<button type="button" data-up="add-menu">＋ 添加当天安排</button></section>'+
  '<section><h2>习惯打卡</h2>'+(hs.length?hs.map(h=>'<div class="gc-detail-habit"><span>'+esc(h.title)+'</span><button type="button" data-up="growth-habit-check" data-id="'+esc(h.id)+'" data-date="'+day+'" '+(!past?'disabled':'')+'>'+ (checked(h,day)?'✓ 已打卡':'○ 记一次')+'</button></div>').join(''):'<p>还没有正在进行的21天挑战。</p>')+
  '<button type="button" data-up="growth-habit-new">＋ 创建习惯挑战</button></section>'+
  '<section><h2>特别时刻</h2>'+(ms.map(x=>'<p>✿ '+esc(x.text)+'</p>').join('')||'<p>有值得纪念的小事，可以写在这里。</p>')+
