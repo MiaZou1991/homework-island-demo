@@ -34,6 +34,7 @@ jobs:
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
           node checks/companions-mobile.cjs
+          node checks/island-explore.cjs
       - name: Upload companion gallery QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
