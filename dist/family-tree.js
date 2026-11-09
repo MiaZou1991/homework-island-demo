@@ -2,6 +2,20 @@
 'use strict';
 const $=id=>document.getElementById(id), M=window.FamilyTreeModel;
 if(!M)throw Error('家庭树数据规则尚未加载');
+
+if(/(^|\.)githack\.com$/i.test(location.hostname)){
+  // Third-party HTML previews can time out loading large background images.
+  // Reuse the same approved public artwork from the published Pages asset host.
+  const base='https://miazou1991.github.io/homework-island-demo/assets/';
+  const style=document.createElement('style');
+  style.textContent=
+    '.ft-hero-picture{background-image:url("'+base+'our-island-v1/map.webp")!important}'+
+    '.ft-hero-plaque,.ft-editor h2{background-image:url("'+base+'hd/dialogs-v3/plaque.webp")!important}'+
+    '.ft-primary{background-image:url("'+base+'hd/dialogs-v3/button-primary.webp")!important}'+
+    '.ft-paper,.ft-editor{border-image-source:url("'+base+'hd/dialogs-v3/panel.webp")!important}';
+  document.head.append(style);
+}
+
 const PUB='kaixin_family_tree_public_preview_v1', PRIV='kaixin_family_tree_private_preview_v1';
 const names=Object.fromEntries(M.members.map(x=>[x.id,x.name]));
 const kinds=Object.fromEntries(M.types.map(x=>[x.id,x.name]));
