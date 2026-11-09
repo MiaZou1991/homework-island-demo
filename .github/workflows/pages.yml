@@ -33,6 +33,7 @@ jobs:
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
+          node checks/growth-calendar.cjs
       - name: Install CJK fonts for visual mobile QA
         run: |
           sudo apt-get update -qq
