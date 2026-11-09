@@ -172,7 +172,7 @@
     const dt = Math.min((time - last) / 1000 || 0, .035);
     last = time;
     if (!state.ready) return;
-    const active = !$('detail').open && !state.overview && !document.hidden;
+    const active = !$('detail').open && !$('treeExperience').open && !state.overview && !document.hidden;
     let dx = active ? axis.x + Number(keys.has('ArrowRight') || keys.has('d')) -
                   Number(keys.has('ArrowLeft') || keys.has('a')) : 0;
     let dy = active ? axis.y + Number(keys.has('ArrowDown') || keys.has('s')) -
@@ -227,6 +227,7 @@
     $('detailScene').dataset.place = place.id;
     $('detailTree').hidden = place.id !== 'tree';
     $('detailKid').hidden = place.id !== 'tree';
+    $('treeEnter').hidden = place.id !== 'tree';
     $('detail').showModal();
     $('back').focus();
     return true;
@@ -235,6 +236,19 @@
   $('visit').addEventListener('click', () => { if (state.near) openDetail(state.near); });
   $('back').addEventListener('click', closeDetail);
   $('detailClose').addEventListener('click', closeDetail);
+  $('treeEnter').addEventListener('click', () => {
+    closeDetail();stop();
+    const frame = $('treeFrame');
+    if(!frame.getAttribute('src'))frame.src=frame.dataset.src;
+    $('treeExperience').showModal();$('treeClose').focus();
+  });
+  function closeFamilyTree(){if($('treeExperience').open)$('treeExperience').close();}
+  $('treeClose').addEventListener('click', closeFamilyTree);
+  $('treeExperience').addEventListener('close',()=>{stop();syncNearby();if(!$('visit').hidden)$('visit').focus();});
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==$('treeFrame').contentWindow)return;
+    if(event.data?.type==='kaixin-family-tree-close')closeFamilyTree();
+  });
   $('detail').addEventListener('close', () => {
     stop(); syncNearby(); if (!$('visit').hidden) $('visit').focus(); else $('mapToggle').focus();
   });
