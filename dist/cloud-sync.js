@@ -30,6 +30,37 @@
   let pollTimer = null;
   let busy = false;
   let syncState = { cloudRecord: 'unknown', current: 'unknown', message: '正在核对云端数据' };
+  // Diagnostics contain only operation metadata. Never persist request/response bodies,
+  // homework, family codes, photos, headers, keys, raw URLs or raw error messages.
+  const DIAG_KEY = 'homework_island_sync_diagnostics_v1';
+  const DIAG_LIMIT = 120;
+  const session = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  let history = [];
+  try {
+    const saved = JSON.parse(localStorage.getItem(DIAG_KEY) || '[]');
+    if (Array.isArray(saved)) history = saved.slice(-DIAG_LIMIT);
+  } catch (_) { history = []; }
+  function trace(event, details = {}) {
+    const safe = {};
+    for (const field of ['operation', 'httpStatus', 'durationMs', 'requestBytes', 'retryMs', 'revision', 'attempt', 'reason']) {
+      const value = details[field];
+      if (typeof value === 'number' && Number.isFinite(value)) safe[field] = value;
+      else if (typeof value === 'string') safe[field] = value.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 32);
+    }
+    const entry = { at: Date.now(), session, event, ...safe };
+    history.push(entry);
+    history = history.slice(-DIAG_LIMIT);
+    try { localStorage.setItem(DIAG_KEY, JSON.stringify(history)); } catch (_) {}
+  }
+  function errorInfo(error) {
+    return {
+      httpStatus: Number.isInteger(error?.status) ? error.status : 0,
+      reason: error?.name === 'AbortError' ? 'timeout' : error?.status ? 'http' : 'network'
+    };
+  }
+  function recordEvent(event) {
+    if (['local_saved', 'local_save_failed', 'publish_started', 'publish_saved', 'publish_failed'].includes(event)) trace(event);
+  }
 
   function setSyncState(change) {
     syncState = { ...syncState, ...change };
@@ -90,11 +121,13 @@
     if (data && data.ok === false) throw new Error(data.error || '家庭数据读取失败');
     cloudConfirmed = true;
     if (!data || !data.exists) {
+      trace('cloud_load_empty');
       setSyncState({ cloudRecord: 'no', message: '云端暂无家庭记录' });
       return null;
     }
     if (!validPayload(data.payload)) throw new Error('云端家庭数据格式不正确');
     knownRevision = Number.isInteger(data.revision) ? data.revision : null;
+    trace('cloud_loaded', { revision: knownRevision });
     setSyncState({ cloudRecord: 'yes', message: '云端有有效记录，正在核对当前数据' });
     return data.payload;
   }
@@ -108,13 +141,15 @@
       localStorage.setItem(backupKey, localStorage.getItem(localKey()));
     localStorage.setItem('homework_island_last_cloud_KAIXIN_v1', serialized);
     localStorage.setItem(localKey(), serialized);
+    trace('remote_applied', { revision: knownRevision });
     if (typeof onRemoteUpdate === 'function') onRemoteUpdate(data);
     return true;
   }
 
   async function pull() {
     if (!client || !code()) return null;
-    if (busy || pending) return null;
+    if (busy || pending) { trace('pull_skipped', { reason: busy ? 'busy' : 'pending' }); return null; }
+    trace('pull_started');
     busy = true;
     try {
       const remote = await loadRemote();
@@ -126,8 +161,10 @@
       } else if (!pending) {
         setSyncState({ current: 'unknown', message: '云端暂无记录，当前数据只在本机' });
       }
+      trace('pull_finished', { revision: knownRevision });
       return remote;
     } catch (error) {
+      trace('pull_failed', errorInfo(error));
       setSyncState({ current: pending ? 'pending' : 'unknown', message: '云端读取失败，当前数据未确认' });
       throw error;
     } finally {
@@ -146,30 +183,41 @@
     if (error) throw error;
     if (result && result.ok === false) throw new Error(result.error || '家庭数据保存失败');
     if (Number.isInteger(result?.revision)) knownRevision = result.revision;
+    trace('push_confirmed', { revision: knownRevision });
     return result;
   }
 
   function scheduleFlush(delay = 450) {
     if (!started || !client || !pending || !available()) return;
     clearTimeout(pushTimer);
-    pushTimer = setTimeout(flush, Math.max(delay, retryAfter - Date.now()));
+    const waitMs = Math.max(delay, retryAfter - Date.now());
+    if (waitMs > 0) trace('upload_retry_scheduled', { retryMs: waitMs });
+    pushTimer = setTimeout(flush, waitMs);
   }
 
   async function flush() {
     if (busy || !pending || !client || !available()) return;
     if (Date.now() < retryAfter) { scheduleFlush(RETRY_MS); return; }
-    if (!cloudConfirmed) { armPoll(); return; }
     busy = true;
     const snapshot = pending;
     try {
+      // A failed initial read must not deadlock a local pending edit forever.
+      // Recheck remote first, without applying it over unsynced local work.
+      if (!cloudConfirmed) {
+        trace('cloud_recheck_before_upload');
+        await loadRemote();
+      }
+      trace('upload_started');
       await push(snapshot);
       if (pending === snapshot) {
         pending = null;
         localStorage.removeItem(pendingKey());
+        trace('pending_cleared');
         if (localStorage.getItem(localKey()) === JSON.stringify(snapshot))
           setSyncState({ cloudRecord: 'yes', current: 'synced', message: '云端有记录，当前数据已同步' });
       }
     } catch (error) {
+      trace('upload_failed', errorInfo(error));
       console.warn('[作业岛云端同步] 保存失败', error);
       notify('云端保存失败，已暂存本机；稍后自动重试');
       setSyncState({ current: 'pending', message: '当前数据待上传，稍后自动重试' });
@@ -188,6 +236,7 @@
     if (!started && !startPromise) return;
     // Keep the newest full snapshot until the server confirms the save.
     pending = data;
+    trace('pending_queued');
     const persisted = rememberPending();
     setSyncState({
       current: 'pending',
@@ -213,12 +262,13 @@
       const row = Array.isArray(data) ? data[0] : null;
       if (!row || !Number.isInteger(row.revision)) throw new Error('版本通知尚不可用');
       wantedRevision = Math.max(wantedRevision, row.revision);
+      trace('revision_checked', { revision: row.revision });
       if (pending && !cloudConfirmed) {
         if (!busy) { busy = true; try { await loadRemote(); } finally { busy = false; } }
       }
       if (pending) scheduleFlush(0);
       else drainRevision();
-    } catch (_) { setSyncState({ message: '暂时无法核对云端版本，本机记录保留' }); }
+    } catch (error) { trace('revision_check_failed', errorInfo(error)); setSyncState({ message: '暂时无法核对云端版本，本机记录保留' }); }
     finally { revisionBusy = false; }
   }
 
@@ -231,28 +281,38 @@
   }
 
   function resume() {
+    trace('connection_resume', { reason: available() ? 'foreground' : 'offline_or_hidden' });
     if (!available()) {
       clearTimeout(pollTimer); clearTimeout(pushTimer); clearTimeout(revisionTimer);
       signal?.stop(); return;
     }
     signal?.start();
     if (pending) scheduleFlush(0);
-    if (!signalConnected) { checkRevision(); armPoll(); }
+    // Even with a WebSocket, Safari may suspend or miss notifications in the background.
+    // On every foreground/online return, compare the latest server revision.
+    checkRevision();
+    if (!signalConnected) armPoll();
   }
 
   async function start(options = {}) {
+    trace('sync_start');
     onRemoteUpdate = options.onRemoteUpdate || null;
     if (startPromise) return startPromise;
     startPromise = (async () => {
       // Native HTTP avoids waiting for a third-party SDK download.
       client = { async rpc(name, payload) {
         if (Date.now() < retryAfter) throw new Error('云端暂不可用，稍后重试');
+        const operation = name === '__revision' ? 'revision' : name === 'family_load' ? 'load' : 'save';
+        const startedAt = Date.now();
+        const body = name === '__revision' ? undefined : JSON.stringify(payload);
+        const requestBytes = body ? (typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(body).length : body.length) : 0;
+        trace('rpc_started', { operation, requestBytes });
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         try {
           const response = await fetch(SUPABASE_URL + (name === '__revision' ? '/rest/v1/kaixin_sync_signal?id=eq.KAIXIN&select=revision&limit=1' : '/rest/v1/rpc/' + name), {
             method: name === '__revision' ? 'GET' : 'POST', headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
-            body: name === '__revision' ? undefined : JSON.stringify(payload), signal: controller.signal
+            body, signal: controller.signal
           });
           if (!response.ok) {
             const error = new Error('云端请求失败：' + response.status);
@@ -260,6 +320,8 @@
             throw error;
           }
           const data = await response.json();
+          if (data?.ok === false) trace('rpc_business_rejected', { operation, httpStatus: response.status || 200 });
+          else trace('rpc_succeeded', { operation, httpStatus: response.status || 200, durationMs: Date.now() - startedAt });
           failures = 0;
           retryAfter = 0;
           return { data, error: null };
@@ -267,6 +329,7 @@
           failures++;
           const delay = error.status === 402 ? 30 * 60000 : Math.min(15 * 60000, RETRY_MS * 2 ** Math.min(failures - 1, 4));
           retryAfter = Date.now() + delay;
+          trace('rpc_failed', { operation, ...errorInfo(error), durationMs: Date.now() - startedAt, retryMs: delay, attempt: failures });
           if (error.status === 402) setSyncState({ current: pending ? 'pending' : 'unknown', message: '云端额度受限，已暂停频繁重试；本机记录保留' });
           throw error;
         } finally { clearTimeout(timeout); }
@@ -276,6 +339,7 @@
       if (savedPending) {
         // Startup may have generated today's tasks in the local copy.
         pending = validPayload(local) ? local : savedPending;
+        trace('pending_restored');
         // Migrate legacy full pending snapshots only when the main local data is valid.
         // Otherwise keep the older snapshot so a restart cannot discard unsynced work.
         const persisted = validPayload(local) ? rememberPending() : true;
@@ -310,6 +374,7 @@
           }
         }
       } catch (error) {
+        trace('sync_initialization_failed', errorInfo(error));
         console.warn('[作业岛云端同步] 初始化失败', error);
         notify('云端暂时不可用，当前使用本机缓存');
         setSyncState({ current: pending ? 'pending' : 'unknown', message: pending ? '本机改动待上传' : '云端读取失败，当前使用本机数据' });
@@ -337,11 +402,35 @@
     return startPromise;
   }
 
+  async function retryNow() {
+    trace('manual_retry');
+    if (!started || !client) throw new Error('同步尚未初始化');
+    if (busy) { trace('manual_retry_skipped', { reason: 'busy' }); return { ...syncState }; }
+    retryAfter = 0; // A deliberate retry is allowed to bypass automatic backoff.
+    if (pending) await flush();
+    else await pull();
+    return { ...syncState };
+  }
+
+  function getDiagnostics() {
+    return {
+      version: 1,
+      generatedAt: Date.now(),
+      session,
+      state: { cloudRecord: syncState.cloudRecord, current: syncState.current, notifications: syncState.notifications || 'unknown' },
+      events: history.slice()
+    };
+  }
+
+  // Existing app catches unexpected exceptions. Record only classifications, not messages/stacks.
+  window.addEventListener('error', (event) => trace('page_error', { reason: event?.error?.name || 'unknown' }));
+  window.addEventListener('unhandledrejection', () => trace('unhandled_rejection'));
+
   function openPanel() {
     if (typeof openFamilyCodeDialog === 'function') openFamilyCodeDialog();
     else notify(syncState.message);
   }
 
-  window.IslandSync = { start, schedulePush, pull, push, getCode: code, getStatus: () => ({ ...syncState }), setCode: () => {}, openPanel };
+  window.IslandSync = { start, schedulePush, pull, push, retryNow, getDiagnostics, recordEvent, getCode: code, getStatus: () => ({ ...syncState }), setCode: () => {}, openPanel };
 })();
 

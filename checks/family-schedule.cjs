@@ -24,7 +24,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    upgrade:document.querySelector('script[src^="upgrade.js"]')?.getAttribute('src'),
    today:document.querySelector('link[href^="today-fidelity.css"]')?.getAttribute('href')
  }));
- for(const [key,ref] of Object.entries(versioned))assert.match(ref||'',/20261109-empty-packing-20261109b/,key+' needs cache-busted asset URL so Safari sees the release');
+ for(const [key,ref] of Object.entries(versioned))assert.match(ref||'',key==='upgrade'?/20261109-p0syncdiag1/:/20261109-empty-packing-20261109b/,key+' needs cache-busted asset URL so Safari sees the release');
 await p.locator('.cp-title').waitFor();await p.locator('#island-loader').waitFor({state:'detached'});await p.evaluate(()=>document.fonts.ready);
  const type=await p.evaluate(()=>{
    const title=getComputedStyle(document.querySelector('.cp-agenda-head h2'));

@@ -29,6 +29,7 @@ jobs:
         run: |
           node checks/domain.test.cjs
           node checks/kaixin-sync.cjs
+          node checks/sync-diagnostics.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
