@@ -67,7 +67,7 @@ const QA_STUB=`
   await page.locator('#email').fill('parent@example.test');
   await page.locator('#password').fill('TEST_PASSWORD_123');
   await page.locator('#signup').click();
-  await page.locator('#feedback').getByText('查收验证邮件',{exact:false}).waitFor();
+  await page.locator('#feedback').getByText('尚未部署在已授权 HTTPS',{exact:false}).waitFor();
   await page.locator('#parent-form button[type="submit"]').click();
   await page.locator('#identity-state').getByText('等待测试库管理员',{exact:false}).waitFor();
   const deniedBefore=await page.evaluate(()=>window.__KAIXIN_TEST_STATE.calls);
@@ -106,6 +106,6 @@ const QA_STUB=`
   assert.equal(state.overflow,false,'390px mobile layout must not overflow');
   assert.ok(state.calls.includes('kaixin_revoke_child_device'));
   assert.deepEqual(errors,[],'no page errors');
-  console.log('PASS KAIXIN staging UI Chrome 390px: email verification pending parent, authorized login, one-time child pairing, device list and revoke; no real Supabase traffic');
+  console.log('PASS KAIXIN staging UI Chrome 390px: unsafe HTTP email signup blocked, authorized login, child pairing and device revoke; no real Supabase traffic');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});
