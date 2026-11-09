@@ -9,6 +9,23 @@
     {id:"kid",name:"开心"},{id:"mom",name:"妈妈"},{id:"dad",name:"爸爸"}
   ];
   const types=[{id:"growth",name:"新本领"},{id:"together",name:"一起经历"},{id:"happy",name:"开心瞬间"}];
+  // Visual growth only: no points, rewards or settlement. Production needs a
+  // trusted aggregated counter, never private letter contents or recipient data.
+  const growthStages=[
+    {at:0,name:"小树萌芽",hint:"给家人送出第一封爱心吧"},
+    {at:3,name:"枝叶舒展",hint:"每份心意，都在陪它成长"},
+    {at:8,name:"开花结果",hint:"家人的温暖长成了花和果实"},
+    {at:16,name:"繁茂大树",hint:"爱一直都在，树会继续陪伴家人"}
+  ];
+  function treeGrowth(heartsOrCount){
+    const count=typeof heartsOrCount==="number"?
+      Math.max(0,Math.floor(Number.isFinite(heartsOrCount)?heartsOrCount:0)):
+      privateState(heartsOrCount).hearts.length;
+    let stage=0;
+    for(let i=0;i<growthStages.length;i++)if(count>=growthStages[i].at)stage=i;
+    const next=growthStages[stage+1]?.at??null;
+    return {count,stage,name:growthStages[stage].name,hint:growthStages[stage].hint,next,levels:growthStages.map(x=>x.at)};
+  }
   const validMember=id=>members.some(m=>m.id===id);
   const text=(value,limit)=>{
     const s=String(value==null?"":value).trim();
@@ -61,7 +78,8 @@
       }
       case "deleteMoment":{
         own(find(state.moments),actor);
-        state.moments=state.moments.filter(x=>x.id!==action.id);break;
+        state.moments=state.moments.filter(x=>x.id!==action.id);
+        state.replies=state.replies.filter(x=>x.momentId!==action.id && !(x.targetType==="moment"&&x.targetId===action.id));break;
       }
       case "addNote":{
         if(state.notes.length>=300)throw new Error("家庭便签已达上限");
@@ -75,12 +93,17 @@
       case "deleteNote":{
         own(find(state.notes),actor);
         state.notes=state.notes.filter(x=>x.id!==action.id);
-        state.replies=state.replies.filter(x=>x.noteId!==action.id);break;
+        state.replies=state.replies.filter(x=>x.noteId!==action.id && !(x.targetType==="note"&&x.targetId===action.id));break;
       }
       case "addReply":{
-        if(!state.notes.some(x=>x.id===action.noteId))throw new Error("这张便签已不存在");
+        const targetType=action.targetType==="moment"||action.momentId?"moment":"note";
+        const targetId=targetType==="moment"?String(action.momentId||action.targetId||""):String(action.noteId||action.targetId||"");
+        const targets=targetType==="moment"?state.moments:state.notes;
+        if(!targets.some(x=>x.id===targetId))throw new Error("这条故事已不存在");
         if(state.replies.length>=1200)throw new Error("回复数量已达上限");
-        item={...meta,author:actor,noteId:action.noteId,text:text(action.text,120)};
+        item={...meta,author:actor,targetType,targetId,
+          ...(targetType==="moment"?{momentId:targetId}:{noteId:targetId}),
+          text:text(action.text,120)};
         state.replies.push(item);break;
       }
       case "editReply":{
@@ -115,5 +138,5 @@
     if(!validMember(actor))return [];
     return privateState(previous).hearts.filter(x=>x.from===actor||x.to===actor).map(copy);
   }
-  return {members,types,validMember,publicState,privateState,applyPublic,applyPrivate,visibleHearts};
+  return {members,types,growthStages,treeGrowth,validMember,publicState,privateState,applyPublic,applyPrivate,visibleHearts};
 });
