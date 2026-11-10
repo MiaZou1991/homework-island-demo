@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main, feat/island-explore-stage1-20261109]
   push:
-    branches: [main]
+    branches: [main, feat/family-tree-visual-assets-v3-20261110]
 permissions:
   contents: read
 concurrency:
@@ -37,6 +37,7 @@ jobs:
           node checks/companions-mobile.cjs
           node checks/island-explore.cjs
           node checks/family-tree-mobile.cjs
+          node checks/family-tree-visual-v3.cjs
       - name: Upload companion gallery QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
