@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main, feat/island-explore-stage1-20261109]
   push:
-    branches: [main, feat/family-tree-visual-assets-v3-20261110]
+    branches: [main, feat/family-tree-visual-assets-v3-20261110, feat/family-tree-hifi-390-stage1-20261110]
 permissions:
   contents: read
 concurrency:
