@@ -307,3 +307,20 @@ body{background:radial-gradient(ellipse at 50% 0%,#e0efd1 0%,#e3f0e5 42%,#fcf1d9
 #ftModal[data-kind="growth"] .ft-popup-icon svg{filter:drop-shadow(0 4px 4px #9cad775a)}
 #ftModal[data-kind="quota"] .ft-popup-icon svg{filter:drop-shadow(0 4px 3px #af79744c)}
 @media(max-height:580px){.ft-popup-icon{height:70px;width:80px}.ft-popup-shell{padding-top:18px!important}}
+
+/* Approved pop-up form primitives: avoid English native file picker chrome. */
+.ft-visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0 0 0 0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
+#editorTypeWrap{position:relative;display:grid;gap:7px}
+.ft-kind-pills{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.ft-kind-pills button{min-height:43px;border:2px solid #e6cfa8;border-radius:24px;background:#fff9ea;color:#785a3f;font-size:13px;line-height:1.2;font-weight:800;padding:8px}
+.ft-kind-pills button[aria-pressed="true"]{border-color:#90b96e;background:linear-gradient(#9dcf69,#62a239);box-shadow:inset 0 2px #d4ecad,0 3px 0 #658c46;color:#fffdf4;text-shadow:0 1px #47713b}
+.ft-kind-pills button:focus-visible,.ft-upload-target:focus-within{outline:3px solid #4c8969;outline-offset:2px}
+#photoPicker{display:grid;justify-items:start;gap:8px}
+#photoPicker .ft-upload-target{width:100%;min-height:74px;border:2px dashed #dcc8a4;border-radius:16px;background:linear-gradient(#fffdf7,#fff3df);display:flex;align-items:center;gap:13px;padding:12px 14px;cursor:pointer;color:#795a3c}
+.ft-upload-target .ft-camera-icon{width:49px;height:45px;display:grid;place-items:center;flex:none;background:#f5e7cb;border:2px solid #c9b28d;border-radius:12px;color:#966f48;font-size:32px;line-height:1}
+.ft-upload-target strong{display:block;font-size:14px;color:#684a2f}
+.ft-upload-target small{display:block;margin-top:5px;font-size:11px;color:#977c5f;line-height:1.45}
+#photoPicker:focus-within .ft-upload-target{border-color:#7caa5c;box-shadow:0 0 0 2px #dfeccd}
+#photoPicker #photoStatus{font-size:10px}
+.ft-editor .ft-primary{background:url("assets/family-tree-v3/button-primary.svg") center/100% 100% no-repeat!important;border:0!important;color:#fffef5!important;text-shadow:0 1px #316929!important;box-shadow:none!important;min-height:51px}
+.ft-editor .ft-primary:focus-visible{outline:3px solid #386d46;outline-offset:3px}
