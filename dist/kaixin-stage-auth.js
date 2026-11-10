@@ -6,9 +6,13 @@
  const url='https://tgnznizqhheiwgdhvwdc.supabase.co';
  const key='sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV';
  let instance=null;
- const productionHost='miazou1991.github.io';
+ const isStagingOrigin=()=>
+   (location.protocol==='https:' && location.hostname==='miazou1991.github.io' &&
+     /^\/kaixin-island-staging(?:\/|$)/.test(location.pathname)) ||
+   (/^(127\.0\.0\.1|localhost)$/.test(location.hostname) &&
+     (location.protocol==='http:'||location.protocol==='https:'));
  function assertStage() {
-   if(window.__KAIXIN_STAGE_BUILD__!==true ||location.hostname===productionHost)
+   if(window.__KAIXIN_STAGE_BUILD__!==true || !isStagingOrigin())
      throw new Error('not_isolated_stage_origin');
  }
  function client() {
