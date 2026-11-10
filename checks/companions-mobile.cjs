@@ -128,6 +128,38 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(await p.locator('.island-mate-tile[data-id="mouse"]').getAttribute('aria-pressed'),'true');
    await p.locator('.island-mate-tabs button[data-tab="owned"]').click();
    assert.equal(await p.locator('.island-mate-tile').count(),2,'only bear and mouse met in isolated preview');
+   if(width===390){
+     /* Emulate standalone CSS media state as well as normal Safari-like Chrome.
+        This does not replace a real iPhone screenshot, but it catches accidental
+        double backgrounds in the PWA-only CSS branch. */
+     const session=await p.context().newCDPSession(p);
+     try{
+       await session.send('Emulation.setEmulatedMedia',{
+         features:[{name:'display-mode',value:'standalone'}]
+       });
+       const pwa=await p.evaluate(()=>({
+         mode:matchMedia('(display-mode: standalone)').matches,
+         extension:getComputedStyle(document.querySelector('.tf-world-extension')).display,
+         original:getComputedStyle(document.querySelector('.tf-world-main')).backgroundImage,
+         root:getComputedStyle(document.documentElement).backgroundImage,
+         nav:getComputedStyle(document.querySelector('.phone > .up-nav')).position,
+         navBottom:document.querySelector('.phone > .up-nav').getBoundingClientRect().bottom
+       }));
+       if(pwa.mode){
+         assert.equal(pwa.extension,'none','standalone PWA must not paint a ghost island');
+         assert.ok(pwa.original.includes('today-island-reference-v1.webp'),'PWA original island source');
+         assert.ok(pwa.root.includes('today-island-reference-v1.webp'),'PWA status-bar canvas uses original sky');
+         assert.equal(pwa.nav,'fixed','PWA tabs remain fixed');
+         assert.ok(Math.abs(pwa.navBottom-850)<2,'PWA nav fits the viewport');
+         await p.screenshot({path:'/tmp/companions-standalone-390.png'});
+         console.log('PASS simulated PWA scene 390px');
+       } else {
+         console.log('PWA media simulation unsupported on this Chromium; manual Safari PWA required');
+       }
+     }finally{
+       await session.detach();
+     }
+   }
    const overflow=await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
    assert.equal(overflow,false,'no horizontal page overflow '+width);
    assert.deepEqual(errors,[],'no browser errors '+width);
