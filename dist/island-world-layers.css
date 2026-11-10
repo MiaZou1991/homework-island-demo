@@ -96,9 +96,9 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
     background-size: 100% auto;
     background-position: center top;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 675px, transparent 950px);
     -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
+    mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 675px, transparent 950px);
     mask-composite: intersect;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
