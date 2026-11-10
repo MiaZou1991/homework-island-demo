@@ -27,6 +27,11 @@ try{
     const art=await page.request.get(base+'assets/family-tree-v3/garden-hero.webp');
     assert.equal(art.status(),200,'approved image available');
     assert.match(art.headers()['content-type']||'',/image\/webp/);
+    const dimensions=await page.evaluate(async()=>{
+      const image=new Image();image.src='assets/family-tree-v3/garden-hero.webp';
+      await image.decode();return [image.naturalWidth,image.naturalHeight];
+    });
+    assert.ok(dimensions[0]>=350&&dimensions[1]>=430,width+': high resolution approved scene');
 
     const geometry=await page.evaluate(()=>{
       const rect=x=>document.querySelector(x).getBoundingClientRect();
