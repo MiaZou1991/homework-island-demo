@@ -46,7 +46,7 @@ try{
     await page.locator('.ft-write-button').click();
     await page.locator('#editor').waitFor({state:'visible'});
     const titleStyle=await page.locator('#editorTitle').evaluate(el=>getComputedStyle(el).backgroundImage);
-    assert.ok(titleStyle.includes('gradient'),width+': wooden modal title');
+    assert.ok(titleStyle.includes('wood-plaque.svg'),width+': approved scalable wooden title asset');
     await page.locator('#cancelEditor').click();
     await page.locator('[data-section="hearts"]').click();
     await page.locator('#heartComposer').waitFor({state:'visible'});
