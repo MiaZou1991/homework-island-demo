@@ -218,7 +218,7 @@
      revision=loaded.revision;
      localApply(loaded.payload);
      emit({cloudRecord:'yes',current:'synced',message:'已加载 KAIXIN 测试数据 · 版本 '+revision});
-   }catch(_){emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
+   }catch(_){window.KaixinStageAuth.showGate('测试云端或登录验证暂不可用，本机数据保持原样。请稍后再试。',role);emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
    window.addEventListener('online',resume);
    window.addEventListener('pageshow',resume);
    document.addEventListener('visibilitychange',resume);
