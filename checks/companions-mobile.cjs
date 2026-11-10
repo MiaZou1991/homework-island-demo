@@ -9,6 +9,17 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    const errors=[];p.on('pageerror',e=>errors.push(e.message));
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
+   const notch=await p.evaluate(()=>{
+     const root=getComputedStyle(document.documentElement);
+     const phone=getComputedStyle(document.querySelector('.phone'));
+     const top=document.querySelector('.tf-top').getBoundingClientRect();
+     return {rootBackground:root.backgroundColor,artPosition:phone.backgroundPosition,
+       logoTop:top.top,logoBottom:top.bottom};
+   });
+   assert.equal(notch.rootBackground,'rgb(91, 173, 243)','status-bar root should match island sky '+width);
+   assert.match(notch.artPosition,/-14px/,'island illustration lifted without resizing '+width);
+   assert.ok(notch.logoTop>=22&&notch.logoTop<=29,'logo and points should be higher but safe '+width);
+   await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();
    assert.equal(await p.locator('.island-mate-tile').count(),16,width+' should show all companions');
