@@ -55,6 +55,19 @@ console.log('Fonts:', {oldBytes, uiBytes, fullBytes,
       'the UI-only compressed font should be loaded');
     await page.locator('.up-nav [data-up="plan"]').click();
     await page.locator('#upgrade-root[data-route="plan"]').waitFor();
+    const planNav=await page.evaluate(()=>{
+      const nav=document.querySelector('.up-nav'),phone=document.querySelector('.phone');
+      const rect=nav.getBoundingClientRect(),pr=phone.getBoundingClientRect();
+      return {rect:{x:rect.x,y:rect.y,width:rect.width,height:rect.height,bottom:rect.bottom},
+        phone:{top:pr.top,bottom:pr.bottom,height:pr.height},
+        position:getComputedStyle(nav).position,bottom:getComputedStyle(nav).bottom,
+        transform:getComputedStyle(nav).transform,contain:getComputedStyle(phone).contain,
+        containerType:getComputedStyle(phone).containerType,
+        scrollY,innerHeight,visualHeight:window.visualViewport?.height};
+    });
+    console.log('P0 plan nav viewport diagnosis:',JSON.stringify(planNav));
+    assert.ok(planNav.rect.y>=-1 && planNav.rect.bottom<=planNav.innerHeight+2,
+      'plan tab must remain in visible viewport after route switch');
     await page.locator('.up-nav [data-up="today"]').click();
     await page.locator('#upgrade-root[data-route="today"]').waitFor();
     assert.deepEqual(errors, [], 'cold load and route switches must be error-free');

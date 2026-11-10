@@ -9,6 +9,27 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    const errors=[];p.on('pageerror',e=>errors.push(e.message));
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
+   const scene=await p.evaluate(()=>{
+     const world=getComputedStyle(document.querySelector('.tf-world-extension'));
+     const original=getComputedStyle(document.querySelector('.tf-world-main'));
+     const phone=getComputedStyle(document.querySelector('.phone'));
+     const hero=document.querySelector('.tf-hero').getBoundingClientRect();
+     const top=document.querySelector('.tf-top').getBoundingClientRect();
+     return {extendedImage:world.backgroundImage,worldDisplay:world.display,
+       artImage:original.backgroundImage,artPositionY:original.backgroundPositionY,
+       artSize:original.backgroundSize,phoneImage:phone.backgroundImage,
+       heroHeight:hero.height,logoTop:top.top};
+   });
+   const lift=Math.min(44,Math.max(34,width/10));
+   assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
+   assert.ok(scene.extendedImage.includes('island-world-extension-v1.svg'),'cloud, mountain and ocean extension '+width);
+   assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'original island stays intact '+width);
+   assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
+   assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
+   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original scenery layer '+width);
+   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'move dock and task content with artwork '+width);
+   assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo and points remain safe '+width);
+   await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();
    assert.equal(await p.locator('.island-mate-tile').count(),17,width+' should show all companions');
@@ -41,7 +62,26 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(alphas.length,16,'all sixteen original PNG portraits remain valid');
    assert.ok(images.every(i=>i.ok),JSON.stringify(images.filter(i=>!i.ok)));
    const gridColumns=await p.locator('.island-mate-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
-   assert.equal(gridColumns,width<360?3:4,'adaptive columns '+width);
+   assert.equal(gridColumns,3,'V2 companion columns '+width);
+   const ui=await p.evaluate(()=>{
+     const nav=document.querySelector('.phone > .up-nav');
+     const grid=document.querySelector('.island-mate-grid');
+     const tabs=document.querySelector('.island-mate-tabs');
+     const button=tabs?.querySelector('[aria-pressed="true"]');
+     return {navPosition:getComputedStyle(nav).position,navBottom:nav.getBoundingClientRect().bottom,
+       gridOverflow:getComputedStyle(grid).overflowY,gridCanScroll:grid.scrollHeight>grid.clientHeight,
+       tabTop:tabs.getBoundingClientRect().top,tabOutline:button?getComputedStyle(button).outlineStyle:'missing'};
+   });
+   assert.equal(ui.navPosition,'fixed','bottom nav must use viewport-fixed positioning');
+   assert.ok(Math.abs(ui.navBottom-850)<2,'bottom nav must align with visual viewport '+width);
+   assert.equal(ui.gridOverflow,'auto','only gallery list should scroll');
+   assert.ok(ui.gridCanScroll,'all sixteen animals must be reachable by scrolling');
+   assert.equal(ui.tabOutline,'none','no unexpected selection focus outline');
+   await p.locator('.island-mate-grid').evaluate(el=>{el.scrollTop=el.scrollHeight;});
+   const afterScroll=await p.evaluate(()=>({scroll:document.querySelector('.island-mate-grid').scrollTop,
+     tabTop:document.querySelector('.island-mate-tabs').getBoundingClientRect().top}));
+   assert.ok(afterScroll.scroll>0,'gallery can scroll to last companion');
+   assert.ok(Math.abs(afterScroll.tabTop-ui.tabTop)<2,'segment control remains fixed when gallery scrolls');
    await p.screenshot({path:'/tmp/companions-gallery-'+width+'.png'});
    const before=await p.evaluate(()=>{const d=getData();return {points:d.points,construction:d.demoGrowth?.construction,redemptions:d.redemptions?.length||0};});
    await p.locator('.island-mate-tile[data-id="mouse"]').click();
@@ -65,6 +105,38 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.deepEqual(errors,[],'no browser errors '+width);
    await p.close();
    console.log('PASS companion gallery',width,'px');
+  }
+  for(const width of [768,1024,1366]){
+   const p=await browser.newPage({viewport:{width,height:1024},deviceScaleFactor:2});
+   const errors=[];p.on('pageerror',e=>errors.push(e.message));
+   await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
+   await p.locator('#island-loader').waitFor({state:'detached'});
+   const layout=await p.evaluate(()=>{
+     const phone=document.querySelector('.phone');
+     const world=document.querySelector('.tf-world-extension');
+     const art=document.querySelector('.tf-world-main');
+     const nav=document.querySelector('.up-nav');
+     const prect=phone.getBoundingClientRect();
+     const nrect=nav.getBoundingClientRect();
+     return {world:getComputedStyle(world).backgroundImage,
+       art:getComputedStyle(art).backgroundImage,mask:getComputedStyle(art).maskImage,
+       phoneWidth:prect.width,phoneCenter:prect.x+prect.width/2,
+       navWidth:nrect.width,navBottom:nrect.bottom,
+       scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
+       activeTab:nav.querySelector('[aria-current="page"]')?.textContent?.trim()};
+   });
+   assert.ok(layout.world.includes('island-world-extension-v1.svg'),'tablet extension image '+width);
+   assert.ok(layout.art.includes('today-island-reference-v1.webp'),'tablet retains original island '+width);
+   assert.ok(layout.mask!=='none','tablet island art should feather into surrounding panorama '+width);
+   assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'tablet content column width '+width);
+   assert.ok(Math.abs(layout.phoneCenter-width/2)<3,'tablet island centered '+width);
+   assert.ok(Math.abs(layout.navWidth-layout.phoneWidth)<3,'tablet original tabs share content width '+width);
+   assert.ok(Math.abs(layout.navBottom-1024)<2,'tablet tabs fixed at viewport bottom '+width);
+   assert.ok(layout.scrollWidth<=width+2,'no unwanted horizontal scroll on tablet '+width);
+   await p.screenshot({path:'/tmp/island-world-tablet-'+width+'.png'});
+   assert.deepEqual(errors,[],'no browser errors on tablet '+width);
+   await p.close();
+   console.log('PASS world extension',width,'px');
   }
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1)});

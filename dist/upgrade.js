@@ -110,9 +110,24 @@ function todayIcon(kind){
  };return `<svg class="tf-icon" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="tf-gold" x2="0" y2="1"><stop stop-color="#ffe89a"/><stop offset="1" stop-color="#f6b839"/></linearGradient><linearGradient id="tf-blue" x2="0" y2="1"><stop stop-color="#4bd4ff"/><stop offset="1" stop-color="#168cdf"/></linearGradient></defs>${shapes[kind]||shapes.clipboard}</svg>`;
 }
 function todayBringArt(name){const assets={'水杯':'item-bottle','泳衣':'item-swimsuit','泳帽':'item-swim-cap','作业本':'item-workbook','教科书':'item-textbook','教材':'item-textbook','围棋':'item-go','国际象棋':'item-chess','彩笔':'item-markers','铅笔':'item-pencil','橡皮':'item-eraser'};return assets[name]?hdArt(assets[name]):todayIcon(/泳镜/.test(name)?'goggles':/毛巾/.test(name)?'towel':'bag');}
+/* Display-only: numbered substeps of a homework description. The source text
+   remains untouched in storage and in task details / accessibility labels. */
+function tfHomeworkParts(raw){
+ const text=String(raw||'').trim();
+ const marks=[...text.matchAll(/(?:[1-9]\uFE0F?\u20E3|[①-⑨]|(?:^|[\s，,;；])\d[.．、])/g)];
+ if(marks.length<2||marks.length>6||marks[0].index>32)return null;
+ const intro=text.slice(0,marks[0].index).trim().replace(/[：:，,、\s]+$/,'');
+ const steps=marks.map((m,i)=>{
+  const value=text.slice(m.index+m[0].length,i+1<marks.length?marks[i+1].index:text.length).trim().replace(/^[.．、：:\s]+/,'');
+  const labeled=value.match(/^([^：:]{1,9})[：:]\s*(.+)$/);
+  return {name:labeled?labeled[1].trim():'步骤'+(i+1),detail:labeled?labeled[2].trim():value};
+ });
+ if(steps.some(s=>!s.detail))return null;
+ return {intro,steps};
+}
 function hdToday(d){
  const day=todayStr(),all=dayItems(d,day),tasks=all.filter(x=>x.kind==='homework'),complete=tasks.filter(x=>x.done).length,classes=all.filter(x=>x.kind==='class'),packing=classes.find(x=>IslandReminders.status(x,day)!=='已结束')||classes[0],pack=packing&&IslandReminders.details(packing);
- const homework=tasks.slice(0,2).map(it=>`<div class="tf-task ${it.done?'is-done':''}"><button class="tf-task-main" data-up="task" data-id="${attr(it.id)}"><span class="tf-subject" data-subject="${attr(it.hw.subject)}">${hdSubject(it.hw.subject)||e((it.hw.subject||'作业').slice(0,1))}</span><span><b>${e(it.hw.subject||'作业')}</b><small>${e(it.hw.content)}</small></span></button>${it.hw.pendingApproval?'<span class="tf-pending">待确认</span>':button(it.done?'✓':'',it.done?'undo':'complete','tf-check',`data-id="${attr(it.id)}" aria-label="${it.done?'撤销完成':'完成'}${attr(it.hw.content)}" aria-pressed="${it.done}"`)}</div>`).join('');
+ const homework=tasks.slice(0,2).map(it=>{const parts=tfHomeworkParts(it.hw.content);const detail=parts?`<div class="tf-task-steps" aria-label="练习步骤">${parts.steps.map((step,i)=>`<div class="tf-step"><span class="tf-step-head"><span class="tf-step-num">${i+1}</span>${e(step.name)}</span><small class="tf-step-detail">${e(step.detail)}</small></div>`).join('')}</div>`:'';return `<div class="tf-task ${it.done?'is-done':''} ${parts?'has-steps':''}"><button class="tf-task-main" data-up="task" data-id="${attr(it.id)}" aria-label="${attr(it.hw.subject||'作业')}：${attr(it.hw.content)}"><span class="tf-subject" data-subject="${attr(it.hw.subject)}">${hdSubject(it.hw.subject)||e((it.hw.subject||'作业').slice(0,1))}</span><span><b>${e(it.hw.subject||'作业')}</b><small>${e(parts?parts.intro||'完成以下练习':it.hw.content)}</small></span></button>${it.hw.pendingApproval?'<span class="tf-pending">待确认</span>':button(it.done?'✓':'',it.done?'undo':'complete','tf-check',`data-id="${attr(it.id)}" aria-label="${it.done?'撤销完成':'完成'}${attr(it.hw.content)}" aria-pressed="${it.done}"`)}${detail}</div>`;}).join('');
  const courseBring=FamilySchedule.packingItems(packing?[packing]:[]);
  const reference=typeof ISLAND_REFERENCE_PREVIEW!=='undefined'&&ISLAND_REFERENCE_PREVIEW;
  return `<div class="tf-today"><section class="tf-hero" aria-label="今日任务小岛">${reference?'<div class="tf-status" aria-hidden="true"><span>9:41</span><span>▂▃▅ ▰</span></div>':''}<header class="tf-top"><a class="tf-brand" href="${ISLAND_PREVIEW?'child.html?preview=1'+(reference?'&design=original':''):'child.html'}" aria-label="开心岛首页"><img class="tf-wordmark" src="assets/brand/kaixin-logo-final.webp" alt="开心岛"></a><button type="button" data-up="shop" class="tf-points" aria-label="${d.points} 积分，查看奖励兑换">${todayIcon('star')}<b>${d.points}</b></button></header></section>

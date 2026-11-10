@@ -1,0 +1,357 @@
+/* 开心岛 P0 · 2026-11-10 · iPhone Safari / approved V2 layout
+   Scope: fixed original tabs, aligned island header, companion dialog and readable tasks.
+   Do not change assets, rewards, task completion or the course / packing reminder rules. */
+
+body[data-mode="child"] {
+  --p0-tab-height: calc(82px + env(safe-area-inset-bottom, 0px));
+  --p0-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --p0-safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* The old .phone query container establishes a containing block for position:fixed.
+   Move that query boundary to .stage (artwork) and .up-nav (tab icons), so the
+   navigation is genuinely fixed to the visual viewport on iPhone Safari. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+  container-type: normal !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .stage {
+  container-type: inline-size;
+}
+body[data-mode="child"] .phone > .up-nav {
+  container-type: inline-size;
+}
+
+/* The tab is a viewport control, not the last row of the document.
+   Reserve actual scroll space so the final reminder / action stays tappable. */
+body[data-mode="child"] .stage {
+  box-sizing: border-box;
+  padding-bottom: var(--p0-tab-height);
+}
+body[data-mode="child"] .phone > .up-nav,
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  margin: 0 !important;
+  flex: none !important;
+  box-sizing: border-box;
+  width: min(100vw, 490px) !important;
+  max-width: 490px;
+  height: var(--p0-tab-height) !important;
+  min-height: var(--p0-tab-height) !important;
+  padding: 2px max(8px, var(--p0-safe-bottom)) calc(10px + var(--p0-safe-bottom)) !important;
+  z-index: 60 !important;
+  border-radius: 0 !important;
+  -webkit-transform: translateX(-50%) !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+  width: min(100vw, 390px) !important;
+  max-width: 390px;
+}
+/* Reuse the existing illustrated sand line; never stretch or substitute the tab artwork. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::before {
+  pointer-events: none;
+}
+body[data-mode="child"] .phone > .up-nav .up-nav-item {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+@media (max-width: 530px) {
+  body[data-mode="child"] .phone > .up-nav,
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    width: 100% !important;
+    max-width: none;
+  }
+}
+/* Short landscape iPhones: reduce visual height, preserve three complete touch targets. */
+@media (orientation: landscape) and (max-height: 500px) {
+  body[data-mode="child"] { --p0-tab-height: calc(62px + var(--p0-safe-bottom)); }
+  body[data-mode="child"] .phone > .up-nav .up-nav-item.tf-image-tab {
+    height: 48px;
+    min-height: 48px;
+  }
+  body[data-mode="child"] .phone > .up-nav .up-nav-item.tf-image-tab .tf-tab-art {
+    height: 24px !important;
+    flex-basis: 26px;
+    width: 26px !important;
+  }
+  body[data-mode="child"] .phone > .up-nav,
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+/* Confirmed V2 top row: logo and balance share a natural baseline above the island.
+   In Safari tab mode env(top) can be zero; the fallback still provides top air. */
+body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+  top: max(44px, calc(12px + var(--p0-safe-top))) !important;
+  align-items: center;
+}
+body[data-mode="child"] .up-main[data-route="today"] .tf-points {
+  transform: none !important;
+  align-self: center;
+}
+
+/* Companion switch: eliminate doubled outlines and iOS native focus rings while
+   keeping a visible keyboard-only focus style. */
+body[data-mode="child"] .island-companion-dialog .island-mate-tabs {
+  flex: 0 0 auto;
+  border: 1px solid #ecd8b6 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  padding: 3px;
+  background: #fff6e4;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tabs button {
+  -webkit-appearance: none;
+  appearance: none;
+  min-width: 0;
+  border: 0 !important;
+  outline: 0;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+  background: transparent;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tabs button[aria-pressed="true"] {
+  border: 1px solid #4fae32 !important;
+  background: linear-gradient(#a8e875, #69c64a);
+  box-shadow: inset 0 1px 0 #e2ffd4 !important;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tabs button:focus-visible {
+  outline: 2px solid #327a2d !important;
+  outline-offset: -3px;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tabs button:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+/* Only the companion grid scrolls. Plaque, switch and guidance stay in place.
+   Height is based on the *dynamic* visual viewport so Safari's chrome can resize. */
+body[data-mode="child"] .island-companion-dialog .up-dialog-body {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  height: min(650px, max(180px, calc(100dvh - 186px - var(--p0-safe-top) - var(--p0-safe-bottom))));
+  max-height: calc(100dvh - 186px - var(--p0-safe-top) - var(--p0-safe-bottom)) !important;
+  min-height: 0;
+  overflow: hidden !important;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-hint {
+  flex: 0 0 auto;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-auto-rows: max-content;
+  align-content: start;
+  gap: 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 2px 2px 18px;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-grid::-webkit-scrollbar {
+  display: none;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tile {
+  min-height: 140px;
+  padding: 7px 3px 9px;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tile img {
+  height: clamp(64px, 19vw, 88px);
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tile b {
+  font-size: 13px;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tile small {
+  font-size: 10px;
+}
+body[data-mode="child"] .island-companion-dialog .island-mate-tile[aria-pressed="true"] {
+  padding: 6px 2px 8px;
+}
+@media (max-width: 359px) {
+  body[data-mode="child"] .island-companion-dialog .up-dialog-body {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+  body[data-mode="child"] .island-companion-dialog .island-mate-grid { gap: 6px; }
+  body[data-mode="child"] .island-companion-dialog .island-mate-tile { min-height: 125px; }
+  body[data-mode="child"] .island-companion-dialog .island-mate-tile img { height: 66px; }
+}
+/* Do not truncate content of a normal homework row at exactly two lines. */
+body[data-mode="child"] .tf-homework-wrap .tf-task-main small {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  text-overflow: clip;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task-main b {
+  white-space: normal;
+  text-overflow: clip;
+}
+
+/* Numbered instructions are an optional, display-only sub-grid inside one task.
+   The task has exactly one completion control, not three separate check-ins. */
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  align-items: start;
+  gap: 6px 5px;
+  padding: 9px 9px 11px;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-main {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 48px;
+  width: 100%;
+  gap: 9px;
+  padding: 0;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-main .tf-subject {
+  flex: 0 0 auto;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-check,
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-pending {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-steps {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #efd8b5;
+  border-radius: 13px;
+  padding: 6px 3px 7px;
+  background: #fffaf1;
+  box-shadow: 0 2px 0 #f2e0c6;
+  color: #765131;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-num {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  color: white;
+  font-weight: 750;
+  font-size: 11px;
+  background: linear-gradient(#6bc9f1, #2d8bc6);
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-detail {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #755033;
+  font-size: clamp(10px, 2.8vw, 12px);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+@media (max-width: 359px) {
+  body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-steps { gap: 4px; }
+  body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step { padding-left: 2px; padding-right: 2px; }
+}
+
+/* Plan also owns a historic high-specificity sticky rule and query container.
+   Match its selector to keep the same fixed tabs when switching routes. */
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone {
+  container-type: normal !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .stage {
+  container-type: inline-size;
+}
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  -webkit-transform: translateX(-50%) !important;
+  margin: 0 !important;
+  flex: none !important;
+  box-sizing: border-box;
+  width: min(100vw, 390px) !important;
+  max-width: 390px;
+  min-height: var(--p0-tab-height) !important;
+  height: var(--p0-tab-height) !important;
+  padding: 2px max(8px, var(--p0-safe-bottom)) calc(10px + var(--p0-safe-bottom)) !important;
+  z-index: 60 !important;
+  border-radius: 0 !important;
+}
+@media (max-width: 530px), (orientation: landscape) and (max-height: 500px) {
+  body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
+
+/* P0-5 · Preserve ONE original island illustration; move the actual scenery,
+   rather than creating a matching-colour strip or duplicating background artwork.
+   The vertical shift and hero height reduction are the same amount, keeping the
+   dock character, task cards and island features aligned as one composition. */
+@media (max-width: 450px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) {
+    --p0-island-lift: clamp(34px, 10vw, 44px);
+  }
+  /* Artwork position now belongs solely to .tf-world-main in island-world-layers.css. */
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero {
+    flex: 0 0 calc(93cqw - var(--p0-island-lift)) !important;
+    height: calc(93cqw - var(--p0-island-lift)) !important;
+    min-height: calc(93cqw - var(--p0-island-lift)) !important;
+  }
+  /* Brand and points are DOM overlays; preserve the touch-safe top offset. */
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: max(24px, calc(var(--p0-safe-top) + 12px)) !important;
+  }
+}
+@media (display-mode: standalone) and (max-width: 450px) {
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: calc(var(--p0-safe-top) + 12px) !important;
+  }
+}
