@@ -23,6 +23,15 @@
  );
  const localKey=()=>typeof activeStorageKey==='function'?activeStorageKey():'kaixin_stage_local_v1';
  const safeClone=x=>JSON.parse(JSON.stringify(x));
+ // The isolated QA database contains old minimal technical fixtures. The UI needs
+ // domain defaults, but these defaults must NEVER be uploaded as independent edits.
+ function viewPayload(remote){
+   if(typeof createDefaultData!=='function')throw Error('staging_domain_defaults_missing');
+   const projected={...createDefaultData(),...safeClone(remote)};
+   if(window.DemoCore?.ensure)window.DemoCore.ensure(projected);
+   return projected;
+ }
+
  function emit(change){
    state={...state,...change};
    window.dispatchEvent(new CustomEvent('island-sync-state',{detail:{...state}}));
@@ -87,9 +96,10 @@
  }
  function localApply(payload){
    if(!allowed())throw Error('production_origin_blocked');
-   localStorage.setItem(localKey(),JSON.stringify(payload));
-   baseline=safeClone(payload);
-   if(refresh)refresh(payload);
+   const uiData=viewPayload(payload);
+   localStorage.setItem(localKey(),JSON.stringify(uiData));
+   baseline=safeClone(uiData);
+   if(refresh)refresh(uiData);
  }
  async function clean(){
    if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK))return false;
@@ -106,7 +116,7 @@
      }
      const remote=await load();
      revision=remote.revision;
-     if(JSON.stringify(remote.payload)!==JSON.stringify(baseline)){
+     if(JSON.stringify(viewPayload(remote.payload))!==JSON.stringify(baseline)){
        localApply(remote.payload);
      }
      emit({current:'synced',cloudRecord:'yes',message:'已核对测试云端版本 '+revision});
