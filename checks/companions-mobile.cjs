@@ -22,7 +22,15 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    });
    const lift=Math.min(44,Math.max(34,width/10));
    assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
-   assert.ok(scene.extendedImage.includes('island-world-extension-v1.svg'),'cloud, mountain and ocean extension '+width);
+   const seascape=await p.evaluate(async()=>{
+     const img=new Image();
+     img.src='assets/hd/kaixin-island-scenic-extension-v2.webp';
+     await img.decode();
+     return {width:img.naturalWidth,height:img.naturalHeight};
+   });
+   assert.equal(seascape.width,230,'approved scenic extension width '+width);
+   assert.equal(seascape.height,430,'approved scenic extension height '+width);
+   assert.ok(scene.extendedImage.includes('kaixin-island-scenic-extension-v2.webp'),'cloud, mountain and ocean extension '+width);
    assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'original island stays intact '+width);
    assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
    assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
@@ -125,7 +133,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
        scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
        activeTab:nav.querySelector('[aria-current="page"]')?.textContent?.trim()};
    });
-   assert.ok(layout.world.includes('island-world-extension-v1.svg'),'tablet extension image '+width);
+   assert.ok(layout.world.includes('kaixin-island-scenic-extension-v2.webp'),'tablet extension image '+width);
    assert.ok(layout.art.includes('today-island-reference-v1.webp'),'tablet retains original island '+width);
    assert.ok(layout.mask!=='none','tablet island art should feather into surrounding panorama '+width);
    assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'tablet content column width '+width);
