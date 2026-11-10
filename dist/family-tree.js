@@ -72,10 +72,28 @@ function perform(action,isPrivate=false,message="已保存到体验记录",id=nu
   return false;
  }
 }
+// Original vector pictograms matching the approved pop-up atlas: glossy heart,
+// lock, growing tree, disposal basket, cloud and letter. No rasterized words.
+function popupIllustration(kind){
+ const paths={
+  success:'<path d="M60 95C47 83 17 66 15 43 12 21 33 11 49 22l11 10 11-10c16-11 37-1 34 21-2 23-32 40-45 52Z" fill="url(#coral)" stroke="#b84d56" stroke-width="4"/><path d="M30 39C35 24 48 26 50 31" fill="none" stroke="#fff8e3" stroke-width="7" stroke-linecap="round"/><g fill="#ffd763"><path d="M13 14l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="M109 16l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></g>',
+  quota:'<path d="M57 95C44 84 16 66 14 44 12 20 34 13 48 24l12 10 11-10c16-12 37-2 35 20-2 22-29 40-45 51Z" fill="url(#coral)" stroke="#ae525b" stroke-width="4"/><rect x="64" y="55" width="39" height="32" rx="7" fill="url(#gold)" stroke="#ab772e" stroke-width="3"/><path d="M73 56v-9a11 11 0 0122 0v9" fill="none" stroke="#bf8b35" stroke-width="6"/><circle cx="83" cy="68" r="4" fill="#7d6437"/><path d="M83 70v7" stroke="#7d6437" stroke-width="4" stroke-linecap="round"/>',
+  growth:'<ellipse cx="61" cy="92" rx="38" ry="8" fill="#cadc9f"/><path d="M50 85C55 71 57 51 57 32L70 32C67 54 71 68 78 85Z" fill="url(#trunk)" stroke="#a57842" stroke-width="3"/><circle cx="45" cy="41" r="24" fill="#b4d36a"/><circle cx="76" cy="39" r="26" fill="#8db957"/><circle cx="60" cy="27" r="24" fill="#d0dd75"/><path d="M31 50q13-13 27 1M65 50q16-12 31 1" fill="none" stroke="#719c4e" stroke-width="4"/><circle cx="53" cy="33" r="7" fill="#fff9e6"/><circle cx="77" cy="28" r="6" fill="#fff9e6"/><circle cx="63" cy="45" r="8" fill="#ffd77c"/>',
+  delete:'<rect x="30" y="36" width="62" height="55" rx="9" fill="url(#gold)" stroke="#bd8747" stroke-width="4"/><path d="M32 46h58M48 47v39M63 47v39M78 47v39" stroke="#c49050" stroke-width="3"/><path d="M28 36l23-19h19l24 19" fill="none" stroke="#bb8040" stroke-width="9" stroke-linecap="round"/><path d="M58 30c-14-9-13-20 2-23 9 7 8 16-2 23Z" fill="#8fbd64"/><path d="M61 30c8-13 18-13 23-3-5 9-13 11-23 3Z" fill="#b2d86d"/>',
+  error:'<path d="M30 76C15 76 8 64 14 51c5-10 14-14 25-10 0-20 16-31 33-25 13 5 19 18 18 30 17-4 29 11 23 24-3 6-8 9-18 9Z" fill="url(#sky)" stroke="#6fadd7" stroke-width="4"/><path d="M46 85q16-16 31 0M54 94q8-7 16 0" fill="none" stroke="#cf747a" stroke-width="5" stroke-linecap="round"/><circle cx="62" cy="102" r="3" fill="#cf747a"/>',
+  help:'<rect x="25" y="25" width="73" height="67" rx="13" fill="#fff4d7" stroke="#cea26b" stroke-width="4"/><path d="M38 47h47M38 59h44M38 71h31" stroke="#d2b487" stroke-width="5" stroke-linecap="round"/><path d="M78 15c10-8 22-3 19 9-2 8-12 13-21 15" stroke="#8eae61" stroke-width="6" fill="none"/>'
+ };
+ return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 112" role="presentation" focusable="false" aria-hidden="true"><defs>'+
+ '<linearGradient id="coral" x1="0" x2=".8" y1="0" y2="1"><stop stop-color="#ffc0ad"/><stop offset=".48" stop-color="#f27b83"/><stop offset="1" stop-color="#d35065"/></linearGradient>'+
+ '<linearGradient id="gold" x1="0" x2=".8" y1="0" y2="1"><stop stop-color="#ffe4a3"/><stop offset="1" stop-color="#db9f48"/></linearGradient>'+
+ '<linearGradient id="trunk" x1="0" x2="1"><stop stop-color="#b67d43"/><stop offset=".5" stop-color="#dfb46b"/><stop offset="1" stop-color="#9e6638"/></linearGradient>'+
+ '<linearGradient id="sky" x1="0" x2=".8" y1="0" y2="1"><stop stop-color="#ddf7ff"/><stop offset="1" stop-color="#83c9ec"/></linearGradient></defs>'+
+ (paths[kind]||paths.help)+'</svg>';
+}
 function dismissPopup(){if($("ftModal").open)$("ftModal").close();}
 function showPopup(kind,title,body,actions){
  const dlg=$("ftModal");dismissPopup();
- $("ftModalIcon").textContent={success:"♥",quota:"♡",growth:"🌱",delete:"🍃",error:"☁",help:"📜"}[kind]||"♡";
+ $("ftModalIcon").innerHTML=popupIllustration(kind);
  $("ftModalTitle").textContent=title;
  $("ftModalBody").innerHTML=body;
  $("ftModalActions").replaceChildren();
