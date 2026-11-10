@@ -35,14 +35,26 @@ assert.throws(()=>M.applyPrivate(priv,'dad',{type:'readHeart',id:'h1'}),/只有�
 assert.throws(()=>M.applyPrivate(priv,'kid',{type:'sendHeart',to:'kid',text:'给自己'}),/送达/);
 priv=M.applyPrivate(priv,'mom',{type:'readHeart',id:'h1'},time);
 assert.equal(priv.hearts[0].readAt,time);
-assert.deepEqual(M.treeGrowth(priv).levels,[0,3,8,16],'growth stages are driven by hearts');
-assert.equal(M.treeGrowth(priv).count,2);
-assert.equal(M.treeGrowth(priv).stage,0);
+// Stage depends on elapsed months, NEVER heart count.
+const when=(today,count=0)=>M.treeGrowth(count,{activationDate:'2021-11-10',today});
+assert.deepEqual(when('2021-11-10').levels,[0,6,18,30,42,60]);
+assert.deepEqual(['2021-11-10','2022-05-10','2023-05-10','2024-05-10','2025-05-10','2026-11-10'].map(d=>when(d).stage),[0,1,2,3,4,5]);
+assert.equal(when('2026-11-09',10000).stage,4,'lots of hearts cannot accelerate five years');
+assert.equal(when('2026-11-10',0).stage,5,'fifth anniversary grows without hearts');
+assert.equal(when('2023-01-10',1000).decorationCount,3,'decoration display capped by age');
+assert.equal(M.addMonths('2024-02-29',12),'2025-02-28','leap-day anniversary clamps to Feb 28');
+assert.equal(M.dateInZone('2026-11-09T16:30:00.000Z','Asia/Shanghai'),'2026-11-10');
+assert.equal(M.dateInZone('2026-11-09T16:30:00.000Z','America/Los_Angeles'),'2026-11-09');
 priv=M.applyPrivate(priv,'mom',{type:'sendHeart',to:'dad',text:'谢谢你'},time,'h3');
-assert.equal(M.treeGrowth(priv).stage,1,'third heart unlocks new stage');
-assert.equal(M.treeGrowth(8).stage,2);
-assert.equal(M.treeGrowth(16).stage,3);
-assert.equal(M.treeGrowth(0).stage,0);
+assert.equal(M.dailyUsage(priv,'mom','2026-11-09'),1);
+priv=M.applyPrivate(priv,'mom',{type:'reactRecord',recordType:'moment',recordId:'g1',targetAuthor:'kid'},time,'h4');
+assert.equal(M.dailyUsage(priv,'mom','2026-11-09'),2);
+assert.throws(()=>M.applyPrivate(priv,'mom',{type:'sendHeart',to:'kid',text:'再送一颗'},time,'h5'),/已送完/);
+assert.throws(()=>M.applyPrivate(priv,'mom',{type:'reactRecord',recordType:'moment',recordId:'g1',targetAuthor:'kid'},'2026-11-10T12:00:00.000Z','h6'),/已经送过/);
+assert.equal(M.applyPrivate(priv,'mom',{type:'sendHeart',to:'dad',text:'谢谢你'},time,'h3').hearts.length,3,'idempotency prevents duplicate debit');
+priv=M.applyPrivate(priv,'mom',{type:'sendHeart',to:'kid',text:'明天送心'},'2026-11-10T12:00:00.000Z','h7');
+assert.equal(M.dailyUsage(priv,'mom','2026-11-10'),1,'tomorrow quota resets');
+assert.throws(()=>M.applyPrivate(priv,'mom',{type:'reactRecord',recordType:'note',recordId:'n1',targetAuthor:'mom'},'2026-11-10T12:00:00.000Z','h8'),/自己的/);
 
 pub=M.applyPublic(pub,'kid',{type:'deleteMoment',id:'g1'});
 assert.equal(pub.replies.some(r=>r.id==='r-growth'),false,'deleting a memory removes its replies');
