@@ -65,7 +65,7 @@ try{
   await page.locator('#visit').click();
   assert.equal(await page.locator('#detailScene').getAttribute('data-place'),'tree');
   assert.equal(await page.locator('#detailTree').isVisible(),false);
-  assert.ok((await page.locator('#detailScene').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('family-tree-v3/garden-hero.webp'));
+  assert.ok((await page.locator('#detailScene').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('family-tree-v3/entrance-scene.webp'));
   await page.locator('#treeEnter').click();
   await page.frameLocator('#treeFrame').locator('.ft-tabs').waitFor();
   await page.locator('#treeClose').click();
