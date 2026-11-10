@@ -34,9 +34,22 @@ const sdkMock=`(()=>{
        }else{
          state.payload=JSON.parse(JSON.stringify(window.getData()));
          state.payload.recurringTasks=[];
+       if(state.role==='child')state.payload.homework.push({id:'qa_child_assigned',
+         subject:'数学',content:'孩子端完成与撤销验收',deadline:'2026-11-11T20:00:00',
+         done:false,attachments:[],createdAt:'2026-11-10T00:00:00Z'});
        }
       }
       return{data:{ok:true,revision:state.revision,payload:JSON.parse(JSON.stringify(state.payload))},error:null};
+    }
+    if(name==='kaixin_child_set_homework_done'){
+      if(state.role!=='child')return{data:{ok:false,error:'unauthorized'},error:null};
+      const item=state.payload.homework.find(h=>h.id===body.p_homework_id);
+      if(!item)return{data:{ok:false,error:'not_found'},error:null};
+      if(Boolean(item.done)!==body.p_expected_done)return{data:{ok:false,error:'conflict'},error:null};
+      item.done=body.p_done;
+      item.completedAt=body.p_done?'2026-11-10T00:00:00Z':null;
+      state.revision++;
+      return{data:{ok:true,revision:state.revision,duplicate:false},error:null};
     }
     if(name==='family_save_v2'){
       if(state.role!=='parent')return{data:{ok:false,error:'unauthorized'},error:null};
@@ -130,6 +143,23 @@ async function boot(browser,role,route='child.html',sparse=false){
     'UI-only default points must NOT be uploaded to staging sparse fixture');
   assert.deepEqual(sparse.errors,[],'sparse staging fixture must not crash the family UI');
   await sparse.page.close();
+
+  // Isolated child uses the restricted RPC; completion and undo never earn
+  // points or touch historical growth fields.
+  const childToggle=await boot(browser,'child','child.html');
+  await childToggle.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  await childToggle.page.evaluate(()=>completeHomework('qa_child_assigned'));
+  await childToggle.page.waitForFunction(()=>window.__qaRemote.payload.homework.find(h=>h.id==='qa_child_assigned')?.done===true
+    &&window.IslandSync.getStatus().current==='synced',{timeout:15000});
+  assert.equal(await childToggle.page.evaluate(()=>window.__qaRemote.calls.includes('kaixin_child_set_homework_done')),true);
+  assert.equal(await childToggle.page.evaluate(()=>window.__qaRemote.calls.includes('family_save_v2')),false);
+  assert.equal(await childToggle.page.evaluate(()=>window.__qaRemote.payload.points),0);
+  await childToggle.page.evaluate(()=>undoHomework('qa_child_assigned'));
+  await childToggle.page.waitForFunction(()=>window.__qaRemote.payload.homework.find(h=>h.id==='qa_child_assigned')?.done===false
+    &&window.IslandSync.getStatus().current==='synced',{timeout:15000});
+  assert.equal(await childToggle.page.evaluate(()=>window.__qaRemote.payload.points),0);
+  assert.deepEqual(childToggle.errors,[],'child completion/undo must work without page errors');
+  await childToggle.page.close();
 
   const child=await boot(browser,'child','child.html');
   await child.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:18000});
