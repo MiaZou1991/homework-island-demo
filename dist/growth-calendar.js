@@ -18,7 +18,7 @@ function hwItems(ctx,day){return (ctx.dayItems(ctx.data,day)||[]).filter(x=>x.ki
 function complete(ctx,day){const x=hwItems(ctx,day);return x.length>0&&x.every(it=>it.done===true||it.hw&&it.hw.done===true);}
 function marks(ctx,day){
  const a=[],j=mood(ctx,day),base='assets/hd/growth-calendar/';
- if(j&&j.mood)a.push({kind:'mood',text:MOOD_LABEL[j.mood]||'心情',icon:'<img src="assets/hd/moods/'+esc(j.mood)+'.svg" alt="">'}); 
+ if(j&&j.mood)a.push({kind:'mood',text:MOOD_LABEL[j.mood]||'心情',icon:'<img src="'+(j.mood==='happy'?'assets/hd/growth-calendar/mood-happy-cat.svg':'assets/hd/moods/'+esc(j.mood)+'.svg')+'" alt="">'}); 
  if(complete(ctx,day))a.push({kind:'done',text:'任务完成',icon:'<img src="'+base+'star.svg" alt="">'}); 
  if(habits(ctx).some(h=>checked(h,day)))a.push({kind:'habit',text:'习惯打卡',icon:'<img src="'+base+'leaf.svg" alt="">'}); 
  if(moments(ctx,day).length)a.push({kind:'moment',text:'特别时刻',icon:'<img src="'+base+'flower.svg" alt="">'}); 
@@ -47,7 +47,7 @@ function controls(ctx,month,dates){
  return '<header class="gc-top"><div class="gc-top-row"><h1>成长日历</h1><div class="gc-switch" role="group" aria-label="日历视图">'+
  '<button type="button" data-up="plan-range" data-range="week" aria-pressed="'+(!month)+'">周视图</button>'+
  '<button type="button" data-up="plan-range" data-range="month" aria-pressed="'+month+'">月视图</button></div></div>'+
- '<div class="gc-range"><button type="button" data-up="prev" aria-label="上一个日期区间">‹</button><strong><span class="gc-range-ico" aria-hidden="true">▣</span> '+value+'</strong><button type="button" data-up="next" aria-label="下一个日期区间">›</button></div></header>'+(month?'':familyFilters(ctx));
+ '<div class="gc-range"><button type="button" data-up="prev" aria-label="上一个日期区间">‹</button><strong><span class="gc-range-ico" aria-hidden="true"><img src="assets/hd/growth-calendar/calendar.svg" alt=""></span> '+value+'</strong><button type="button" data-up="next" aria-label="下一个日期区间">›</button></div></header>'+(month?'':familyFilters(ctx));
 }
 function week(ctx){
  const start=monday(ctx.date),days=DAYS.map((_,i)=>plus(start,i)),periods=[['am','☀','上午'],['pm','🌤','下午'],['night','☾','晚上']],dayItems=days.map(day=>items(ctx,day));
@@ -60,7 +60,7 @@ function week(ctx){
   const count=(h.completedDates||[]).length,goal=Math.max(1,Number(h.goal)||21);
   return '<div class="gc-habit-mini"><b>❧ '+esc(h.title)+'</b><span>'+count+'/'+goal+'天</span><div class="gc-progress"><i style="width:'+Math.min(100,count/goal*100)+'%"></i></div></div>';
  }).join('');
- return '<div class="cp-page gc-page gc-week">'+controls(ctx,false,days)+
+ return '<div class="gc-page gc-week">'+controls(ctx,false,days)+
  '<div class="gc-week-dates">'+days.map((day,i)=>'<button type="button" data-up="growth-day" data-date="'+day+'" class="'+(day===ctx.date?'selected':'')+'"><small>周'+DAYS[i]+'</small><b>'+Number(day.slice(-2))+'</b></button>').join('')+'</div>'+
  '<section class="gc-panel gc-timetable"><div class="gc-section-title"><h2>一周小课表 <small>点日期查看详情</small></h2><button type="button" data-up="add-menu">＋ 记一件事</button></div>'+head+rows+'</section>'+
  '<section class="gc-panel gc-goals"><div class="gc-section-title"><h2>本周小目标</h2><button type="button" data-up="growth-habit-new">＋ 21天挑战</button></div>'+
@@ -81,7 +81,7 @@ function month(ctx){
  const countDone=progress?(progress.completedDates||[]).length:0,goal=progress?Math.max(1,Number(progress.goal)||21):21;
  const stamps=progress?Array.from({length:Math.min(goal,21)},(_,i)=>'<span class="gc-stamp '+(i<countDone?'on':'')+'" aria-label="第'+(i+1)+'天'+(i<countDone?'已打卡':'未打卡')+'">'+(i<countDone?'✓':'✿')+'</span>').join(''):'';
  const notebook='<div class="gc-memory-book"><span class="gc-spiral" aria-hidden="true"></span><div class="gc-memory-photo"><img src="assets/hd/growth-calendar/memory-autumn.svg" alt="秋天的小岛风景"></div><div class="gc-memory-copy"><p>'+esc(lastNote?.text||'每一天的心情和成长，都会变成值得收藏的小故事。')+'</p><small>本月记录心情 '+monthJ.filter(j=>j.mood).length+' 天</small></div><span class="gc-memory-pencil" aria-hidden="true">✎</span></div>';
- return '<div class="cp-page gc-page gc-month">'+controls(ctx,true,[])+
+ return '<div class="gc-page gc-month">'+controls(ctx,true,[])+
  '<section class="gc-panel gc-month-paper"><div class="gc-month-head">'+DAYS.map(x=>'<span>周'+x+'</span>').join('')+'</div><div class="gc-month-grid">'+cells+'</div>'+
  '<div class="gc-legend">'+[['mood','心情记录'],['done','任务完成'],['habit','习惯打卡'],['moment','特别时刻']].map(([k,t])=>'<span><img src="assets/hd/growth-calendar/'+(k==='mood'?'heart':k==='done'?'star':k==='habit'?'leaf':'flower')+'.svg" alt="">'+t+'</span>').join('')+'</div></section>'+
  '<section class="gc-journal-card"><div class="gc-wood-heading"><h2>'+(m+1)+'月 · 我的手账</h2><button type="button" data-up="growth-day" data-date="'+ctx.date+'" aria-label="翻开成长手账">›</button></div>'+notebook+'</section>'+
@@ -94,14 +94,14 @@ function detail(ctx,day){
  const j=mood(ctx,day),a=marks(ctx,day),h=hwItems(ctx,day),done=h.filter(it=>it.done===true||it.hw&&it.hw.done).length,hs=habits(ctx),ms=moments(ctx,day),daySchedule=items(ctx,day);
  const date=dt(day),past=day<=iso(new Date()),classes=daySchedule.filter(it=>it.kind==='class'),events=daySchedule.filter(it=>it.kind==='event');
  const pack=root.FamilySchedule?.packingItems?.(daySchedule)||[];
- const recordedMood=j?.mood?'<img src="assets/hd/moods/'+esc(j.mood)+'.svg" alt="">':'<span class="gc-detail-placeholder">♡</span>';
+ const recordedMood=j?.mood?'<img src="'+(j.mood==='happy'?'assets/hd/growth-calendar/mood-happy-cat.svg':'assets/hd/moods/'+esc(j.mood)+'.svg')+'" alt="">':'<img src="assets/hd/growth-calendar/mood-empty.svg" alt="">';
  const moodName=MOOD_LABEL[j?.mood]||'未记录';
  const stats='<div class="gc-detail-quick">'+
  '<div class="gc-detail-stat mood">'+recordedMood+'<b>'+esc(moodName)+'</b></div>'+
  '<div class="gc-detail-stat done"><img src="assets/hd/growth-calendar/star.svg" alt=""><b>'+ (h.length&&done===h.length?'任务完成':done+' / '+h.length+'项')+'</b></div>'+
  '<div class="gc-detail-stat habit"><img src="assets/hd/growth-calendar/leaf.svg" alt=""><b>'+hs.filter(x=>checked(x,day)).length+'项习惯</b></div></div>';
- const note='<section class="gc-detail-section gc-diary"><h2><span class="gc-detail-section-ico">▤</span> 我的小记录</h2><div class="gc-diary-paper"><p class="gc-handwriting">'+esc(j?.text||'今天还没有留下小记录。')+'</p><button type="button" data-up="journal-edit" data-date="'+day+'" aria-label="记录或修改这一天的心情与短句">✎</button></div></section>';
- const arrangement='<section class="gc-detail-section gc-arrangement"><h2><span class="gc-detail-section-ico">▣</span> 当天安排</h2>'+
+ const note='<section class="gc-detail-section gc-diary"><h2><img class="gc-detail-section-icon" src="assets/hd/growth-calendar/journal.svg" alt=""> 我的小记录</h2><div class="gc-diary-paper"><p class="gc-handwriting">'+esc(j?.text||'今天还没有留下小记录。')+'</p><button type="button" data-up="journal-edit" data-date="'+day+'" aria-label="记录或修改这一天的心情与短句">✎</button></div></section>';
+ const arrangement='<section class="gc-detail-section gc-arrangement"><h2><img class="gc-detail-section-icon" src="assets/hd/growth-calendar/tasks.svg" alt=""> 当天安排</h2>'+
  '<div class="gc-detail-list"><div><b>作业（'+h.length+'项）</b><span>'+ (h.length?done+' / '+h.length+'项完成':'暂无作业')+'</span></div>'+
  '<div><b>课程（'+classes.length+'项）</b><span>仅提醒</span></div>'+
  '<div><b>携带物品（'+pack.length+'件）</b><span>仅提示</span></div>'+
@@ -115,7 +115,7 @@ function detail(ctx,day){
  (ms.map(x=>'<p class="gc-moment-item">✿ '+esc(x.text)+'</p>').join('')||'<p class="gc-empty-note">有值得纪念的小事，可以写在这里。</p>')+
  '<button type="button" data-up="growth-moment-new" data-date="'+day+'" class="gc-inline-add">＋ 添加特别时刻</button></section>';
  return '<div class="gc-detail"><h1>'+(date.getMonth()+1)+'月'+date.getDate()+'日 · 周'+weekday(day)+'</h1>'+
- stats+note+arrangement+habitsHtml+momentHtml+'<div class="gc-detail-flower" aria-hidden="true"></div></div>';
+ stats+note+arrangement+habitsHtml+momentHtml+'<div class="gc-detail-meadow" aria-hidden="true"></div></div>';
 }
 function habitForm(){return '<div class="gc-detail"><h1>开启21天习惯挑战</h1><p>坚持是慢慢积累的，不需要每天连续完成。</p><label for="gc-habit-name">想培养什么小习惯？</label><input id="gc-habit-name" maxlength="24" placeholder="例如：每天阅读20分钟"><p id="gc-growth-error" role="status"></p><button type="button" data-up="growth-habit-save">开始挑战</button></div>';}
 function momentForm(day){return '<div class="gc-detail"><h1>收藏特别时刻</h1><p>'+esc(day)+' · 留下一件值得纪念的小事</p><label for="gc-moment-text">想记录什么？</label><textarea id="gc-moment-text" maxlength="80" rows="3" placeholder="例如：第一次独立完成了画作"></textarea><input type="hidden" id="gc-moment-date" value="'+esc(day)+'"><p id="gc-growth-error" role="status"></p><button type="button" data-up="growth-moment-save">收藏这一天</button></div>';}
