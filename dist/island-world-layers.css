@@ -1,5 +1,5 @@
 /* 开心岛 · 场景图层 V1 · 2026-11-10
-   1) 独立 SVG 天空、远山、海面延展层，覆盖全屏和 iPad 两侧
+   1) 独立 真实插画取样的天空、远山、海面与沙滩延展层，覆盖全屏和 iPad 两侧
    2) 原来的高清小岛插画保持原比例，在中央独立绘制
    3) Logo、作业、课程、伙伴、Tab 都是可交互 DOM，不受场景遮罩影响
    不靠纯色顶栏或渐变色补片拼接 iPhone 刘海区域。 */
@@ -22,10 +22,10 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension 
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
-  background-image: url("assets/hd/island-world-extension-v1.svg");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
+  background-image: url("assets/hd/kaixin-island-scenic-extension-v2.webp");
+  background-repeat: repeat-x;
+  background-position: center top;
+  background-size: auto 100dvh;
 }
 body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
   position: relative;
@@ -66,7 +66,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     background-size: 100% auto;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
-    background-size: auto 100%;
+    background-size: auto 100dvh;
   }
 }
 /* Tablet: extend the *world*, not the text and interactive cards. The source
@@ -100,7 +100,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     max-width: 500px !important;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
-    background-size: cover;
+    background-size: auto 100dvh;
   }
   /* Give the source art room to breathe; keep it visually behind the header. */
   body[data-mode="child"] .up-main[data-route="today"] .tf-top {
