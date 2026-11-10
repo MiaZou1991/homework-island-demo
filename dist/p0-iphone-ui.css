@@ -8,6 +8,19 @@ body[data-mode="child"] {
   --p0-safe-top: env(safe-area-inset-top, 0px);
 }
 
+/* The old .phone query container establishes a containing block for position:fixed.
+   Move that query boundary to .stage (artwork) and .up-nav (tab icons), so the
+   navigation is genuinely fixed to the visual viewport on iPhone Safari. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+  container-type: normal !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .stage {
+  container-type: inline-size;
+}
+body[data-mode="child"] .phone > .up-nav {
+  container-type: inline-size;
+}
+
 /* The tab is a viewport control, not the last row of the document.
    Reserve actual scroll space so the final reminder / action stays tappable. */
 body[data-mode="child"] .stage {
