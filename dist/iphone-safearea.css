@@ -141,13 +141,6 @@ body[data-mode="child"] .phone>.up-nav{
    The document's upper and lower edge use the sky and sand palette respectively.
    Never place a fixed strip over artwork or over the system's bottom toolbar. */
 @media(max-width:450px){
-  html:has(body[data-mode="child"] .up-main[data-route="today"]){
-    background:linear-gradient(to bottom,
-      #2ab3f4 0%,
-      #5dc7ed 30%,
-      #f5dba9 78%,
-      #fae5b3 100%) fixed!important;
-  }
   body[data-mode="child"]:has(.up-main[data-route="today"]){
     background:transparent!important;
     min-height:100dvh;
