@@ -132,9 +132,9 @@ html,body{overflow-x:hidden}
  color:transparent!important;font-size:0!important;text-shadow:none!important;overflow:hidden!important
 }
 .ft-story-item .ft-story-stamp:before{content:none!important}
-.ft-story-item:nth-child(1) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-swimming.svg")}
-.ft-story-item:nth-child(2) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-seashell.svg");transform:rotate(2deg)!important}
-.ft-story-item:nth-child(3) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-basketball.svg")}
+.ft-story-item:nth-child(1) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-swimming-approved.webp")}
+.ft-story-item:nth-child(2) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-seashell-approved.webp");transform:rotate(2deg)!important}
+.ft-story-item:nth-child(3) .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-basketball-approved.webp")}
 .ft-story-item .ft-record-controls{display:flex;align-items:center;gap:6px!important;margin:1px 0 0 7px!important;padding:0!important;min-height:25px;height:25px}
 .ft-story-heart,.ft-story-item .ft-story-heart{height:24px!important;min-height:24px!important;padding:3px 9px!important;font-size:10px!important;font-weight:800!important;line-height:1!important;color:#bd6666!important;border:1.5px solid #e8b7b5!important;background:#fff2ef!important;border-radius:16px!important}
 .ft-story-item .ft-story-comments{height:24px!important;min-height:24px!important;padding:3px 10px!important;font-size:10px!important;line-height:1!important;font-weight:800;color:#6a7444!important;border:1px solid #deca9a!important;border-radius:16px!important;background:#fff9e9!important}
