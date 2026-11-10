@@ -1,0 +1,42 @@
+'use strict';
+const assert=require('node:assert/strict');
+const ops=require('../dist/v2-operation-engine.js');
+const review=require('../dist/v2-conflict-review.js');
+const base={homework:[{id:'h1',content:'原作业',done:false}],points:90,
+ demoGrowth:{receipts:{old:true}},rewardsUnlocked:['old']};
+const edit=ops.make({entity:'homework',before:base.homework[0],
+ after:{...base.homework[0],content:'手机A版'},operationId:'device-a-1'});
+const server={...base,homework:[{...base.homework[0],content:'手机B版',done:true}]};
+const original=JSON.stringify(server);
+const candidate=review.prepare({payload:server,operation:edit,revision:55});
+assert.deepEqual(candidate.conflictingFields,['content']);
+assert.equal(candidate.remote.content,'手机B版');
+assert.equal(candidate.local.content,'手机A版');
+assert.equal(candidate.local.done,true);
+assert.equal(candidate.status,'awaiting_parent');
+const remote=review.choose(candidate,'remote');
+assert.equal(remote.operation,null);
+assert.equal(remote.preservedAlternative.content,'手机A版');
+const local=review.choose(candidate,'local','parent-resolution-2');
+assert.equal(local.preservedAlternative.content,'手机B版');
+assert.equal(local.operation.operationId,'parent-resolution-2');
+const merged=ops.apply(server,local.operation);
+assert.equal(merged.outcome,'changed');
+assert.equal(merged.payload.homework[0].content,'手机A版');
+assert.equal(merged.payload.homework[0].done,true);
+assert.equal(merged.payload.points,90);
+assert.deepEqual(merged.payload.demoGrowth,base.demoGrowth);
+assert.deepEqual(merged.payload.rewardsUnlocked,base.rewardsUnlocked);
+assert.equal(JSON.stringify(server),original);
+assert.throws(()=>review.prepare({payload:base,operation:edit,revision:55}),/not_a_conflict/);
+assert.throws(()=>review.choose(candidate,'latest'),/invalid_parent_choice/);
+assert.throws(()=>review.choose(candidate,'local','device-a-1'),/invalid_resolution_id/);
+const event={events:[{id:'e1',title:'游泳',checklist:['泳帽']}]};
+const eventOp=ops.make({entity:'events',before:event.events[0],
+ after:{...event.events[0],checklist:['泳衣']},operationId:'event-1'});
+const serverEvent={events:[{...event.events[0],checklist:['水杯']}]};
+const ev=review.prepare({payload:serverEvent,operation:eventOp,revision:2});
+assert.deepEqual(ev.local.checklist,['泳衣']);
+assert.deepEqual(ev.remote.checklist,['水杯']);
+assert.equal(review.choose(ev,'local','parent-event-2').operation.action,'patch');
+console.log('PASS parent conflict choice: both versions kept, unrelated completion and historical growth preserved');
