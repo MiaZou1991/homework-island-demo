@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#f1eddc">
   <title>家庭树 · 开心岛</title>
-  <link rel="stylesheet" href="family-tree.css?v=20261110-family-records-v2">
+  <link rel="stylesheet" href="family-tree.css?v=20261110-family-fullstate-v3">
 </head>
 <body>
 <main class="ft-app">
@@ -19,12 +19,13 @@
     <aside class="ft-growth-summary" aria-label="小树成长状态">
       <div class="ft-growth-caption">♡ 我们的小树</div>
       <div class="ft-growth-count"><strong id="treeHeartCount">0</strong><span>份爱心</span></div>
-      <div class="ft-growth-stage" id="treeStage">小树萌芽</div>
-      <div class="ft-growth-progress" id="treeGrowthProgress" role="progressbar" aria-label="小树成长进度" aria-valuemin="0" aria-valuemax="3" aria-valuenow="0">
-        <span></span><span></span><span></span><span></span>
+      <div class="ft-growth-stage" id="treeStage">初芽树</div><div class="ft-tree-age" id="treeAge">已陪伴 0年0个月</div>
+      <div class="ft-growth-progress" id="treeGrowthProgress" role="progressbar" aria-label="小树成长进度" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
       </div>
-      <p id="treeNext">送出一份爱心，让小树成长</p>
+      <p id="treeNext">五年陪伴，慢慢长大</p><button type="button" id="viewTreeGrowth" class="ft-growth-link">查看成长旅程 ›</button>
     </aside>
+    <div id="treeTags" class="ft-tree-tags" aria-label="树枝上最近的家庭记录"></div>
   </header>
 
   <section class="ft-content" aria-label="家庭记录与爱心">
@@ -38,7 +39,7 @@
 
     <nav class="ft-tabs" aria-label="家庭树栏目">
       <button type="button" data-section="stories" aria-current="page">家庭记录</button>
-      <button type="button" data-section="hearts" aria-current="false">送爱心</button>
+      <button type="button" data-section="hearts" aria-current="false">♡ 送爱心</button>
     </nav>
     <div id="feedback" class="ft-feedback" role="status" aria-live="polite"></div>
 
@@ -56,18 +57,11 @@
     </section>
 
     <section class="ft-page" data-page="hearts" aria-labelledby="heartsTitle" hidden>
-      <div class="ft-section-head"><div><h2 id="heartsTitle">送一份爱心</h2><p>每份爱心都会让家庭树长大一点。</p></div></div>
-      <div class="ft-heart-compose">
-        <div class="ft-envelope" aria-hidden="true">♡</div>
-        <form id="heartForm">
-          <label for="heartTo">送给谁</label>
-          <select id="heartTo" required></select>
-          <label for="heartText">想说的话</label>
-          <textarea id="heartText" rows="3" maxlength="120" required placeholder="谢谢你今天陪我一起散步……"></textarea>
-          <p class="ft-privacy">爱心内容只应由发送者和收信人查看。正式上线前需完成独立的成员权限验收。</p>
-          <button type="submit" class="ft-coral">♡ 送出爱心</button>
-        </form>
+      <div class="ft-section-head">
+        <div><h2 id="heartsTitle">爱心信箱</h2><p>给家人留一封只属于你们的暖心信。</p></div>
+        <button type="button" id="openHeartComposer" class="ft-coral ft-small">♡ 写心意</button>
       </div>
+      <div id="heartRemaining" class="ft-quota-info" aria-live="polite">今天还能送出 2 / 2 颗爱心</div>
       <div class="ft-heart-tabs" role="group" aria-label="爱心信箱">
         <button type="button" data-heart-view="received" aria-pressed="true">收到的爱心</button>
         <button type="button" data-heart-view="sent" aria-pressed="false">送出的爱心</button>
@@ -87,6 +81,11 @@
         </select>
       </div>
       <div id="editorExtra"></div>
+      <div id="photoPicker" class="ft-photo-picker">
+        <label for="editorPhoto">添加照片（可选，体验模式不上传）</label>
+        <input type="file" id="editorPhoto" accept="image/png,image/jpeg,image/webp" multiple>
+        <p id="photoStatus" role="status">正式保存照片需要独立的图片权限与上传服务。</p>
+      </div>
       <label for="editorText">想记录的话</label>
       <textarea id="editorText" maxlength="300" rows="5" required></textarea>
       <div class="ft-actions">
@@ -95,8 +94,42 @@
       </div>
     </form>
   </dialog>
+  <dialog id="heartComposer" aria-labelledby="heartComposerTitle" class="ft-popup">
+    <div class="ft-popup-shell">
+      <button type="button" class="ft-popup-close" id="heartComposerClose" aria-label="关闭送爱心">×</button>
+      <h2 id="heartComposerTitle" class="ft-popup-title">♡ 送爱心</h2>
+      <p class="ft-popup-lead">选一位家人，把温暖的心意送过去</p>
+      <form id="heartForm">
+        <label for="heartTo">收件人</label>
+        <select id="heartTo" required></select>
+        <label for="heartText">想对家人说的话</label>
+        <textarea id="heartText" rows="4" maxlength="120" required placeholder="谢谢你今天陪我一起散步……"></textarea>
+        <p id="heartQuota" class="ft-quota-info">今天还可以送出 2 / 2 颗爱心</p>
+        <p class="ft-privacy">私密留言只应由发送者和接收者查看。这里暂为隔离测试版本。</p>
+        <div class="ft-popup-actions"><button type="button" class="ft-secondary" id="heartCancel">取消</button>
+          <button type="submit" id="heartSubmit" class="ft-coral">♡ 送出爱心</button></div>
+      </form>
+    </div>
+  </dialog>
+  <dialog id="storyDetail" aria-labelledby="storyDetailTitle" class="ft-popup">
+    <div class="ft-popup-shell">
+      <button type="button" class="ft-popup-close" id="storyDetailClose" aria-label="关闭记录详情">×</button>
+      <h2 id="storyDetailTitle" class="ft-popup-title">家庭记录</h2>
+      <div id="storyDetailContent"></div>
+      <button type="button" class="ft-secondary ft-popup-footer" id="storyDetailReturn">回到树下</button>
+    </div>
+  </dialog>
+  <dialog id="ftModal" aria-labelledby="ftModalTitle" aria-describedby="ftModalBody" class="ft-popup">
+    <div class="ft-popup-shell">
+      <button type="button" class="ft-popup-close" id="ftModalClose" aria-label="关闭弹窗">×</button>
+      <div id="ftModalIcon" class="ft-popup-icon" aria-hidden="true">♡</div>
+      <h2 id="ftModalTitle" class="ft-popup-title">温暖提醒</h2>
+      <div id="ftModalBody" class="ft-popup-body"></div>
+      <div id="ftModalActions" class="ft-popup-actions"></div>
+    </div>
+  </dialog>
 </main>
-<script src="family-tree-model.js?v=20261110-family-records-v2"></script>
-<script src="family-tree.js?v=20261110-family-records-v2"></script>
+<script src="family-tree-model.js?v=20261110-family-fullstate-v3"></script>
+<script src="family-tree.js?v=20261110-family-fullstate-v3"></script>
 </body>
 </html>
