@@ -148,3 +148,6 @@ assert.throws(()=>ops.planTransition(original,{...original,homework:[...original
 assert.deepEqual(original,starting,'transition planner must not mutate source objects');
 
 console.log('PASS 45+ V2 operation assertions: add/patch/delete across homework/events/classes/recurring, idempotency, independent field merge, conflict blocking, stale deletes, family history preservation, malicious input and batch integrity');
+
+// Parent conflict review regression (no browser or production database).
+require('./v2-conflict-review.cjs');
