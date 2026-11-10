@@ -22,12 +22,12 @@ label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.status{bor
 .secret{background:#edf2dc;border:2px dashed #9cbb87;border-radius:13px;padding:12px;white-space:pre-wrap;word-break:break-all;user-select:all;font-family:ui-monospace,monospace;font-size:13px}
 .hidden{display:none!important}.smallnote{font-size:12px;color:#69766d}
 #feedback{position:sticky;bottom:8px;margin-top:10px;padding:12px 14px;border-radius:13px;background:#405e48;color:#fff;font-size:14px;box-shadow:0 4px 14px #0002}
-.device{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #ebede7}
+.device{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #ebede7}.device .stack{margin-top:0}#devices-list details{background:#f7f5ed;padding:13px;border:1px solid #e2e4d6;border-radius:12px}#account-id{white-space:pre-line}
 @media(max-width:440px){h1{font-size:23px}section{padding:16px}.device{align-items:flex-start;flex-direction:column}}
 </style>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>
 <script defer src="./kaixin-staging-onboarding-flow.js"></script>
-<script defer src="./kaixin-staging-onboarding-ui.js"></script>
+<script defer src="./kaixin-staging-onboarding-ui.js?v=20261110-devices1"></script>
 </head>
 <body><main>
 <header>
@@ -35,7 +35,7 @@ label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.status{bor
 <h1>家庭设备绑定测试</h1>
 <p>家长与孩子共用同一份家庭数据，不提供家庭注册或切换。</p>
 </header>
-<div class="notice">仅连接独立测试项目 <strong>kaixin-island-staging</strong>，用于验证账号和设备权限。这里不会读取、迁移或修改你家正式开心岛的作业。此页面不是正式儿童端设计。</div>
+<div class="notice">仅连接独立测试项目 <strong>kaixin-island-staging</strong>，用于验证账号和设备权限。<strong>原来正式开心岛的作业不会出现在此页面；测试库只有开发测试数据。</strong> 你可以在家长端创建模拟作业验证。此页面不是正式儿童端设计。</div>
 <section aria-labelledby="identity-label">
 <h2 id="identity-label">当前登录身份</h2>
 <div class="status" id="identity-state">正在确认测试身份……</div>
@@ -70,7 +70,7 @@ label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.status{bor
 <p class="smallnote" id="invite-expires"></p>
 <button id="copy-code" type="button" class="secondary">复制配对码</button>
 </div>
-<h2 style="margin-top:25px">已绑定的孩子设备</h2>
+<h2 style="margin-top:25px">孩子设备管理</h2><p class="help">历史开发测试记录已单独折叠，避免误以为都是你家的手机。新绑定的孩子设备请通过识别码核对并命名。</p>
 <div class="stack"><button id="devices-refresh" type="button" class="secondary">刷新设备清单</button></div>
 <div id="devices-list"><p class="smallnote">尚未查询。</p></div>
 </section>
