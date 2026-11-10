@@ -225,6 +225,7 @@
     $('detailFuture').textContent = place.later;
     $('detailMap').style.objectPosition = place.focus;
     $('detailScene').dataset.place = place.id;
+    $('detail').dataset.tree = String(place.id === 'tree');
     $('detailTree').hidden = true; // Family tree is integrated in the approved flowerbed artwork.
     $('detailKid').hidden = true; // No loose PNGs pasted over the garden.
     $('treeEnter').hidden = place.id !== 'tree';
