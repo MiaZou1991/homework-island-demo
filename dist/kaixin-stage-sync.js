@@ -125,8 +125,76 @@
    })();
    try{return await readBusy;}finally{readBusy=null;}
  }
+ function childToggleTransition(next){
+   if(!baseline||!next||!Array.isArray(next.homework)||!Array.isArray(baseline.homework))
+     throw Error('child_transition_invalid');
+   const keys=new Set([...Object.keys(baseline),...Object.keys(next)]);
+   for(const key of keys){
+     if(key==='homework')continue;
+     if(JSON.stringify(baseline[key])!==JSON.stringify(next[key]))
+       throw Error('child_unapproved_field');
+   }
+   if(next.homework.length!==baseline.homework.length)throw Error('child_unapproved_list_edit');
+   const old=new Map(baseline.homework.map(h=>[h.id,h]));
+   if(old.size!==baseline.homework.length)throw Error('child_duplicate_ids');
+   const edits=[];
+   for(const item of next.homework){
+     const prior=old.get(item?.id);
+     if(!prior)throw Error('child_unapproved_new_homework');
+     if(JSON.stringify(prior)!==JSON.stringify(item)){
+       const properties=new Set([...Object.keys(prior),...Object.keys(item)]);
+       for(const prop of properties){
+         if(prop!=='done'&&prop!=='completedAt'
+           &&JSON.stringify(prior[prop])!==JSON.stringify(item[prop]))
+           throw Error('child_unapproved_homework_change');
+       }
+       if(Boolean(prior.done)===Boolean(item.done)||item.requireReview===true)
+         throw Error('child_unapproved_completion');
+       if(item.done&&!item.completedAt)throw Error('child_invalid_completion_time');
+       edits.push({kind:'child_homework_done',operationId:crypto.randomUUID(),
+         homeworkId:item.id,expectedDone:Boolean(prior.done),done:Boolean(item.done),
+         createdAt:new Date().toISOString()});
+     }
+   }
+   if(edits.length!==1)throw Error('child_exactly_one_toggle_required');
+   return edits[0];
+ }
+ async function flushChildOperation(op,store){
+   if(op.kind!=='child_homework_done') {
+     block('孩子设备队列含未识别操作，需核实');
+     return {ok:false,blocked:true};
+   }
+   const result=await window.KaixinStageAuth.client().rpc('kaixin_child_set_homework_done',{
+     p_homework_id:op.homeworkId,p_done:op.done,
+     p_expected_done:op.expectedDone,p_operation_id:op.operationId
+   });
+   if(result.error)throw Error('child_rpc_unavailable');
+   if(result.data?.ok!==true){
+     if(result.data?.error==='conflict'||result.data?.error==='already_in_state'){
+       block('作业完成状态与另一台设备冲突；双方修改已保留，请家长核对');
+       return {ok:false,conflict:true};
+     }
+     if(result.data?.error==='unauthorized'){
+       block('孩子设备权限已经失效；当前修改仍保留');
+       return {ok:false,unauthorized:true};
+     }
+     if(result.data?.error==='review_required'){
+       block('这条作业需要家长确认，不能自动完成');
+       return {ok:false,blocked:true};
+     }
+     throw Error('child_save_rejected');
+   }
+   const verified=await load();
+   const matches=verified.payload.homework.filter(h=>h.id===op.homeworkId);
+   if(matches.length!==1||Boolean(matches[0].done)!==op.done)
+     throw Error('child_readback_unverified');
+   await store.remove(op.operationId);
+   revision=verified.revision;
+   emit({current:'pending',message:'孩子完成状态已获云端确认，正在刷新其他设备'});
+   return {ok:true};
+ }
  async function flush(){
-   if(!authorized||role!=='parent'||!allowed())return {ok:false};
+   if(!authorized||!allowed())return {ok:false};
    if(busy)return busy;
    busy=(async()=>{
      await writing;
@@ -137,6 +205,11 @@
      if(!ops.length)return checkRemote();
      emit({current:'pending',message:'正在提交 '+ops.length+' 项测试变更'});
      for(const op of ops) {
+       if(role==='child'){
+         const childResult=await flushChildOperation(op,store);
+         if(!childResult.ok)return childResult;
+         continue;
+       }
        let completed=false;
        for(let attempt=0;attempt<4;attempt++){
          const remote=await load();
@@ -178,8 +251,21 @@
  }
  function schedulePush(next){
    if(!authorized||!started)return; // provisional startup data never uploaded
-   if(role!=='parent'){
-     block('儿童端写入接口尚未接入；此测试版本不得把完成状态当作已同步');
+   if(role==='child'){
+     if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
+       emit({current:'blocked',message:'此前有未确认操作，禁止覆盖，请家长核对'});return;
+     }
+     let op;
+     try{op=childToggleTransition(next);}
+     catch(_){block('孩子设备当前只支持作业完成／撤销完成同步，其余本机改动已保留');return;}
+     try{localStorage.setItem(DIRTY,'1');}catch(_){block('不能保存断电保护标记');return;}
+     baseline=safeClone(next);
+     writing=writing.then(async()=>{
+       await (await openOutbox()).put(op);
+       localStorage.removeItem(DIRTY);
+       emit({current:'pending',message:'孩子操作已保存在本机，待云端确认'});
+     }).catch(()=>block('孩子操作队列持久化失败'));
+     writing.then(()=>flush());
      return;
    }
    if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
@@ -227,7 +313,7 @@
      const store=await openOutbox();
      if((await store.all()).length){
        emit({current:'pending',message:'上次离线待上传操作尚未确认，保留本机数据'});
-       if(role==='parent')await flush();
+       await flush();
        return;
      }
      const loaded=await load();
