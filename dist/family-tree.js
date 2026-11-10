@@ -158,10 +158,14 @@ function renderStories(){
   '" data-'+(isMoment?"moment":"note")+'="'+esc(x.id)+'">'+
   '<div class="ft-paper-head"><span class="ft-category '+(isMoment?"ft-category-moment":"ft-category-note")+
   '">'+(isMoment?"成长回忆":"家庭便签")+'</span><span>'+esc(x.sortDay)+" · "+esc(names[x.author]||"家人")+
-  '</span></div><div class="ft-paper-copy">'+esc(x.text)+'</div>'+
+  '</span></div>'+
+  '<div class="ft-story-row"><div class="ft-paper-copy">'+esc(x.text)+'</div>'+
+  '<div class="ft-story-stamp '+(isMoment?'ft-stamp-leaf':'ft-stamp-letter')+'" aria-hidden="true">'+
+  (isMoment?'✿':'✉')+'</div></div>'+
   '<div class="ft-record-controls">'+storyHearts(x)+
-  '<button type="button" class="ft-text-button" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'">查看详情</button></div>'+
-  actions(x.recordType,x)+thread(x.recordType,x.id)+'</article>';
+  '<button type="button" class="ft-text-button ft-story-comments" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'">✉ '+publicData.replies.filter(r=>r.targetId===x.id||r.noteId===x.id||r.momentId===x.id).length+' · 查看详情</button>'+
+  (x.author===actor?'<button type="button" class="ft-more" data-more="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="管理这条记录">···</button>':'')+
+  '</div></article>';
  }).join(""):'<div class="ft-empty"><b>树下还没有记录</b>写下成长的小事，或留句话给家人吧。</div>';
  const pinned=all.slice(0,3);
  $("treeTags").innerHTML=pinned.length?pinned.map((x,i)=>
@@ -227,13 +231,15 @@ function growthPopup(){
   "<p>当前阶段已展现 "+g.decorationCount+" / "+g.decorationCapacity+
   " 处装饰。五周年后树体不再继续放大。</p>",[{text:"回到家庭树",close:true,kind:"primary"}]);
 }
+function detailMarkup(kind,x){
+ return '<div class="ft-detail-meta">'+esc(names[x.author]||"家人")+
+ " · "+esc(x.day||(x.createdAt||"").slice(0,10))+"</div>"+
+ '<p class="ft-detail-text">'+esc(x.text)+'</p>'+actions(kind,x)+thread(kind,x.id);
+}
 function openDetail(kind,id){
  const x=findEntry(kind,id);if(!x)return;
  $("storyDetailTitle").textContent=kind==="moment"?"成长回忆":"家庭便签";
- $("storyDetailContent").innerHTML=
-  '<div class="ft-detail-meta">'+esc(names[x.author]||"家人")+
-  " · "+esc(x.day||(x.createdAt||"").slice(0,10))+"</div>"+
-  '<p class="ft-detail-text">'+esc(x.text)+'</p>'+thread(kind,id);
+ $("storyDetailContent").innerHTML=detailMarkup(kind,x);
  $("storyDetail").showModal();
 }
 function editorControls(){
@@ -342,6 +348,18 @@ function handleRecordClick(event){
  if(add){openEditor("story");return;}
  const reactButton=event.target.closest("[data-react]");
  if(reactButton){react(reactButton.dataset.react,reactButton.dataset.id);return;}
+ const more=event.target.closest("[data-more]");
+ if(more){
+  const kind=more.dataset.more,id=more.dataset.id;
+  const item=findEntry(kind,id);
+  if(!item||item.author!==actor)return;
+  showPopup("help","这条记录",'<p>想修改这段回忆，还是把它从家庭树取下来？</p>',[
+   {text:"返回",close:true},
+   {text:"编辑记录",kind:"primary",onClick:()=>openEditor(kind,item)},
+   {text:"删除记录",kind:"danger",onClick:()=>confirmDelete(kind,id)}
+  ]);
+  return;
+ }
  const edit=event.target.closest("[data-edit]");
  if(edit){openEditor(edit.dataset.edit,findEntry(edit.dataset.edit,edit.dataset.id));return;}
  const del=event.target.closest("[data-delete]");
@@ -363,9 +381,7 @@ function handleReplySubmit(event){
 }
 function openDetailRefresh(kind,id){
  const x=findEntry(kind,id);if(!x)return;
- $("storyDetailContent").innerHTML='<div class="ft-detail-meta">'+esc(names[x.author]||"家人")+
- " · "+esc(x.day||(x.createdAt||"").slice(0,10))+'</div>'+
- '<p class="ft-detail-text">'+esc(x.text)+'</p>'+thread(kind,id);
+ $("storyDetailContent").innerHTML=detailMarkup(kind,x);
 }
 function maybeCelebrate(){
  const g=growth();
