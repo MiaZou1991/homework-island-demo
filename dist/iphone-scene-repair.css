@@ -1,0 +1,118 @@
+/* 开心岛 · Safari & Home Screen PWA visual repair · 2026-11-10
+   The previous extension WebP contained its own island-like details and beach,
+   overlaid behind the source island. At iPhone widths this causes a ghosted
+   skyline near the Dynamic Island and duplicated scenery under the fixed tabs.
+   At phones there must be ONE scenic source. Retain panorama only for iPad
+   where it fills the sides, not behind a second central skyline. */
+@media (max-width: 530px) {
+  /* Safari uses the document canvas to style the area adjoining its chrome.
+     Use the ORIGINAL first pixels as the canvas, not a solid theme-colour strip. */
+  html:has(body[data-mode="child"] .up-main[data-route="today"]) {
+    background-color: #43c4ed !important;
+    background-image: url("assets/hd/today-island-reference-v1.webp") !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% auto !important;
+    background-position: center top !important;
+    color-scheme: light;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) {
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* Kill the second scene altogether on iPhone, including PWA. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+    display: none !important;
+    background-image: none !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  /* Original island, drawn once at the top. No -40px offset, zoom, blur
+     or full-height stretching, and no secondary lighthouse at the top. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    display: block !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: url("assets/hd/today-island-reference-v1.webp") center top / 100% auto no-repeat !important;
+    opacity: 1 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
+  /* Disable legacy decorative ocean overlays, leaving the real illustration. */
+  body[data-mode="child"] .up-main[data-route="today"] .tf-today {
+    background: transparent !important;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-today::after,
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero::before,
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero::after {
+    content: none !important;
+    display: none !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .sky,
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .topbar {
+    display: none !important;
+  }
+  /* The old P0 compensates a background shift. Now restore BOTH the natural
+     scene origin and corresponding hero spacing, so landmarks align with cards. */
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero {
+    flex: 0 0 93cqw !important;
+    height: 93cqw !important;
+    min-height: 93cqw !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    background: #ffe5b2 !important;
+    isolation: isolate;
+    border-radius: 0 !important;
+  }
+  /* The existing sand-tab illustration is a navigation asset, not a second
+     full-screen landscape. A non-transparent sand backing prevents bleed. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::before {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: url("assets/hd/tab-sand-line.svg") center / 100% 100% no-repeat !important;
+    z-index: 0 !important;
+    pointer-events: none;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav .up-nav-item {
+    position: relative;
+    z-index: 1;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::after { display: none !important; }
+}
+/* Home Screen runs edge-to-edge. Place logo BELOW the system safe area.
+   Do not shift the artwork separately: the original sky is the backdrop. */
+@media (display-mode: standalone) and (max-width: 530px) {
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 530px) {
+  body[data-mode="child"] .up-main[data-route="today"] .tf-hero {
+    flex-basis: max(130px, 45cqw) !important;
+    height: max(130px, 45cqw) !important;
+    min-height: max(130px, 45cqw) !important;
+  }
+}
+/* iPad keeps a panorama ONLY outside the original island composition. The
+   background element must never paint a lighthouse or UI duplicate above it. */
+@media (min-width: 531px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    filter: none !important;
+  }
+}

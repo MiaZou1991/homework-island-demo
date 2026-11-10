@@ -10,29 +10,54 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
    const scene=await p.evaluate(()=>{
+     const root=getComputedStyle(document.documentElement);
      const world=getComputedStyle(document.querySelector('.tf-world-extension'));
      const original=getComputedStyle(document.querySelector('.tf-world-main'));
      const phone=getComputedStyle(document.querySelector('.phone'));
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
-     return {extendedImage:world.backgroundImage,worldDisplay:world.display,
+     const nav=document.querySelector('.phone > .up-nav');
+     return {
+       rootImage:root.backgroundImage,worldDisplay:world.display,
        artImage:original.backgroundImage,artPositionY:original.backgroundPositionY,
-       artSize:original.backgroundSize,phoneImage:phone.backgroundImage,
-       heroHeight:hero.height,logoTop:top.top};
+       artSize:original.backgroundSize,artOpacity:original.opacity,
+       artFilter:original.filter,phoneImage:phone.backgroundImage,
+       heroHeight:hero.height,logoTop:top.top,
+       navColor:getComputedStyle(nav).backgroundColor,
+       navArt:getComputedStyle(nav,'::before').backgroundImage
+     };
    });
-   const lift=Math.min(44,Math.max(34,width/10));
-   assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
-   assert.ok(scene.extendedImage.includes('island-world-panoramic-v2.webp'),'cloud, mountain and ocean extension '+width);
-   const photoLoaded=await p.evaluate(async()=>{const i=new Image();i.src='assets/hd/island-world-panoramic-v2.webp';try{await i.decode();return {w:i.naturalWidth,h:i.naturalHeight};}catch{return {w:0,h:0};}});
-   assert.equal(photoLoaded.w,720,'panoramic photo asset should load '+width);
-   assert.equal(photoLoaded.h,900,'panoramic photo aspect ratio retained '+width);
-   assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'original island stays intact '+width);
-   assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
-   assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
-   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original scenery layer '+width);
-   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'move dock and task content with artwork '+width);
-   assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo and points remain safe '+width);
+   assert.ok(scene.rootImage.includes('today-island-reference-v1.webp'),'top system canvas must reuse original sky '+width);
+   assert.equal(scene.worldDisplay,'none','no second island/beach wallpaper on phones '+width);
+   assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'one original island image '+width);
+   assert.equal(scene.phoneImage,'none','old CSS must not paint a second image on phone '+width);
+   assert.equal(scene.artSize,'100% auto','do not stretch the original island '+width);
+   assert.ok(scene.artPositionY==='top'||scene.artPositionY==='0%','source island must start at the top '+width);
+   assert.equal(scene.artFilter,'none','no blurry island ghost '+width);
+   assert.equal(scene.artOpacity,'1','full-resolution original artwork '+width);
+   assert.ok(Math.abs(scene.heroHeight-width*.93)<2,'restored island composition alignment '+width);
+   assert.ok(scene.logoTop>=22,'logo keeps clear of system status area '+width);
+   assert.ok(scene.navArt.includes('tab-sand-line.svg'),'use only the approved sand tab skin '+width);
+   assert.equal(await p.locator('meta[name="theme-color"]').count(),0,'no forced blue Safari toolbar '+width);
+   const sourceImage=await p.evaluate(async()=>{const i=new Image();i.src='assets/hd/today-island-reference-v1.webp';try{await i.decode();return {w:i.naturalWidth,h:i.naturalHeight};}catch{return {w:0,h:0};}});
+   assert.equal(sourceImage.w,900,'original high-resolution island loaded '+width);
+   assert.equal(sourceImage.h,1748,'original island aspect ratio '+width);
    await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
+   /* Address-bar expand/collapse analogue: document art must be independent of
+      viewport height and bottom nav must stay on the visual viewport. */
+   await p.setViewportSize({width,height:720});
+   const resized=await p.evaluate(()=>({
+      worldDisplay:getComputedStyle(document.querySelector('.tf-world-extension')).display,
+      position:getComputedStyle(document.querySelector('.tf-world-main')).backgroundPositionY,
+      tabBottom:document.querySelector('.phone > .up-nav').getBoundingClientRect().bottom,
+      heroHeight:document.querySelector('.tf-hero').getBoundingClientRect().height
+   }));
+   assert.equal(resized.worldDisplay,'none','no duplicate backdrop after toolbar resize '+width);
+   assert.equal(resized.position,scene.artPositionY,'no island picture jump after viewport resize '+width);
+   assert.ok(Math.abs(resized.tabBottom-720)<2,'bottom tab remains anchored to viewport '+width);
+   assert.ok(Math.abs(resized.heroHeight-scene.heroHeight)<2,'the island and cards do not jump with Safari toolbar '+width);
+   await p.setViewportSize({width,height:850});
+
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();
    assert.equal(await p.locator('.island-mate-tile').count(),17,width+' should show all companions');
@@ -103,6 +128,38 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(await p.locator('.island-mate-tile[data-id="mouse"]').getAttribute('aria-pressed'),'true');
    await p.locator('.island-mate-tabs button[data-tab="owned"]').click();
    assert.equal(await p.locator('.island-mate-tile').count(),2,'only bear and mouse met in isolated preview');
+   if(width===390){
+     /* Emulate standalone CSS media state as well as normal Safari-like Chrome.
+        This does not replace a real iPhone screenshot, but it catches accidental
+        double backgrounds in the PWA-only CSS branch. */
+     const session=await p.context().newCDPSession(p);
+     try{
+       await session.send('Emulation.setEmulatedMedia',{
+         features:[{name:'display-mode',value:'standalone'}]
+       });
+       const pwa=await p.evaluate(()=>({
+         mode:matchMedia('(display-mode: standalone)').matches,
+         extension:getComputedStyle(document.querySelector('.tf-world-extension')).display,
+         original:getComputedStyle(document.querySelector('.tf-world-main')).backgroundImage,
+         root:getComputedStyle(document.documentElement).backgroundImage,
+         nav:getComputedStyle(document.querySelector('.phone > .up-nav')).position,
+         navBottom:document.querySelector('.phone > .up-nav').getBoundingClientRect().bottom
+       }));
+       if(pwa.mode){
+         assert.equal(pwa.extension,'none','standalone PWA must not paint a ghost island');
+         assert.ok(pwa.original.includes('today-island-reference-v1.webp'),'PWA original island source');
+         assert.ok(pwa.root.includes('today-island-reference-v1.webp'),'PWA status-bar canvas uses original sky');
+         assert.equal(pwa.nav,'fixed','PWA tabs remain fixed');
+         assert.ok(Math.abs(pwa.navBottom-850)<2,'PWA nav fits the viewport');
+         await p.screenshot({path:'/tmp/companions-standalone-390.png'});
+         console.log('PASS simulated PWA scene 390px');
+       } else {
+         console.log('PWA media simulation unsupported on this Chromium; manual Safari PWA required');
+       }
+     }finally{
+       await session.detach();
+     }
+   }
    const overflow=await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
    assert.equal(overflow,false,'no horizontal page overflow '+width);
    assert.deepEqual(errors,[],'no browser errors '+width);
