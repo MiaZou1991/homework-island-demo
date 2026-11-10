@@ -9,7 +9,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 [hidden]{display:none!important}
 .ft-app{width:min(720px,100%);min-height:100dvh;margin:auto;background:linear-gradient(#edf0e0,#fbf2de 48%,#f3ecd7);box-shadow:0 0 36px #53635319}
 .ft-hero{position:relative;height:clamp(245px,37vw,335px);background:#9fc4ad;overflow:hidden}
-.ft-hero-picture{position:absolute;inset:0;background:url("assets/our-island-v1/map.webp") 25% 48%/cover no-repeat;filter:saturate(.84) brightness(1.035)}
+.ft-hero-picture{position:absolute;inset:0;background:url("assets/our-island-v1/map.webp") 2% 33%/auto 230% no-repeat;filter:saturate(.84) brightness(1.035)}
 .ft-hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#fff7e666 0%,#fff9e600 39%,#f4ead3c4 100%)}
 .ft-hero-content{position:absolute;z-index:1;inset:37px 15px auto;text-align:center}
 .ft-hero-plaque{display:flex;width:210px;height:88px;align-items:center;justify-content:center;margin:auto;background:url("assets/hd/dialogs-v3/plaque.webp") center/100% 100% no-repeat;filter:drop-shadow(0 5px 5px #58452742)}
