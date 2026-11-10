@@ -1,0 +1,123 @@
+/* 开心岛 · 成长日历日期详情弹窗 PNG 第一批
+   启用门槛：html.gc-png-ready，五张图成功解码后才切换，加载失败回退原样式。
+   注意：图片只有背景，日期、伙伴、动态记录、按钮保持真实 DOM。
+ */
+html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog {
+  width: min(390px, calc(100vw - 18px)) !important;
+  max-width: calc(100vw - 18px) !important;
+  padding: 67px 0 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface {
+  position: relative;
+  isolation: isolate;
+  min-height: 460px;
+  padding: 0 8px 8px !important;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 29px;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
+  overflow: visible !important;
+}
+/* 9-slice; keep the top flowers, raised edge and bottom meadow intact when content grows. */
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface::before {
+  content:"" !important;
+  display:block !important;
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  box-sizing:border-box;
+  border-style:solid;
+  border-color:transparent;
+  border-width:85px 28px 55px !important;
+  border-image-source:url("assets/hd/growth-calendar/popup-png/popup_bg.png") !important;
+  border-image-slice:207 70 131 70 fill !important;
+  border-image-width:85px 28px 55px 28px !important;
+  border-image-outset:0 !important;
+  border-image-repeat:stretch !important;
+  background:none !important;
+  filter:none !important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-header {
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+  right:auto !important;
+  transform:none !important;
+  height:60px !important;
+  min-height:60px !important;
+  margin:19px 9px 0 !important;
+  padding:0 19px !important;
+  z-index:5;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-title {
+  width:100%;height:61px !important;min-height:61px !important;
+  margin:0 !important;padding:7px 16px 9px !important;
+  background: url("assets/hd/growth-calendar/popup-png/popup_title_bar.png") center / 100% 100% no-repeat !important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  color:#613c26!important;text-shadow:0 1px #fff8e5;
+  font-size:19px!important;font-weight:800!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-peek-buddy {
+  z-index:3 !important;
+  bottom:41px !important;
+  width:103px;height:100px;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-body {
+  padding:13px 17px 62px!important;
+  max-height:calc(100dvh - 178px)!important;
+  overflow-y:auto!important;
+  border-radius:0!important;
+  background:none!important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-quick {
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  margin:0 0 16px;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat {
+  position:relative;min-width:0;min-height:118px;
+  padding:14px 3px 18px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background-position:center;background-size:100% 100%;background-repeat:no-repeat;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.mood {
+  background-image:url("assets/hd/growth-calendar/popup-png/card_mood_bg.png")!important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.done {
+  background-image:url("assets/hd/growth-calendar/popup-png/card_task_bg.png")!important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.habit {
+  background-image:url("assets/hd/growth-calendar/popup-png/card_habit_bg.png")!important;
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat img {
+  width:50px;height:50px;object-fit:contain;display:block;
+  filter:drop-shadow(0 1px 1px #a47a4b30);
+}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat b {
+  color:#69402b;font-size:12px!important;font-weight:800!important;
+  line-height:1.25!important;white-space:nowrap;
+}
+/* The panel PNG already carries the daisies and meadow; avoid duplicate CSS footer. */
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-meadow {display:none!important;}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface>.up-close {
+  position:absolute!important;z-index:10;
+  top:31px!important;right:17px!important;left:auto!important;
+  width:34px!important;height:34px!important;min-height:34px!important;
+  color:#895737!important;background:#fff4d5!important;
+  box-shadow:0 2px #d0ac80,0 3px 5px #875a3440!important;
+  transform:none!important;
+}
+@media(max-width:359px){
+  html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-body {padding:10px 13px 59px!important;}
+  html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat {min-height:101px;padding:12px 0 13px;}
+  html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat img {width:42px;height:42px;}
+  html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat b {font-size:11px!important;}
+}
