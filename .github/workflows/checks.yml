@@ -20,6 +20,10 @@ jobs:
           node checks/domain.test.cjs
           node checks/companions-v7.cjs
           node checks/kaixin-sync.cjs
+          node --check dist/kaixin-staging-onboarding-flow.js
+          node --check dist/kaixin-staging-onboarding-ui.js
+          node checks/kaixin-staging-onboarding-flow.cjs
+          node checks/kaixin-staging-preview-http.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
@@ -42,6 +46,7 @@ jobs:
         run: |
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
+          node checks/kaixin-staging-onboarding-ui.cjs
           node checks/companions-mobile.cjs
       - name: Upload companion gallery QA screenshots
         if: always()
