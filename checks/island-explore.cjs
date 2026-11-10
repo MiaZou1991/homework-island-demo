@@ -109,7 +109,7 @@ const places = [
           assert.equal(await page.locator('#detailTree').isVisible(), false,
             'family tree is integrated with flowerbed, not a pasted PNG');
           assert.ok((await page.locator('#detailScene').evaluate(el =>
-            getComputedStyle(el).backgroundImage)).includes('family-tree-v3/garden-hero.webp'),
+            getComputedStyle(el).backgroundImage)).includes('family-tree-v3/entrance-scene.webp'),
             'approved family tree art is used for scenic entrance');
         }
         await page.locator('#back').click();
