@@ -38,6 +38,7 @@
     }
     async function signupParent(email,password) {
       if(!email?.trim()||!password)throw fail('email_and_password_required');
+      if(password.length<8)throw fail('signup_password_too_short');
       if(!redirectTo || !/^https:\/\//.test(redirectTo))throw fail('verified_https_redirect_required');
       const {data,error}=await client.auth.signUp({
         email:email.trim(),password,
@@ -47,6 +48,21 @@
       // A successful signup does not grant parent access; an authorized
       // administrator still must enroll the VERIFIED parent Auth UID.
       return {kind:'verification_required',userId:data?.user?.id||null};
+    }
+    async function requestPasswordReset(email) {
+      if(!email?.trim())throw fail('email_required');
+      if(!redirectTo || !redirectTo.startsWith('https://'))throw fail('verified_https_redirect_required');
+      const {error}=await client.auth.resetPasswordForEmail(email.trim(),{redirectTo});
+      if(error)throw fail('password_reset_request_failed');
+      return {kind:'reset_requested'};
+    }
+    async function updatePassword(password) {
+      if(typeof password!=='string'||password.length<8)throw fail('signup_password_too_short');
+      const {data,error}=await client.auth.getUser();
+      if(error||!data?.user)throw fail('password_recovery_session_required');
+      const result=await client.auth.updateUser({password});
+      if(result.error)throw fail('password_update_failed');
+      return {kind:'password_updated'};
     }
     async function loginParent(email,password) {
       if(!email?.trim()||!password)throw fail('email_and_password_required');
@@ -97,7 +113,7 @@
       return {kind:'signed_out'};
     }
     return Object.freeze({
-      current,signupParent,loginParent,createGuest,createInvite,
+      current,signupParent,loginParent,requestPasswordReset,updatePassword,createGuest,createInvite,
       redeemInvite,childDevices,revokeDevice,logout
     });
   }
