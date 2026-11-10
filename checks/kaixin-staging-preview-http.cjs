@@ -13,7 +13,15 @@ async function check(name,url,init={}) {
 (async()=>{
  const htmlResponse=await check('page',base);
  assert.equal(htmlResponse.status,200,'staging HTML should load anonymously');
- assert.match(htmlResponse.headers.get('content-type')||'',/text\/html/i);
+ const actualType=htmlResponse.headers.get('content-type')||'';
+ if(!/text\\/html/i.test(actualType)) {
+   const sample=await htmlResponse.clone().text();
+   console.log(JSON.stringify({previewStatus:htmlResponse.status,contentType:actualType,
+     bodyLength:sample.length,startsWithDoctype:sample.trimStart().toLowerCase().startsWith('<!doctype html'),
+     bodyHasKaixin:sample.includes('KAIXIN'),
+     bodyKind:sample.includes('Read-only staging preview')?'read_only':sample.includes('Not found')?'not_found':'other'}));
+ }
+ assert.match(actualType,/text\\/html/i);
  assert.match(htmlResponse.headers.get('cache-control')||'',/no-store/i);
  assert.match(htmlResponse.headers.get('content-security-policy')||'',/frame-ancestors 'none'/);
  assert.match(htmlResponse.headers.get('x-robots-tag')||'',/noindex/);
