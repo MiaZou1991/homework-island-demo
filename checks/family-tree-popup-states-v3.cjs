@@ -35,7 +35,10 @@ const meta='kaixin_family_tree_meta_preview_v21';
   assert.equal(await page.locator('#editorKind').inputValue(),'moment');
   assert.equal(await page.locator('[data-kind-choice="moment"]').getAttribute('aria-pressed'),'true');
   assert.equal(await page.locator('.ft-upload-target').isVisible(),true,'illustrated photo card visible');
-  assert.equal(await page.locator('#editorPhoto').isVisible(),false,'native English file UI hidden');
+  const fileChrome=await page.locator('#editorPhoto').evaluate(el=>({
+    width:el.getBoundingClientRect().width,clip:getComputedStyle(el).clipPath
+  }));
+  assert.ok(fileChrome.width<=1 && fileChrome.clip.includes('50%'),'native English file UI visually hidden');
   await page.screenshot({path:'/tmp/family-tree-v3-state-01-write.png'});
   await page.locator('[data-kind-choice="note"]').click();
   assert.equal(await page.locator('#editorKind').inputValue(),'note');
