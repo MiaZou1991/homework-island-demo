@@ -1,4 +1,4 @@
-// Companion v7: exact 16 assets, stable legacy records and transparent format.
+// Companion v7: preserve 16 original PNG portraits, add mouse SVG, and keep legacy records.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
 const root=path.join(__dirname,'../dist');
 const manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/characters/companions-v7.json'),'utf8'));
@@ -22,8 +22,11 @@ const ctx={document:doc,window:{addEventListener(){},__ISLAND_ERRORS__:[]},local
 vm.createContext(ctx);
 for(const file of ['app.js','demo-core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),ctx,{filename:file});
 const run=s=>vm.runInContext(s,ctx);
-assert.equal(run('DemoCore.companions.length'),16);
-assert.equal(run('DemoCore.companions.every(m=>m.src==="assets/characters/companion-"+m.id+"-v7.png")'),true);
+assert.equal(run('DemoCore.companions.length'),17);
+assert.equal(run('DemoCore.companions.every(m=>m.src==="assets/characters/companion-"+m.id+"-v7"+(m.id==="mouse"?".svg":".png"))'),true);
+assert.equal(run('DemoCore.companions.find(m=>m.id==="mouse").emoji'),'🐭');
+const mouseSvg=fs.readFileSync(path.join(root,'assets/characters/companion-mouse-v7.svg'),'utf8');
+assert.ok(mouseSvg.includes('data:image/webp;base64,'),'mouse image is embedded');
 assert.equal(run('getData().rewardItems.filter(x=>x.type==="mate").length'),10);
 assert.equal(run('findMateItem({rewardItems:[]},"🦊").name'),'小狐');
 run('var saved=DemoCore.seed(); saved.familyEdition="kaixin-v1"; saved.rewardsUnlocked=["🐻","🦌"]; saved.todayMate="🦌"; saved.mateDate=todayStr();var economy=JSON.stringify([saved.points,saved.materials,saved.demoGrowth,saved.redemptions]);saveData(saved)');
@@ -31,6 +34,6 @@ assert.equal(run('getTodayMate(getData()).name'),'小鹿');
 assert.equal(run('getUnlockedRewards(getData()).length'),2);
 assert.equal(run('JSON.stringify([getData().points,getData().materials,getData().demoGrowth,getData().redemptions])'),run('economy'));
 for(const p of ['child.html','parent.html']){
- const html=fs.readFileSync(path.join(root,p),'utf8');assert.ok(html.includes('demo-core.js?v=20261110-performance1'),'cache-bust '+p);
+ const html=fs.readFileSync(path.join(root,p),'utf8');assert.ok(html.includes('demo-core.js?v=20261110-mouse1'),'cache-bust '+p);
 }
-console.log('PASS companion v7: 16 transparent RGBA PNGs, IDs, historical economy & cached paths');
+console.log('PASS companion v7: 16 original PNGs + new mouse SVG, IDs, historical economy & cached paths');
