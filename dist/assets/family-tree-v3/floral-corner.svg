@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="115" viewBox="0 0 150 115">
+<defs><linearGradient id="leaf" x2=".7" y2="1"><stop stop-color="#b4d768"/><stop offset="1" stop-color="#5c9842"/></linearGradient><radialGradient id="petal"><stop stop-color="#fffdf2"/><stop offset="1" stop-color="#f7dfb4"/></radialGradient></defs>
+<g fill="none" stroke="#70924c" stroke-linecap="round"><path d="M8 107 Q27 58 75 29 Q98 16 141 16" stroke-width="5"/><path d="M23 91 Q44 63 102 82" stroke-width="3"/></g>
+<g fill="url(#leaf)" stroke="#6c9d4e" stroke-width="1.5">
+<ellipse cx="22" cy="70" rx="24" ry="9" transform="rotate(-55 22 70)"/>
+<ellipse cx="47" cy="55" rx="22" ry="9" transform="rotate(26 47 55)"/>
+<ellipse cx="69" cy="36" rx="24" ry="9" transform="rotate(-42 69 36)"/>
+<ellipse cx="103" cy="19" rx="21" ry="10" transform="rotate(21 103 19)"/>
+<ellipse cx="122" cy="45" rx="21" ry="9" transform="rotate(-36 122 45)"/>
+<ellipse cx="56" cy="87" rx="23" ry="10" transform="rotate(22 56 87)"/>
+<ellipse cx="95" cy="90" rx="18" ry="8" transform="rotate(-28 95 90)"/>
+</g>
+<g transform="translate(76 52) scale(.95)"><g fill="url(#petal)" stroke="#d9b586" stroke-width=".8">
+<ellipse cy="-11" rx="7" ry="12"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(60)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(120)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(180)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(240)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(300)"/></g><circle r="6" fill="#f6c765"/></g>
+<g transform="translate(125 15) scale(.58)"><g fill="#ffd2da" stroke="#e8a4b1">
+<ellipse cy="-11" rx="7" ry="12"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(72)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(144)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(216)"/><ellipse cy="-11" rx="7" ry="12" transform="rotate(288)"/></g><circle r="6" fill="#f3c05c"/></g>
+</svg>
