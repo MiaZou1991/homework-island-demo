@@ -73,7 +73,7 @@ async function boot(browser,role,route='child.html',sparse=false){
   // Fresh iPhone Safari: getUser() without a session would raise
   // AuthSessionMissingError. The child must still be able to create a guest.
   const fresh=await boot(browser,null,'index.html');
-  await fresh.page.locator('#feedback').getByText('测试页面已就绪', {exact:false}).waitFor({timeout:10000});
+  await fresh.page.waitForFunction(()=>document.getElementById('feedback')?.textContent?.includes('测试页面已就绪'),{timeout:10000});
   assert.equal(await fresh.page.locator('#guest').isEnabled(),true);
   await fresh.page.locator('#guest').click();
   await fresh.page.getByText('临时孩子身份已经建立', {exact:false}).waitFor({timeout:10000});
