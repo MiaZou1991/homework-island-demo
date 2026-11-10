@@ -47,7 +47,14 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.match(pngSkin.title,/popup_title_bar\.png/,'title uses approved PNG');
    assert.match(pngSkin.mood,/card_mood_bg\.png/,'growth stat uses mood PNG');
    assert.equal(await page.locator('#up-dialog .gc-detail-stat').count(),3,'three summary cards');
-   assert.equal(await page.locator('#up-dialog .gc-detail-section-icon').count(),2,'two real module icons, no square placeholders');
+   assert.equal(await page.locator('#up-dialog .gc-detail-ribbon .gc-ribbon-icon').count(),4,'four scrapbook module headings use real illustrated icons');
+   assert.equal(await page.locator('#up-dialog .gc-detail-list-row').count()>=3,true,'schedule renders illustrated homework, course, packing rows');
+   assert.equal(await page.locator('#up-dialog .gc-paper-raised').count()>=3,true,'note, schedule, habits and moments have raised material panels');
+   const assetState=await page.evaluate(()=>window.GrowthPopupPng);
+   assert.ok(assetState?.ready && Object.values(assetState.files).every(Boolean),'all five PNGs are actually enabled');
+   const artResult=await page.locator('#up-dialog .gc-ribbon-icon, #up-dialog .gc-detail-row-icon').evaluateAll(images=>
+     images.map(img=>({src:img.getAttribute('src'),ok:img.complete&&img.naturalWidth>0})));
+   assert.deepEqual(artResult.filter(x=>!x.ok),[],'all section and schedule illustrations load in real popup');
    const dialogUI=await page.evaluate(()=>{
     const panel=document.querySelector('#up-dialog .island-dialog-surface')?.getBoundingClientRect();
     const close=document.querySelector('#up-dialog .island-dialog-surface>.up-close')?.getBoundingClientRect();
@@ -57,6 +64,8 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.ok(dialogUI.close.right<=dialogUI.panel.right+3,'close remains inside panel');
    assert.equal(await page.locator('#up-dialog .gc-detail-meadow').count(),1,'bottom meadow illustration is present');
    assert.equal(await page.locator('#up-dialog .gc-detail-stat').count(),3,'date scrapbook has three pastel summary tiles');
+   const raised=await page.locator('#up-dialog .gc-diary-paper').evaluate(el=>getComputedStyle(el).borderImageSource);
+   assert.match(raised,/dialogs-v3\/panel\.webp/,'actual page uses illustrated paper, not a flat box');
    await page.screenshot({path:'/tmp/growth-calendar-dialog-'+width+'.png',fullPage:true});
    await page.locator('#up-dialog [data-up="journal-edit"]').click();
    await page.locator('#up-dialog [data-up="journal-mood"][data-mood="happy"]').click();
