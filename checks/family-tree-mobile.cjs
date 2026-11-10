@@ -62,7 +62,8 @@ if(width===390){
   await page.locator('#ftModalClose').click();
 }
 await page.locator('#activeMember').selectOption('dad');
-assert.equal(await page.locator('[data-heart]').count(),0,width+' dad cannot see kid-mom heart');
+assert.equal(await page.locator('[data-heart]').count(),width===390?1:0,width+' dad only sees letters addressed to dad');
+if(width===390)assert.match(await page.locator('[data-heart]').first().innerText(),/谢谢爸爸/,'dad sees only his own letter');
 await page.locator('#activeMember').selectOption('mom');
 await page.locator('[data-heart]').first().waitFor();
 assert.equal(await page.locator('[data-heart]').count(),1,width+' mom sees heart');
