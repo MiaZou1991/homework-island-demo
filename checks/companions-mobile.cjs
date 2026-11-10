@@ -39,7 +39,26 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.ok((await p.locator('.tf-companion-art').first().getAttribute('src'))?.endsWith('-v7.png'),'today mascot must use v7');
    assert.ok(images.every(i=>i.ok),JSON.stringify(images.filter(i=>!i.ok)));
    const gridColumns=await p.locator('.island-mate-grid').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length);
-   assert.equal(gridColumns,width<360?3:4,'adaptive columns '+width);
+   assert.equal(gridColumns,3,'approved V2 three-column gallery '+width);
+   const ui=await p.evaluate(()=>{
+     const nav=document.querySelector('.phone > .up-nav');
+     const grid=document.querySelector('.island-mate-grid');
+     const tabs=document.querySelector('.island-mate-tabs');
+     const button=tabs?.querySelector('[aria-pressed="true"]');
+     return {navPosition:getComputedStyle(nav).position,navBottom:nav.getBoundingClientRect().bottom,
+       gridOverflow:getComputedStyle(grid).overflowY,gridCanScroll:grid.scrollHeight>grid.clientHeight,
+       tabTop:tabs.getBoundingClientRect().top,tabOutline:button?getComputedStyle(button).outlineStyle:'missing'};
+   });
+   assert.equal(ui.navPosition,'fixed','bottom nav must use viewport-fixed positioning');
+   assert.ok(Math.abs(ui.navBottom-850)<2,'bottom nav must align with visual viewport '+width);
+   assert.equal(ui.gridOverflow,'auto','only gallery list should scroll');
+   assert.ok(ui.gridCanScroll,'all sixteen animals must be reachable by scrolling');
+   assert.equal(ui.tabOutline,'none','no unexpected selection focus outline');
+   await p.locator('.island-mate-grid').evaluate(el=>{el.scrollTop=el.scrollHeight;});
+   const afterScroll=await p.evaluate(()=>({scroll:document.querySelector('.island-mate-grid').scrollTop,
+     tabTop:document.querySelector('.island-mate-tabs').getBoundingClientRect().top}));
+   assert.ok(afterScroll.scroll>0,'gallery can scroll to last companion');
+   assert.ok(Math.abs(afterScroll.tabTop-ui.tabTop)<2,'segment control remains fixed when gallery scrolls');
    await p.screenshot({path:'/tmp/companions-gallery-'+width+'.png'});
    const before=await p.evaluate(()=>{const d=getData();return {points:d.points,construction:d.demoGrowth?.construction,redemptions:d.redemptions?.length||0};});
    await p.locator('.island-mate-tile[data-id="deer"]').click();
