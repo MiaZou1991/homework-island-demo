@@ -191,3 +191,89 @@ body[data-mode="child"] .tf-homework-wrap .tf-task-main b {
   white-space: normal;
   text-overflow: clip;
 }
+
+/* Numbered instructions are an optional, display-only sub-grid inside one task.
+   The task has exactly one completion control, not three separate check-ins. */
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 46px;
+  align-items: start;
+  gap: 6px 5px;
+  padding: 9px 9px 11px;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-main {
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 48px;
+  width: 100%;
+  gap: 9px;
+  padding: 0;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-main .tf-subject {
+  flex: 0 0 auto;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-check,
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-pending {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-steps {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  width: 100%;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid #efd8b5;
+  border-radius: 13px;
+  padding: 6px 3px 7px;
+  background: #fffaf1;
+  box-shadow: 0 2px 0 #f2e0c6;
+  color: #765131;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: clamp(11px, 3vw, 13px);
+  font-weight: 750;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-num {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  color: white;
+  font-weight: 750;
+  font-size: 11px;
+  background: linear-gradient(#6bc9f1, #2d8bc6);
+}
+body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-detail {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: #755033;
+  font-size: clamp(10px, 2.8vw, 12px);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+@media (max-width: 359px) {
+  body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-steps { gap: 4px; }
+  body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step { padding-left: 2px; padding-right: 2px; }
+}
