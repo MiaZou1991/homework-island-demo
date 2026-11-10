@@ -15,7 +15,12 @@
  let writing=Promise.resolve(),busy=null,readBusy=null,updateTimer=null;
  let state={cloudRecord:'unknown',current:'unknown',message:'独立测试版：等待身份验证'};
  let outboxPromise=null;
- const allowed=()=>window.__KAIXIN_STAGE_BUILD__===true&&location.hostname!=='miazou1991.github.io';
+ const allowed=()=>window.__KAIXIN_STAGE_BUILD__===true && (
+   (location.protocol==='https:' && location.hostname==='miazou1991.github.io' &&
+     /^\/kaixin-island-staging(?:\/|$)/.test(location.pathname)) ||
+   (/^(127\.0\.0\.1|localhost)$/.test(location.hostname) &&
+     (location.protocol==='http:'||location.protocol==='https:'))
+ );
  const localKey=()=>typeof activeStorageKey==='function'?activeStorageKey():'kaixin_stage_local_v1';
  const safeClone=x=>JSON.parse(JSON.stringify(x));
  function emit(change){
