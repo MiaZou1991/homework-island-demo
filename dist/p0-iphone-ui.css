@@ -290,3 +290,43 @@ body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step-detail {
   body[data-mode="child"] .tf-homework-wrap .tf-task.has-steps .tf-task-steps { gap: 4px; }
   body[data-mode="child"] .tf-homework-wrap .tf-task .tf-step { padding-left: 2px; padding-right: 2px; }
 }
+
+/* Plan also owns a historic high-specificity sticky rule and query container.
+   Match its selector to keep the same fixed tabs when switching routes. */
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone {
+  container-type: normal !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .stage {
+  container-type: inline-size;
+}
+body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  -webkit-transform: translateX(-50%) !important;
+  margin: 0 !important;
+  flex: none !important;
+  box-sizing: border-box;
+  width: min(100vw, 390px) !important;
+  max-width: 390px;
+  min-height: var(--p0-tab-height) !important;
+  height: var(--p0-tab-height) !important;
+  padding: 2px max(8px, var(--p0-safe-bottom)) calc(10px + var(--p0-safe-bottom)) !important;
+  z-index: 60 !important;
+  border-radius: 0 !important;
+}
+@media (max-width: 530px), (orientation: landscape) and (max-height: 500px) {
+  body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+@media (orientation: landscape) and (max-height: 500px) {
+  body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
+    padding-left: max(12px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
+  }
+}
