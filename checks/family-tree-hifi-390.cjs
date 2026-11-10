@@ -28,7 +28,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert.match(dims.noteArtwork,/family-tree-hifi\/hanging-note.svg/);
   assert.match(dims.growthArtwork,/family-tree-hifi\/growth-panel.svg/);
   assert.match(dims.storyArtwork,/family-tree-hifi\/story-card-frame.svg/);
-  assert.match(dims.photoArtwork,/family-tree-hifi\/photo-swimming.svg/);
+  assert.match(dims.photoArtwork,/family-tree-hifi\/photo-swimming-approved.webp/);
   await page.screenshot({path:'/tmp/family-tree-hifi-390-firstscreen.png',animations:'disabled'});
   await page.screenshot({path:'/tmp/family-tree-hifi-390-full.png',fullPage:true,animations:'disabled'});
   // Ensure high-fidelity skin did not remove real interaction.
