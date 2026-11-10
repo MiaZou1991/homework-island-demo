@@ -2,7 +2,7 @@
    真实素材 + DOM 动态文字，所有规则仅在五个 PNG 加载成功后启用。
    原有 growth-calendar.css 为图片失败时的安全回退样式。
 */
-html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog {
+html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog.island-growth-detail {
  width:min(390px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;
  max-height:calc(100dvh - 12px)!important;margin:auto!important;
  padding:59px 0 0!important;border:0!important;
@@ -10,17 +10,17 @@ html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog {
  border-radius:0!important;overflow:visible!important;
  --gc-ink:#69412d;--gc-line:#ecd2a8;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog::backdrop{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail::backdrop{
  background:#244d5078;backdrop-filter:blur(4px) saturate(.9)
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface{
  position:relative!important;isolation:isolate;
  min-height:470px;padding:0 8px 7px!important;
  margin:0!important;border:0!important;border-radius:29px!important;
  background:transparent!important;box-shadow:none!important;filter:none!important;
  overflow:visible!important;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface::before{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface::before{
  content:""!important;display:block!important;position:absolute!important;
  inset:0!important;z-index:0!important;pointer-events:none!important;
  border-style:solid!important;border-color:transparent!important;
@@ -31,17 +31,17 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-sur
  border-image-repeat:stretch!important;
  background:transparent!important;filter:none!important;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface > *{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface > *{
  position:relative;z-index:2;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-header{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .up-dialog-header{
  top:auto!important;left:auto!important;right:auto!important;
  transform:none!important;display:flex!important;align-items:center;justify-content:center;
  height:59px!important;min-height:59px!important;
  margin:18px 8px 0!important;padding:0 22px!important;
  background:transparent!important;pointer-events:none;z-index:4!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-title{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-title{
  width:100%!important;min-height:61px!important;height:61px!important;max-height:61px!important;
  display:flex!important;align-items:center!important;justify-content:center!important;gap:7px;
  margin:0!important;padding:9px 8px!important;
@@ -50,16 +50,16 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-tit
  color:#693c23!important;text-shadow:0 1px #fffaf0;font-size:19px!important;font-weight:800!important;
  letter-spacing:.02em!important;white-space:nowrap;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-title-calendar{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-title-calendar{
  display:inline-block;width:23px;height:23px;object-fit:contain
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-peek-buddy{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-peek-buddy{
  z-index:3!important;position:absolute!important;left:50%!important;
  bottom:43px!important;width:104px!important;height:100px!important;
  object-fit:contain!important;pointer-events:none;transform:translateX(-50%);
  filter:drop-shadow(0 2px 2px #916c4630)
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-surface > .up-close{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface > .up-close{
  position:absolute!important;z-index:10!important;pointer-events:auto;
  top:29px!important;right:12px!important;left:auto!important;bottom:auto!important;
  width:38px!important;height:38px!important;min-height:38px!important;
@@ -70,70 +70,70 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-sur
  box-shadow:0 2px 0 #d5ac7f,0 4px 7px #90683b40!important;
  color:#905c39!important;font-size:25px!important;font-weight:700!important;line-height:1
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-body{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .up-dialog-body{
  padding:11px 17px 58px!important;
  max-height:calc(100dvh - 177px)!important;
  overflow-y:auto!important;overscroll-behavior:contain;
  scrollbar-width:thin;scrollbar-color:#e1c79d transparent;
  background:transparent!important;border-radius:0!important;clip-path:none!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail{
  max-height:none!important;overflow:visible!important;
  padding:0 0 6px!important;line-height:1.55;color:#68422c
 }
 /* First row: three individually illustrated photo-like stickers */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-quick{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-quick{
  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
  gap:5px;margin:0 0 15px
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat{
  min-width:0;min-height:115px;padding:15px 2px 17px;
  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
  border:0!important;border-radius:0!important;box-shadow:none!important;
  background-position:center!important;background-repeat:no-repeat!important;background-size:100% 100%!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.mood{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat.mood{
  background-image:url("assets/hd/growth-calendar/popup-png/card_mood_bg.png")!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.done{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat.done{
  background-image:url("assets/hd/growth-calendar/popup-png/card_task_bg.png")!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat.habit{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat.habit{
  background-image:url("assets/hd/growth-calendar/popup-png/card_habit_bg.png")!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat img{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat img{
  width:50px!important;height:50px!important;display:block;object-fit:contain;
  filter:drop-shadow(0 2px 1px #a07b4a32)
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat b{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat b{
  color:#713e26;font-size:13px!important;font-weight:800!important;line-height:1.2!important;white-space:nowrap
 }
 /* All four modules use one reusable picture-led ribbon. */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-section{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-section{
  padding:0!important;margin:0 0 15px!important;border:0!important;background:transparent!important;
  box-shadow:none!important;overflow:visible!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-ribbon{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-ribbon{
  position:relative;display:flex;align-items:center;gap:6px;
  min-height:43px;margin:0 0 6px;padding:1px 8px 1px 1px;
  isolation:isolate;width:fit-content;min-width:45%;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-ribbon::before{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-ribbon::before{
  content:"";position:absolute;z-index:-1;left:12px;top:5px;bottom:4px;right:0;
  border-radius:19px 19px 18px 16px;border:1.5px solid #fffdf1;
  background:linear-gradient(#fff6d9,#ffe8b7);
  box-shadow:inset 0 1px 0 #fffcf3,0 2px 0 #e6bf83,0 3px 5px #b6855430;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-ribbon-icon{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-ribbon-icon{
  width:39px!important;height:39px!important;flex:0 0 39px;object-fit:contain;
  filter:drop-shadow(0 2px 1px #9d6b413c)
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-ribbon h2{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-ribbon h2{
  margin:0!important;padding:0 8px 0 0;white-space:nowrap;
  color:#72422d;font-size:17px!important;font-weight:800!important;line-height:1.25!important
 }
 /* Raised cream-paper cards reuse existing illustrated panel instead of flat CSS boxes. */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-paper-raised{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-paper-raised{
  position:relative;background:#fff9ec;
  border:17px solid transparent!important;
  border-image-source:url("assets/hd/dialogs-v3/panel.webp")!important;
@@ -143,50 +143,50 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-paper-raised{
  box-shadow:0 3px 6px #977f5e1a!important;
  border-radius:0!important;min-width:0
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-diary-paper{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper{
  min-height:88px;padding:4px 26px 4px 4px!important;
  margin:0!important;background-color:#fffcf5!important;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-diary-paper p{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper p{
  font-size:14px!important;line-height:1.7!important;color:#714933;font-weight:600!important;
  margin:0!important;white-space:pre-wrap;min-height:36px;
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-diary-paper button{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper button{
  position:absolute!important;right:-7px!important;bottom:-8px!important;
  width:43px!important;height:43px!important;min-height:43px!important;
  border:0!important;border-radius:0!important;box-shadow:none!important;background:none!important;
  padding:0!important;transform:rotate(-15deg);cursor:pointer
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-diary-paper button img{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper button img{
  width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 1px #956f4c2b)
 }
 /* Illustration-backed day schedule: icons, three separate row roles, read-only reminders. */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-list{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list{
  padding:0 3px!important;min-height:0;background-color:#fff9eb!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-list-row{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list-row{
  display:grid;grid-template-columns:34px minmax(0,1fr) auto;
  gap:6px;align-items:center;min-height:42px;padding:6px 1px;
  border-bottom:1px solid #ebd7bc;box-sizing:border-box
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-list-row:last-child{border-bottom:0}
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-row-icon{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list-row:last-child{border-bottom:0}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-row-icon{
  width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 1px 1px #a57f5336)
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-list-row b{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list-row b{
  min-width:0;color:#71452d;font-size:13px!important;font-weight:800!important;line-height:1.2!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-list-row small{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list-row small{
  color:#906b50;font-size:11px!important;font-weight:600!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-state{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-state{
  justify-self:end;max-width:113px;text-align:right;line-height:1.25;
  color:#7c684f;font-size:11px!important;font-weight:650!important;overflow-wrap:anywhere
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-note{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-note{
  margin:5px 8px 0!important;color:#ab8969;font-size:10px!important;line-height:1.5
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog :is(.gc-detail-add,.gc-inline-add){
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail :is(.gc-detail-add,.gc-inline-add){
  display:inline-flex;align-items:center;min-height:30px;max-width:100%;
  margin:6px 0 0!important;padding:4px 13px!important;
  border:1.5px solid #edd2a2!important;border-radius:20px!important;
@@ -195,64 +195,64 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog :is(.gc-detail-add
  color:#98633d!important;font-size:11px!important;font-weight:700!important
 }
 /* Habit and special-moment rows share the same material, independent of row count. */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-habit-panel,
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-moment-panel{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-habit-panel,
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-moment-panel{
  min-height:53px;padding:0 4px!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-habit{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-habit{
  min-height:43px;display:flex;justify-content:space-between;align-items:center;gap:7px;
  padding:7px 0!important;margin:0!important;border:0!important;
  border-bottom:1px solid #ead5b8!important;background:transparent!important;
  border-radius:0!important;color:#71462d;font-size:13px!important;font-weight:750!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-habit:last-child{border-bottom:0!important}
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-habit button{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-habit:last-child{border-bottom:0!important}
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-habit button{
  display:flex;align-items:center;gap:5px;flex:none;min-height:30px;
  padding:2px 8px!important;border:1px solid #c0d59b!important;
  border-radius:18px;background:linear-gradient(#f5ffe9,#e3f6cb)!important;
  color:#628c46!important;font-size:11px!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-check-seal{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-check-seal{
  display:grid;place-items:center;width:20px;height:20px;border-radius:7px;
  background:linear-gradient(#a2eb74,#4bb33b);color:white;
  box-shadow:inset 0 1px #dcffd0,0 1px #6d9c4d;font-size:16px;font-weight:800
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-check-empty{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-check-empty{
  display:inline-block;width:18px;height:18px;border:2px solid #b6cd91;border-radius:7px;
  background:#fffef6
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-moment-item{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-moment-item{
  display:flex;align-items:center;gap:9px;margin:0!important;padding:4px 0!important;
  min-height:46px;border-radius:0!important;background:transparent!important
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-moment-item img{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-moment-item img{
  width:34px;height:34px;object-fit:contain
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-moment-item p{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-moment-item p{
  margin:0!important;font-size:13px;color:#71462d;line-height:1.4;overflow-wrap:anywhere
 }
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-empty-note{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-empty-note{
  margin:8px 2px!important;font-size:12px!important;color:#a28365!important
 }
 /* Bottom meadow is part of the nine-sliced PNG, never paint a second overlapping strip. */
-html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-meadow{
+html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-meadow{
  display:none!important
 }
 /* There is intentionally no visual-specific data logic. */
 @media(max-width:359px){
- html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog{padding-top:53px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .up-dialog-body{padding:8px 11px 56px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .island-dialog-title{font-size:16px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-quick{gap:2px}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat{
+ html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog.island-growth-detail{padding-top:53px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .up-dialog-body{padding:8px 11px 56px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-title{font-size:16px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-quick{gap:2px}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat{
    min-height:103px;padding:11px 0 16px
  }
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat img{width:42px!important;height:42px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-stat b{font-size:11px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-state{max-width:88px;font-size:10px!important}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-ribbon-icon{width:34px!important;height:34px!important;flex-basis:34px}
- html.gc-png-ready body[data-mode=child] .island-growth-dialog .gc-detail-ribbon h2{font-size:15px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat img{width:42px!important;height:42px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-stat b{font-size:11px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-state{max-width:88px;font-size:10px!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-ribbon-icon{width:34px!important;height:34px!important;flex-basis:34px}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-ribbon h2{font-size:15px!important}
 }
 @media(prefers-reduced-motion:reduce){
- html.gc-png-ready body[data-mode=child] .island-growth-dialog *{transition:none!important;animation:none!important}
+ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail *{transition:none!important;animation:none!important}
 }
