@@ -36,6 +36,14 @@
 - 测试时不应输入孩子真实作业、姓名、图片或附件。
 - 用户未确认发布前，不得合并本 PR 或更改生产 Supabase。
 
+## 2026-11-10 HTTPS 独立托管排查（重要）
+
+- 已在**独立 staging** 尝试部署 `kaixin-onboarding-preview` Supabase Edge Function，并通过真实 HTTP 看到返回的 HTML 正文确实正确，但平台强制将 `Content-Type: text/html` 改为 `text/plain`，浏览器只会把页面显示为源代码。官方文档说明该限制对 Supabase 共享域名生效，HTML 只能在付费自定义域名上直接提供：[Supabase Functions limits](https://supabase.com/docs/guides/functions/limits#other-limits--restrictions)。
+- **为避免误导或收集真实邮箱，已在 staging 将该 Edge Function 改为始终返回 HTTP 410 Gone**；不会继续用它承载登录页面，也不会购买付费域名。独立 HTTPS 静态托管仍未完成。
+- 暂时只保留 `dist/kaixin-staging-onboarding.html`、登录与配对 JS、Node/Chrome 测试。正式开心岛 GitHub Pages 仍由 main 控制，**绝不能用预览部署覆盖生产 Pages**。
+- 下一步：在不影响正式站的前提下准备独立免费 GitHub Pages/等效静态托管，并将**唯一已确认的 HTTPS 测试回跳 URL** 加入 *staging* Supabase Authentication → URL Configuration → Redirect URLs。用户不需要现在在聊天提供家长邮箱；等安全入口确认后自行在网页注册，登录后只提供测试 Auth UUID 供授权。
+- 上线红线：固定家长邮箱 + 密码登录、密码找回；一个 KAIXIN 家庭/一个孩子；孩子设备首次安全配对，后续无感登录；不修改真实孩子作业、不清 Safari 缓存。
+
 ## 本次实际验证
 
 - staging migration `kaixin_staging_child_device_list_v1`：**执行成功**。
