@@ -1,0 +1,17 @@
+name: KAIXIN-only Staging Family Pairing
+on:
+  push:
+    branches: [feat/kaixin-fixed-household-binding-20261110]
+    paths: [.github/workflows/kaixin-fixed-household-staging.yml]
+permissions:
+  contents: read
+jobs:
+  verify-kaixin-pairing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KAIXIN_STAGE_PUBLIC_KEY: sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV
+    steps:
+      - uses: actions/checkout@v6
+      - name: Sign in four real staging Auth identities and verify single KAIXIN family binding
+        run: node checks/kaixin-fixed-household-real-jwt.cjs
