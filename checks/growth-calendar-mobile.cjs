@@ -34,6 +34,18 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    const dayButton=page.locator('.gc-month-day[data-date="'+today+'"]');
    await dayButton.click();
    await page.locator('#up-dialog[open] .gc-detail').waitFor();
+   await page.locator('html.gc-png-ready').waitFor({timeout:15000});
+   const pngSkin=await page.evaluate(()=>{
+     const panel=document.querySelector('#up-dialog .island-dialog-surface');
+     const mood=document.querySelector('#up-dialog .gc-detail-stat.mood');
+     const title=document.querySelector('#up-dialog .island-dialog-title');
+     return {frame:getComputedStyle(panel,'::before').borderImageSource,
+       mood:getComputedStyle(mood).backgroundImage,
+       title:getComputedStyle(title).backgroundImage};
+   });
+   assert.match(pngSkin.frame,/popup_bg\.png/,'popup uses actual PNG nine-slice');
+   assert.match(pngSkin.title,/popup_title_bar\.png/,'title uses approved PNG');
+   assert.match(pngSkin.mood,/card_mood_bg\.png/,'growth stat uses mood PNG');
    assert.equal(await page.locator('#up-dialog .gc-detail-stat').count(),3,'three summary cards');
    assert.equal(await page.locator('#up-dialog .gc-detail-section-icon').count(),2,'two real module icons, no square placeholders');
    const dialogUI=await page.evaluate(()=>{
