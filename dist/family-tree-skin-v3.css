@@ -235,3 +235,47 @@ body{background:radial-gradient(ellipse at 50% 0%,#e0efd1 0%,#e3f0e5 42%,#fcf1d9
  .ft-content{margin:-17px 13px 0;padding:22px 20px 40px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* Reusable cut assets: no baked typography, all labels remain selectable DOM text. */
+.ft-hero-plaque{
+ background:url("assets/family-tree-v3/wood-plaque.svg") center / 100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+}
+.ft-hero-plaque:before,.ft-hero-plaque:after{display:none}
+.ft-popup-title,.ft-editor h2{
+ background:url("assets/family-tree-v3/wood-plaque.svg") center / 100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ min-height:66px;
+}
+.ft-popup-shell:before,.ft-editor:before{
+ content:"";width:91px;height:72px;top:-22px;left:-17px;
+ background:url("assets/family-tree-v3/floral-corner.svg") center / contain no-repeat;
+ text-shadow:none;
+}
+.ft-popup-shell:after,.ft-editor:after{
+ content:"";width:79px;height:62px;right:-14px;bottom:-17px;
+ background:url("assets/family-tree-v3/floral-corner.svg") center / contain no-repeat;
+ transform:rotate(175deg);text-shadow:none;
+}
+.ft-story-item:before{
+ content:"";width:69px;height:55px;top:-14px;left:-12px;
+ background:url("assets/family-tree-v3/floral-corner.svg") center / contain no-repeat;
+ text-shadow:none;transform:none;
+}
+.ft-story-item:after{
+ content:"";width:59px;height:48px;right:-7px;bottom:-7px;
+ background:url("assets/family-tree-v3/floral-corner.svg") center / contain no-repeat;
+ transform:rotate(180deg);text-shadow:none;
+}
+.ft-primary.ft-small.ft-write-button,.ft-growth-link,
+.ft-popup-actions .ft-primary,#back{
+ background-image:url("assets/family-tree-v3/button-primary.svg")!important;
+ background-size:100% 100%!important;background-position:center!important;
+ background-repeat:no-repeat!important;
+ border:0!important;box-shadow:none!important;
+ text-shadow:0 1px #316929!important;color:white!important;
+}
+.ft-primary.ft-small.ft-write-button{padding:10px 13px;min-height:56px}
+.ft-growth-link{padding:9px 6px;min-height:53px}
+.ft-popup-actions .ft-primary{min-height:50px}
