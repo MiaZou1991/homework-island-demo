@@ -177,9 +177,16 @@ function renderStories(){
   '</div></article>';
  }).join(""):'<div class="ft-empty"><b>树下还没有记录</b>写下成长的小事，或留句话给家人吧。</div>';
  const pinned=all.slice(0,3);
- $("treeTags").innerHTML=pinned.length?pinned.map((x,i)=>
-  '<button type="button" class="ft-tree-tag" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'">'+
-  '<b>'+esc(names[x.author]||"家人")+'：</b><span>'+esc(x.text.length>16?x.text.slice(0,16)+"…":x.text)+'</span></button>'
+ // Rope is part of the image, so leave its upper part empty and keep each
+ // two-line excerpt short enough for the handmade tag, even on 320px phones.
+ const pinnedExcerpt=value=>{
+  const chars=Array.from(String(value??"").replace(/\s+/g," ").trim());
+  return chars.length<=12?chars.join(""):chars.slice(0,12).join("").replace(/[，。？！、,:;；\s]+$/u,"")+"…";
+ };
+ $("treeTags").innerHTML=pinned.length?pinned.map(x=>
+  '<button type="button" class="ft-tree-tag" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'"'+
+  ' aria-label="'+esc((names[x.author]||"家人")+"："+x.text)+'">'+
+  '<b>'+esc(names[x.author]||"家人")+'：</b><span>'+esc(pinnedExcerpt(x.text))+'</span></button>'
  ).join(""):'<button type="button" class="ft-tree-tag" data-open="story">写第一条家庭记录 ✎</button>';
 }
 function renderHearts(){
