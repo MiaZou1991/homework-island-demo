@@ -19,7 +19,7 @@
     background-size: 100% auto !important;
     background-repeat: no-repeat !important;
     background-attachment: scroll !important;
-    background-color: #2ab3f4 !important; /* Safari system tint and overscroll match the painted upper sky, never beige */
+    background-color: #31b7f0 !important; /* matches the root and Safari theme; never beige */
     min-height: 100dvh;
     padding: 0 !important;
   }
