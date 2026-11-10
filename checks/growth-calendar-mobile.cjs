@@ -34,6 +34,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    const dayButton=page.locator('.gc-month-day[data-date="'+today+'"]');
    await dayButton.click();
    await page.locator('#up-dialog[open] .gc-detail').waitFor();
+   assert.equal(await page.locator('#up-dialog.island-growth-detail').count(),1,'only day-details receive the PNG skin');
    await page.locator('html.gc-png-ready').waitFor({timeout:15000});
    const pngSkin=await page.evaluate(()=>{
      const panel=document.querySelector('#up-dialog .island-dialog-surface');
@@ -83,6 +84,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await dayButton.click();
    assert.match(await page.locator('#up-dialog .gc-detail').innerText(),/开心！/,'mood note synchronizes from existing journal');
    await page.locator('#up-dialog [data-up="growth-habit-new"]').click();
+   assert.equal(await page.locator('#up-dialog.island-growth-detail').count(),0,'habit editor must not receive date-detail PNG skin');
    await page.locator('#gc-habit-name').fill('每天阅读20分钟');
    await page.locator('#up-dialog [data-up="growth-habit-save"]').click();
    await dayButton.click();
