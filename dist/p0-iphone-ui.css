@@ -339,12 +339,7 @@ body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
   body[data-mode="child"]:has(.up-main[data-route="today"]) {
     --p0-island-lift: clamp(34px, 10vw, 44px);
   }
-  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
-    background-image: url("assets/hd/today-island-reference-v1.webp") !important;
-    background-size: 100% auto !important;
-    background-repeat: no-repeat !important;
-    background-position: center calc(0px - var(--p0-island-lift)) !important;
-  }
+  /* Artwork position now belongs solely to .tf-world-main in island-world-layers.css. */
   body[data-mode="child"] .up-main[data-route="today"] .tf-hero {
     flex: 0 0 calc(93cqw - var(--p0-island-lift)) !important;
     height: calc(93cqw - var(--p0-island-lift)) !important;
