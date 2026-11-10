@@ -76,6 +76,51 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    })));
    assert.equal(ribbons.length,4,'four visible scrapbook module headers are rendered');
    assert.ok(ribbons.every(r=>r.image&&r.background.includes('linear-gradient')),'headers have illustrated icon and raised inset material');
+
+   // Regression: on Safari the former dialog itself scrolled off screen,
+   // making the decorative panel disappear while text remained visible.
+   const scrollBefore=await page.evaluate(()=>{
+     const modal=document.querySelector('#up-dialog');
+     const surface=modal?.querySelector('.island-dialog-surface');
+     const body=modal?.querySelector('.up-dialog-body');
+     const rect=surface?.getBoundingClientRect();
+     return {
+       surface:rect&&{top:rect.top,bottom:rect.bottom,left:rect.left,right:rect.right},
+       viewport:innerHeight, scrollHeight:body?.scrollHeight,clientHeight:body?.clientHeight,
+       dialogHeight:getComputedStyle(modal).height,
+       shellColor:getComputedStyle(surface).backgroundColor,
+       bodyOverflow:getComputedStyle(body).overflowY,
+       bodyFlex:getComputedStyle(body).flexGrow,
+       panelScroll:surface?.scrollTop||0
+     };
+   });
+   assert.ok(scrollBefore.surface,'dialog frame exists');
+   assert.ok(scrollBefore.surface.top>=-1 && scrollBefore.surface.bottom<=scrollBefore.viewport+2,
+      'entire decorative frame stays inside visual viewport: '+JSON.stringify(scrollBefore));
+   assert.notEqual(scrollBefore.shellColor,'rgba(0, 0, 0, 0)','paper surface never becomes transparent');
+   assert.equal(scrollBefore.bodyOverflow,'auto','only the popup body may scroll');
+   assert.equal(scrollBefore.bodyFlex,'1','popup body should fill the stationary frame');
+   if(scrollBefore.scrollHeight>scrollBefore.clientHeight+10){
+      await page.evaluate(()=>{const b=document.querySelector('#up-dialog .up-dialog-body');b.scrollTop=b.scrollHeight;});
+      await page.waitForTimeout(80);
+      const scrollAfter=await page.evaluate(()=>{
+        const modal=document.querySelector('#up-dialog');
+        const frame=modal.querySelector('.island-dialog-surface');
+        const body=modal.querySelector('.up-dialog-body');
+        return {top:frame.getBoundingClientRect().top,bottom:frame.getBoundingClientRect().bottom,
+          scroll:body.scrollTop,panelScroll:frame.scrollTop};
+      });
+      assert.ok(scrollAfter.scroll>0,'inside content scrolls');
+      assert.ok(Math.abs(scrollAfter.top-scrollBefore.surface.top)<2 &&
+         Math.abs(scrollAfter.bottom-scrollBefore.surface.bottom)<2,
+         'scroll never moves or detaches the decorative frame');
+      assert.equal(scrollAfter.panelScroll,0,'parent surface itself must not scroll');
+      await page.screenshot({path:'/tmp/growth-calendar-dialog-scrolled-'+width+'.png'});
+      await page.evaluate(()=>document.querySelector('#up-dialog .up-dialog-body').scrollTop=0);
+   }
+   const flatPaper=await page.locator('#up-dialog .gc-paper-raised').first().evaluate(el=>getComputedStyle(el).backgroundColor);
+   assert.equal(flatPaper,'rgba(0, 0, 0, 0)','raised cards have no rectangular CSS fill outside rounded frame');
+
    await page.screenshot({path:'/tmp/growth-calendar-dialog-'+width+'.png',fullPage:true});
    await page.locator('#up-dialog [data-up="journal-edit"]').click();
    await page.locator('#up-dialog [data-up="journal-mood"][data-mood="happy"]').click();
