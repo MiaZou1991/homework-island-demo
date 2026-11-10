@@ -20,7 +20,7 @@ function read(file){return fs.readFileSync(path.join(target,file),'utf8');}
 function write(file,s){fs.writeFileSync(path.join(target,file),s);}
 const blocked=['cloud-sync.js','realtime-signal.js','family-access.js'];
 for(const filename of blocked)fs.rmSync(path.join(target,filename),{force:true});
-const stageTag='<script>window.__KAIXIN_STAGE_BUILD__=true;</script>';
+const stageTag='<script>window.__KAIXIN_STAGE_BUILD__=true;document.documentElement.classList.add("kaixin-stage-gated");</script>';
 const sdk='<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>';
 const gateCss='<style>html.kaixin-stage-gated .phone{visibility:hidden!important;pointer-events:none!important}</style>';
 for(const page of ['child.html','parent.html']){
