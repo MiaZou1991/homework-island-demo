@@ -51,7 +51,14 @@ label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.status{bor
 <label for="password">密码</label><input id="password" type="password" autocomplete="current-password" required>
 <p class="smallnote" id="password-help">新注册密码至少 8 位；已有账号可以输入原密码登录。如果之前设置了 6 位密码，请先尝试直接登录。</p>
 <div class="stack"><button type="button" id="signup">创建测试家长账号</button><button type="submit">登录测试家长账号</button><button type="button" class="secondary" id="reset-password">忘记密码／发送重置邮件</button></div>
-</form><p class="smallnote">密码只提交给 Supabase Auth。请勿把密码、验证码、登录链接发到聊天里。</p>
+</form>
+<div id="recovery-box" class="hidden" aria-live="polite">
+<p class="help">收到重置邮件并点击链接返回此页面后，请输入新的至少 8 位密码。</p>
+<label for="new-password">新密码（至少 8 位）</label>
+<input id="new-password" type="password" autocomplete="new-password" minlength="8">
+<div class="stack"><button type="button" id="change-password">保存新密码</button></div>
+</div>
+<p class="smallnote">密码只提交给 Supabase Auth。请勿把密码、验证码、登录链接发到聊天里。</p>
 </section>
 <section id="parent-actions" class="hidden" aria-labelledby="parent-manage-title">
 <h2 id="parent-manage-title">家长：绑定孩子设备</h2>
