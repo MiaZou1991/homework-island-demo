@@ -49,7 +49,12 @@ assert.match(detail,/每天阅读20分钟/);
 assert.match(detail,/第一次自己整理书桌/);
 assert.match(detail,/课程和携带物品只作提醒/);
 assert.match(detail,/gc-detail-meadow/,'rounded meadow finishes the scrapbook');
-assert.match(detail,/gc-detail-section-icon/,'hand-illustrated section headings replace squares');
+assert.equal((detail.match(/gc-detail-ribbon gc-ribbon-/g)||[]).length,4,'four scrapbook sections each have reusable illustrated ribbons');
+assert.equal((detail.match(/gc-detail-list-row/g)||[]).length,4,'real schedule uses four illustrated rows with event');
+assert.match(detail,/gc-paper-raised/,'material panels are image-backed');
+assert.match(detail,/assets\/hd\/ui\/backpack\.png/,'packing illustration comes from existing art library');
+assert.match(detail,/assets\/hd\/today-icons\/homework-v1\.webp/,'diary illustration comes from existing art library');
+assert.match(detail,/课程和携带物品只作提醒，不需要打卡/);
 
 assert.equal((detail.match(/class="gc-detail-stat /g)||[]).length,3,'date details have 3 pastel summary badges');
 
