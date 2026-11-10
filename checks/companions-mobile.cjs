@@ -10,19 +10,23 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
    const scene=await p.evaluate(()=>{
-     const root=getComputedStyle(document.documentElement);
+     const world=getComputedStyle(document.querySelector('.tf-world-extension'));
+     const original=getComputedStyle(document.querySelector('.tf-world-main'));
      const phone=getComputedStyle(document.querySelector('.phone'));
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
-     return {rootImage:root.backgroundImage,artImage:phone.backgroundImage,
-       artPositionY:phone.backgroundPositionY,artSize:phone.backgroundSize,
+     return {extendedImage:world.backgroundImage,worldDisplay:world.display,
+       artImage:original.backgroundImage,artPositionY:original.backgroundPositionY,
+       artSize:original.backgroundSize,phoneImage:phone.backgroundImage,
        heroHeight:hero.height,logoTop:top.top};
    });
    const lift=Math.min(44,Math.max(34,width/10));
-   assert.equal(scene.rootImage,'none','no synthetic sky gradient '+width);
-   assert.match(scene.artImage,/today-island-reference-v1\\.webp/,'single original island image '+width);
+   assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
+   assert.match(scene.extendedImage,/island-world-extension-v1\\.svg/,'cloud, mountain and ocean extension '+width);
+   assert.match(scene.artImage,/today-island-reference-v1\\.webp/,'original island stays intact '+width);
+   assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
    assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
-   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original background image '+width);
+   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original scenery layer '+width);
    assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'move dock and task content with artwork '+width);
    assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo and points remain safe '+width);
    await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
@@ -97,6 +101,38 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.deepEqual(errors,[],'no browser errors '+width);
    await p.close();
    console.log('PASS companion gallery',width,'px');
+  }
+  for(const width of [768,1024,1366]){
+   const p=await browser.newPage({viewport:{width,height:1024},deviceScaleFactor:2});
+   const errors=[];p.on('pageerror',e=>errors.push(e.message));
+   await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
+   await p.locator('#island-loader').waitFor({state:'detached'});
+   const layout=await p.evaluate(()=>{
+     const phone=document.querySelector('.phone');
+     const world=document.querySelector('.tf-world-extension');
+     const art=document.querySelector('.tf-world-main');
+     const nav=document.querySelector('.up-nav');
+     const prect=phone.getBoundingClientRect();
+     const nrect=nav.getBoundingClientRect();
+     return {world:getComputedStyle(world).backgroundImage,
+       art:getComputedStyle(art).backgroundImage,mask:getComputedStyle(art).maskImage,
+       phoneWidth:prect.width,phoneCenter:prect.x+prect.width/2,
+       navWidth:nrect.width,navBottom:nrect.bottom,
+       scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
+       activeTab:nav.querySelector('[aria-current="page"]')?.textContent?.trim()};
+   });
+   assert.match(layout.world,/island-world-extension-v1\\.svg/,'tablet extension image '+width);
+   assert.match(layout.art,/today-island-reference-v1\\.webp/,'tablet retains original island '+width);
+   assert.ok(layout.mask!=='none','tablet island art should feather into surrounding panorama '+width);
+   assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'tablet content column width '+width);
+   assert.ok(Math.abs(layout.phoneCenter-width/2)<3,'tablet island centered '+width);
+   assert.ok(Math.abs(layout.navWidth-layout.phoneWidth)<3,'tablet original tabs share content width '+width);
+   assert.ok(Math.abs(layout.navBottom-1024)<2,'tablet tabs fixed at viewport bottom '+width);
+   assert.ok(layout.scrollWidth<=width+2,'no unwanted horizontal scroll on tablet '+width);
+   await p.screenshot({path:'/tmp/island-world-tablet-'+width+'.png'});
+   assert.deepEqual(errors,[],'no browser errors on tablet '+width);
+   await p.close();
+   console.log('PASS world extension',width,'px');
   }
  }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exit(1)});
