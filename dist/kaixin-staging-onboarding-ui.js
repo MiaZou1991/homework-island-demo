@@ -14,6 +14,11 @@
   need_unbound_child_session:'请在未绑定的孩子设备账号中输入配对码。',
   guest_login_failed:'孩子测试身份暂时创建失败，请重试。',
   signup_failed:'创建账号失败，请检查邮箱、密码及测试库邮件服务配置。',
+  signup_password_too_short:'新注册或重设密码至少需要 8 个字符。已有账号可用原密码登录。',
+  email_required:'请先填写邮箱地址。',
+  password_reset_request_failed:'重置邮件发送失败，请检查测试库邮件设置或稍后重试。',
+  password_recovery_session_required:'请先点击邮箱中的密码重置链接返回本页面。',
+  password_update_failed:'修改密码失败，请稍后重试。',
   invalid_credentials:'登录失败，请检查邮箱密码或先完成邮箱验证。',
   verified_https_redirect_required:'此页面尚未部署在已授权 HTTPS 测试地址，不能在这里创建邮箱账号。请等独立测试地址就绪。',
   server_unavailable:'测试库接口暂时不可用，请重试。',
@@ -123,6 +128,28 @@
     feedback(state.kind==='parent'?'家长身份确认成功。':'邮箱登录成功，等待测试库管理员授权该家长账号。');
    }catch(e){statusError(e);}finally{submit.disabled=false;}
   });
+  busy('reset-password',async()=>{
+    const email=$('email').value.trim();
+    await flow.requestPasswordReset(email);
+    feedback('如果该邮箱已有测试账号，密码重置邮件将发送到该邮箱。请检查收件箱及垃圾邮件。');
+  });
+  busy('change-password',async()=>{
+    const password=$('new-password').value;
+    await flow.updatePassword(password);
+    $('new-password').value='';
+    $('recovery-box').classList.add('hidden');
+    feedback('测试密码已更新。现在可以使用新密码登录。');
+    await refresh();
+  });
+  client.auth.onAuthStateChange((event)=>{
+    if(event==='PASSWORD_RECOVERY') {
+      $('recovery-box').classList.remove('hidden');
+      feedback('邮箱重置链接验证成功，请在下方设置至少 8 位新密码。');
+    }
+  });
+  if(location.hash.includes('type=recovery') || location.search.includes('type=recovery')) {
+    $('recovery-box').classList.remove('hidden');
+  }
   busy('guest',async()=>{await flow.createGuest();await refresh();feedback('孩子测试身份已建立，请输入家长的配对码。');});
   busy('generate',async()=>{
    const result=await flow.createInvite();
