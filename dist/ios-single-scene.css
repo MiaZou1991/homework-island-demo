@@ -19,7 +19,7 @@
     background-size: 100% auto !important;
     background-repeat: no-repeat !important;
     background-attachment: scroll !important;
-    background-color: #f7dda9 !important; /* below the source: last sandy pixels */
+    background-color: #2ab3f4 !important; /* Safari system tint and overscroll match the painted upper sky, never beige */
     min-height: 100dvh;
     padding: 0 !important;
   }
@@ -40,10 +40,10 @@
     overflow: visible !important;
   }
 
-  /* Preserve original 3 illustrated tabs but protect labels from artwork
-     below the beach. A single sand surface stays attached to the viewport. */
+  /* Keep the approved three tab icons and small illustrated shoreline,
+     but do not replace the entire lower viewport with a flat beige bar. */
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
-    background: linear-gradient(to bottom, #ffe9bded, #ffe6b6 28%, #ffe3b1 100%) !important;
+    background: transparent !important;
     -webkit-backdrop-filter: none !important;
     backdrop-filter: none !important;
     isolation: isolate;
@@ -54,6 +54,10 @@
     background-position: center center !important;
     background-repeat: no-repeat !important;
     background-size: 100% 100% !important;
+    top: auto !important;
+    bottom: 0 !important;
+    height: 38px !important;
+    opacity: .96;
     pointer-events: none !important;
   }
 }
