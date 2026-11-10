@@ -171,3 +171,19 @@ html,body{overflow-x:hidden}
  .ft-primary.ft-small.ft-write-button{width:109px!important;min-width:109px!important;font-size:11px!important}
 }
 @media(prefers-reduced-motion:reduce){.ft-app *{animation:none!important;transition:none!important}}
+
+/* 390px screenshot review #1: third suspended note must clear the content overlap. */
+@media(min-width:366px) and (max-width:520px){
+ .ft-tree-tags{top:50px!important}
+ .ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){
+  height:61px!important;min-height:61px!important;max-height:61px!important;
+  padding-top:18px!important;padding-bottom:4px!important
+ }
+}
+@media(max-width:365px){
+ .ft-tree-tags{top:50px!important}
+ .ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){
+  height:60px!important;min-height:60px!important;max-height:60px!important;
+  padding-top:18px!important;padding-bottom:4px!important
+ }
+}
