@@ -25,8 +25,12 @@ const sdkMock=`(()=>{
       if(!state.role)return{data:{ok:false,error:'unauthorized'},error:null};
       if(state.payload===null){
        // Exact domain defaults from the app itself, preserving all side-effect fields.
-       state.payload=JSON.parse(JSON.stringify(window.getData()));
-       state.payload.recurringTasks=[];
+       if(window.__qaSparse){
+         state.payload={homework:[{id:'qa-old-fixture',subject:'数学',content:'只用于测试',done:false,attachments:[]}],qaHistory:{preserved:true}};
+       }else{
+         state.payload=JSON.parse(JSON.stringify(window.getData()));
+         state.payload.recurringTasks=[];
+       }
       }
       return{data:{ok:true,revision:state.revision,payload:JSON.parse(JSON.stringify(state.payload))},error:null};
     }
@@ -42,10 +46,10 @@ const sdkMock=`(()=>{
   };
  }};
 })();`;
-async function boot(browser,role,route='child.html'){
+async function boot(browser,role,route='child.html',sparse=false){
  const page=await browser.newPage({viewport:{width:390,height:844}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.addInitScript(role=>{window.__qaRole=role;},role);
+ await page.addInitScript(({role,sparse})=>{window.__qaRole=role;window.__qaSparse=sparse;},{role,sparse});
  await page.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js',
    r=>r.fulfill({status:200,contentType:'text/javascript',body:sdkMock}));
  await page.goto(URL+'/'+route,{waitUntil:'domcontentloaded'});
@@ -83,6 +87,23 @@ async function boot(browser,role,route='child.html'){
    id,{timeout:15000});
   assert.deepEqual(parent.errors,[],'parent staging UI must not produce JS errors');
   await parent.page.close();
+
+  // Actual staging QA payload is sparse and lacks the UI's other top-level fields.
+  // Creating a test assignment must NOT upload missing defaults or mutate QA history.
+  const sparse=await boot(browser,'parent','parent.html',true);
+  await sparse.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  await sparse.page.evaluate(()=>{
+    const d=getData();d.homework.push({id:'qa-sparse-parent-new',subject:'英语',content:'安全同步测试',
+      deadline:'2026-11-11T21:00:00',duration:10,done:false,attachments:[],createdAt:'2026-11-10T00:00:00Z'});
+    saveData(d);
+  });
+  await sparse.page.waitForFunction(()=>window.__qaRemote.payload.homework.some(h=>h.id==='qa-sparse-parent-new')
+    &&window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  assert.deepEqual(await sparse.page.evaluate(()=>window.__qaRemote.payload.qaHistory),{preserved:true});
+  assert.equal(await sparse.page.evaluate(()=>Object.hasOwn(window.__qaRemote.payload,'points')),false,
+    'UI-only default points must NOT be uploaded to staging sparse fixture');
+  assert.deepEqual(sparse.errors,[],'sparse staging fixture must not crash the family UI');
+  await sparse.page.close();
 
   const child=await boot(browser,'child','child.html');
   await child.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:18000});
