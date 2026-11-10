@@ -3,22 +3,37 @@
    原有 growth-calendar.css 为图片失败时的安全回退样式。
 */
 html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog.island-growth-detail {
- width:min(390px,calc(100vw - 16px))!important;max-width:calc(100vw - 16px)!important;
- max-height:calc(100dvh - 12px)!important;margin:auto!important;
- padding:59px 0 0!important;border:0!important;
- background:transparent!important;box-shadow:none!important;
- border-radius:0!important;overflow:visible!important;
- --gc-ink:#69412d;--gc-line:#ecd2a8;
+
+  position:fixed!important;inset:0!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:min(390px,calc(100vw - 18px))!important;
+  max-width:calc(100vw - 18px)!important;
+  height:min(820px,calc(100dvh - 16px))!important;
+  max-height:calc(100dvh - 16px)!important;
+  padding:58px 0 0!important;margin:auto!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+  overflow:visible!important;
+  --gc-ink:#69412d;--gc-line:#ecd2a8;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail::backdrop{
  background:#244d5078;backdrop-filter:blur(4px) saturate(.9)
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface{
- position:relative!important;isolation:isolate;
- min-height:470px;padding:0 8px 7px!important;
- margin:0!important;border:0!important;border-radius:29px!important;
- background:transparent!important;box-shadow:none!important;filter:none!important;
- overflow:visible!important;
+
+  position:relative!important;isolation:isolate;
+  box-sizing:border-box!important;
+  display:flex!important;flex-direction:column!important;
+  width:100%!important;height:100%!important;
+  min-height:0!important;max-height:100%!important;
+  padding:0 8px 7px!important;margin:0!important;
+  border:0!important;border-radius:29px!important;
+  background:#fff3de!important;
+  box-shadow:0 8px 22px #47392b2e!important;
+  filter:none!important;overflow:visible!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-surface::before{
  content:""!important;display:block!important;position:absolute!important;
@@ -35,11 +50,16 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-deta
  position:relative;z-index:2;
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .up-dialog-header{
- top:auto!important;left:auto!important;right:auto!important;
- transform:none!important;display:flex!important;align-items:center;justify-content:center;
- height:59px!important;min-height:59px!important;
- margin:18px 8px 0!important;padding:0 22px!important;
- background:transparent!important;pointer-events:none;z-index:4!important
+
+  position:relative!important;
+  top:auto!important;left:auto!important;right:auto!important;
+  transform:none!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 59px!important;height:59px!important;min-height:59px!important;
+  margin:18px 8px 0!important;padding:0 22px!important;
+  background:transparent!important;pointer-events:none;
+  z-index:4!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .island-dialog-title{
  width:100%!important;min-height:61px!important;height:61px!important;max-height:61px!important;
@@ -71,11 +91,19 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-deta
  color:#905c39!important;font-size:25px!important;font-weight:700!important;line-height:1
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .up-dialog-body{
- padding:11px 17px 58px!important;
- max-height:calc(100dvh - 177px)!important;
- overflow-y:auto!important;overscroll-behavior:contain;
- scrollbar-width:thin;scrollbar-color:#e1c79d transparent;
- background:transparent!important;border-radius:0!important;clip-path:none!important
+
+  box-sizing:border-box!important;
+  display:block!important;
+  flex:1 1 auto!important;min-height:0!important;max-height:none!important;
+  padding:11px 17px 64px!important;
+  margin:0!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#e1c79d transparent;
+  background:transparent!important;
+  border:0!important;border-radius:0!important;clip-path:none!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail{
  max-height:none!important;overflow:visible!important;
@@ -134,18 +162,25 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-deta
 }
 /* Raised cream-paper cards reuse existing illustrated panel instead of flat CSS boxes. */
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-paper-raised{
- position:relative;background:#fff9ec;
- border:17px solid transparent!important;
- border-image-source:url("assets/hd/dialogs-v3/panel.webp")!important;
- border-image-slice:110 fill!important;
- border-image-width:17px!important;
- border-image-repeat:stretch!important;
- box-shadow:0 3px 6px #977f5e1a!important;
- border-radius:0!important;min-width:0
+
+  position:relative!important;
+  box-sizing:border-box!important;min-width:0;
+  background:transparent!important;background-color:transparent!important;
+  border:17px solid transparent!important;
+  border-image-source:url("assets/hd/dialogs-v3/panel.webp")!important;
+  border-image-slice:110 fill!important;
+  border-image-width:17px!important;
+  border-image-repeat:stretch!important;
+  box-shadow:none!important;
+  border-radius:17px!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper{
- min-height:88px;padding:4px 26px 4px 4px!important;
- margin:0!important;background-color:#fffcf5!important;
+
+  min-height:88px;padding:4px 26px 4px 4px!important;
+  margin:0!important;
+  background:transparent!important;background-color:transparent!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-diary-paper p{
  font-size:14px!important;line-height:1.7!important;color:#714933;font-weight:600!important;
@@ -162,7 +197,10 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-deta
 }
 /* Illustration-backed day schedule: icons, three separate row roles, read-only reminders. */
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list{
- padding:0 3px!important;min-height:0;background-color:#fff9eb!important
+
+  padding:0 3px!important;min-height:0;
+  background:transparent!important;background-color:transparent!important;
+
 }
 html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-detail .gc-detail-list-row{
  display:grid;grid-template-columns:34px minmax(0,1fr) auto;
