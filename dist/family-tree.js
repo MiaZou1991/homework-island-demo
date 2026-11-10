@@ -239,7 +239,10 @@ function openDetail(kind,id){
 function editorControls(){
  if(!editing)return;
  const kind=editing.kind;
- $("editorTitle").textContent=editing.id?"修改家庭记录":kind==="reply"?"修改回复":"写一条家庭记录";
+ $("editorTitle").textContent=editing.id?"修改家庭记录":kind==="reply"?"修改回复":"写一条记录";
+ document.querySelectorAll("[data-kind-choice]").forEach(btn=>{
+  btn.setAttribute("aria-pressed",String(btn.dataset.kindChoice===kind));
+ });
  $("editorTypeWrap").hidden=!!editing.id||kind==="reply";
  $("editorText").maxLength=kind==="moment"?300:kind==="note"?180:120;
  $("editorText").placeholder=kind==="moment"?"今天有什么值得记下来的成长小事？":
@@ -405,6 +408,12 @@ $("heartForm").addEventListener("submit",sendHeart);
 $("ftModalClose").addEventListener("click",dismissPopup);
 $("viewTreeGrowth").addEventListener("click",growthPopup);
 $("cancelEditor").addEventListener("click",closeEditor);
+document.querySelector(".ft-kind-pills").addEventListener("click",event=>{
+ const btn=event.target.closest("button[data-kind-choice]");
+ if(!btn||!editing||editing.id)return;
+ $("editorKind").value=btn.dataset.kindChoice;
+ $("editorKind").dispatchEvent(new Event("change",{bubbles:true}));
+});
 $("editorKind").addEventListener("change",event=>{
  if(!editing||editing.id)return;
  const value=$("editorText").value;
