@@ -103,7 +103,7 @@ dialog::backdrop{background:#3b534fa6;backdrop-filter:blur(3px)}
 .ft-story-filters button{padding:7px 14px;border:1px solid #e3d6bf;border-radius:22px;background:#fffaf0;color:#7c6b55;font-size:12px;font-weight:650;min-height:38px}
 .ft-story-filters button[aria-pressed="true"]{background:#e5eddb;border-color:#b4c5a4;color:#42633a}
 .ft-write-button,.ft-primary,.ft-primary.ft-small{
-  background:#5d8151!important;color:#fffdf1!important;
+  background:#496e42!important;color:#fffdf1!important;
   border:2px solid #e4f0cf!important;text-shadow:none!important;
   box-shadow:0 3px 0 #405c38,0 6px 12px #62765324;
   font-weight:800;line-height:1.2;letter-spacing:.01em;
