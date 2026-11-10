@@ -24,6 +24,7 @@ jobs:
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
           node checks/growth-calendar.cjs
+          node checks/growth-popup-png.cjs
       - name: Install fonts for mobile rendering
         run: |
           sudo apt-get update -qq
