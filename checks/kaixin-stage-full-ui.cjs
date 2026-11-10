@@ -21,6 +21,9 @@ const sdkMock=`(()=>{
    rpc:async(name,body={})=>{
     state.calls.push(name);
     if(name==='kaixin_identity')return{data:state.role?{ok:true,family:'KAIXIN',role:state.role}:{ok:false,error:'unauthorized'},error:null};
+    if(name==='kaixin_list_child_devices')return{data:{ok:true,family:'KAIXIN',devices:[
+      {id:'33333333-3333-4333-8333-333333333333'},
+      {id:'b71b98fd-51ee-479c-a029-410a62a317bd'}]},error:null};
     if(name==='family_load_v2'){
       if(!state.role)return{data:{ok:false,error:'unauthorized'},error:null};
       if(state.payload===null){
@@ -65,6 +68,17 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await anon.page.locator('.phone').isVisible(),false);
   assert.equal((await anon.page.evaluate(()=>window.__qaRemote.calls)).includes('family_load_v2'),false);
   await anon.page.close();
+
+  const onboarding=await boot(browser,'parent','index.html');
+  await onboarding.page.locator('#devices-list details summary').waitFor();
+  assert.match(await onboarding.page.locator('#devices-list h3').textContent(),/新绑定的孩子设备（1）/);
+  assert.match(await onboarding.page.locator('#devices-list details summary').textContent(),/开发历史测试记录（1 条/);
+  assert.match(await onboarding.page.locator('#devices-list').textContent(),/b71b98fd/);
+  onboarding.page.once('dialog',d=>d.accept('孩子测试手机'));
+  await onboarding.page.getByRole('button',{name:'给设备命名'}).click();
+  await onboarding.page.getByText('孩子测试手机').waitFor();
+  assert.deepEqual(onboarding.errors,[],'staging onboarding must identify, fold and rename devices');
+  await onboarding.page.close();
 
   const parent=await boot(browser,'parent','parent.html');
   await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
