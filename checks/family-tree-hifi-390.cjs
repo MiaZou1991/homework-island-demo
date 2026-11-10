@@ -41,6 +41,31 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('[data-section="hearts"]').click();
   assert.equal(await page.locator('#heartComposer').evaluate(d=>d.open),true);
   await page.locator('#heartComposerClose').click();
+  // Legacy preview content may have no photo. Do not synthesize a green
+  // placeholder or mismatch another family's illustrated demo entry.
+  await page.evaluate(()=>{
+    localStorage.setItem('kaixin_family_tree_public_preview_v1',JSON.stringify({
+      version:1,
+      moments:[{id:'legacy-breakfast',author:'mom',day:'2026-11-10',category:'together',
+        text:'我们一起做了美味的早餐，开心极了！',createdAt:'2026-11-10T09:00:00.000Z'}],
+      notes:[],replies:[]
+    }));
+  });
+  await page.reload();
+  const textOnly=page.locator('.ft-story-item:not([data-art])').first();
+  await textOnly.waitFor();
+  assert.equal(await textOnly.locator('.ft-story-stamp').isVisible(),false,
+    'text-only entry must not show a fabricated placeholder image');
+  const widths=await textOnly.evaluate(el=>({
+    card:el.getBoundingClientRect().width,
+    row:el.querySelector('.ft-story-row').getBoundingClientRect().width,
+    copy:el.querySelector('.ft-paper-copy').getBoundingClientRect().width
+  }));
+  assert.ok(widths.copy>widths.card*.72,'text-only entry should use available card width: '+JSON.stringify(widths));
+  const excerpt=await page.locator('.ft-tree-tag span').first().innerText();
+  assert.ok(Array.from(excerpt).length<=13,'hanging note excerpt is short enough: '+excerpt);
+  assert.match(await page.locator('.ft-tree-tag').first().getAttribute('aria-label'),/美味的早餐/);
+  await page.screenshot({path:'/tmp/family-tree-hifi-390-text-only.png',animations:'disabled'});
   assert.deepEqual(errors,[],'no browser page errors');
   console.log('PASS family-tree hifi 390 layout & working controls',JSON.stringify(dims));
  }finally{await browser.close();}
