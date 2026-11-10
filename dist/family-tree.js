@@ -19,12 +19,16 @@ const localRead=(key,parse)=>{
 };
 const makeID=()=>("pv_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,11));
 function sample(){
- const day=nowDay();
+ // Illustrated preview only: order and story subjects match the approved
+ // three photo cards (swimming / seashell / basketball). Never writes to
+ // household production records or overwrites an existing preview key.
+ const day=nowDay(),yesterday=M.dateInZone(new Date(Date.now()-86400000).toISOString(),ZONE),
+ twoDaysAgo=M.dateInZone(new Date(Date.now()-2*86400000).toISOString(),ZONE);
  return {version:1,moments:[
- {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！",createdAt:iso()},
- {id:"sample-together",author:"mom",day,category:"together",text:"我们一起做了美味的早餐，开心极了！",createdAt:new Date(Date.now()-86400000).toISOString()}
- ],notes:[{id:"sample-note",author:"kid",text:"周末一起去海边散步吧！看看有没有新贝壳 🐚",createdAt:iso()}],
- replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"周末教教我吧。",createdAt:iso()}]};
+ {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！超有成就感！",createdAt:iso()},
+ {id:"sample-basketball",author:"kid",day:twoDaysAgo,category:"growth",text:"我学会了新的篮球动作！",createdAt:new Date(Date.now()-2*86400000).toISOString()}
+ ],notes:[{id:"sample-note",author:"mom",text:"周末我们一起去海边散步吧！看看有没有新的小贝壳。",createdAt:new Date(Date.now()-86400000).toISOString()}],
+ replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"好呀，一起去！",createdAt:new Date(Date.now()-86400000).toISOString()}]};
 }
 function load(){
  const existing=localStorage.getItem(PUB);
