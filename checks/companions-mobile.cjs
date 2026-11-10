@@ -10,28 +10,69 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
    const scene=await p.evaluate(()=>{
+     const body=getComputedStyle(document.body);
      const world=getComputedStyle(document.querySelector('.tf-world-extension'));
      const original=getComputedStyle(document.querySelector('.tf-world-main'));
      const phone=getComputedStyle(document.querySelector('.phone'));
+     const nav=getComputedStyle(document.querySelector('.phone > .up-nav'));
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
-     return {extendedImage:world.backgroundImage,worldDisplay:world.display,
-       artImage:original.backgroundImage,artPositionY:original.backgroundPositionY,
-       artSize:original.backgroundSize,phoneImage:phone.backgroundImage,
-       heroHeight:hero.height,logoTop:top.top};
+     const navEdge=getComputedStyle(document.querySelector('.phone > .up-nav'),'::before');
+     const root=getComputedStyle(document.documentElement);
+     return {bodyImage:body.backgroundImage,bodySize:body.backgroundSize,bodyPosition:body.backgroundPosition,
+       bodyColor:body.backgroundColor,rootColor:root.backgroundColor,
+       worldDisplay:world.display,worldImage:world.backgroundImage,
+       originalDisplay:original.display,phoneImage:phone.backgroundImage,
+       navImage:nav.backgroundImage,navColor:nav.backgroundColor,navPosition:nav.position,
+       navEdgeImage:navEdge.backgroundImage,navEdgeHeight:navEdge.height,
+       heroHeight:hero.height,logoTop:top.top,bodyTop:document.body.getBoundingClientRect().top};
    });
    const lift=Math.min(44,Math.max(34,width/10));
-   assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
-   assert.ok(scene.extendedImage.includes('island-world-panoramic-v2.webp'),'cloud, mountain and ocean extension '+width);
-   const photoLoaded=await p.evaluate(async()=>{const i=new Image();i.src='assets/hd/island-world-panoramic-v2.webp';try{await i.decode();return {w:i.naturalWidth,h:i.naturalHeight};}catch{return {w:0,h:0};}});
-   assert.equal(photoLoaded.w,720,'panoramic photo asset should load '+width);
-   assert.equal(photoLoaded.h,900,'panoramic photo aspect ratio retained '+width);
-   assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'original island stays intact '+width);
-   assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
-   assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
-   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original scenery layer '+width);
-   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'move dock and task content with artwork '+width);
-   assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo and points remain safe '+width);
+   assert.ok(scene.bodyImage.includes('today-island-reference-v1.webp'),'one original island behind whole page '+width);
+   assert.equal(scene.bodySize,'100% auto','island keeps exact aspect ratio '+width);
+   assert.equal(scene.bodyPosition,'50% 0%','original sky begins at top edge '+width);
+   assert.equal(scene.worldDisplay,'none','no duplicated panorama or blurry lighthouse '+width);
+   assert.equal(scene.originalDisplay,'none','no second overlapping island bitmap '+width);
+   assert.equal(scene.phoneImage,'none','no third phone-container background '+width);
+   assert.equal(scene.navPosition,'fixed','nav remains viewport-fixed '+width);
+   assert.equal(scene.rootColor,'rgb(49, 183, 240)','root sky tint must not be beige '+width);
+   assert.equal(scene.bodyColor,scene.rootColor,'Safari status tint and page background must match '+width);
+   assert.equal(scene.navImage,'none','no second beige gradient covering water behind tabs '+width);
+   assert.equal(scene.navColor,'rgba(0, 0, 0, 0)','tabs show the single island scene below '+width);
+   assert.ok(scene.navEdgeImage.includes('tab-sand-line.svg'),'keep original narrow sand-wave illustration '+width);
+   assert.equal(scene.navEdgeHeight,'38px','only a thin sand-wave edge, no beige panel '+width);
+   assert.ok(Math.abs(scene.bodyTop)<1,'scene anchored to viewport top '+width);
+   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'task layout remains aligned '+width);
+   assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo stays clear of browser header '+width);
+   const source=await p.evaluate(async()=>{
+     const i=new Image();i.src='assets/hd/today-island-reference-v1.webp';
+     try{await i.decode();return {w:i.naturalWidth,h:i.naturalHeight};}
+     catch{return {w:0,h:0};}
+   });
+   assert.deepEqual(source,{w:900,h:1748},'original source not stretched or replaced');
+   // Chrome DevTools can emulate the standalone CSS display-mode, unlike a
+   // normal browser viewport. Never count a skipped emulation as real Safari QA.
+   const cdp=await p.context().newCDPSession(p);
+   try{
+     await cdp.send('Emulation.setEmulatedMedia',{features:[{name:'display-mode',value:'standalone'}]});
+     const pwa=await p.evaluate(()=>{
+       const standalone=matchMedia('(display-mode: standalone)').matches;
+       const bodyImage=getComputedStyle(document.body).backgroundImage;
+       const worldDisplay=getComputedStyle(document.querySelector('.tf-world-extension')).display;
+       const navRect=document.querySelector('.up-nav').getBoundingClientRect();
+       return {standalone,bodyImage,worldDisplay,navBottom:navRect.bottom,top:getComputedStyle(document.querySelector('.tf-top')).top};
+     });
+     if(pwa.standalone){
+       assert.ok(pwa.bodyImage.includes('today-island-reference-v1.webp'),'PWA has exact same island bitmap '+width);
+       assert.equal(pwa.worldDisplay,'none','PWA does not duplicate the beach '+width);
+       assert.ok(Math.abs(pwa.navBottom-850)<2,'PWA fixed tabs align with bottom '+width);
+       await p.screenshot({path:'/tmp/ios-standalone-'+width+'.png'});
+       console.log('PASS simulated PWA scene',width,'px');
+     }else console.log('NOTE CDP standalone media simulation unavailable on this Chrome build');
+   }finally{
+     await cdp.send('Emulation.setEmulatedMedia',{features:[]});
+     await cdp.detach();
+   }
    await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();

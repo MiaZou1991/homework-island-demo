@@ -1,0 +1,84 @@
+/* 开心岛 P0 回归修复 · iOS Safari + 添加到主屏幕（2026-11-10）
+ * Mobile has ONE painted scene: the original island on the page canvas.
+ * The previous full-viewport panoramic WebP MUST NOT run behind it:
+ * it contains distant scenery + beach and caused a blurry phantom lighthouse
+ * above the safe area and a second sand/flower field behind the bottom tabs.
+ * Leave the wide-screen extension intact for tablets.
+ */
+@media (max-width: 530px) {
+  html:has(body[data-mode="child"] .up-main[data-route="today"]) {
+    background-color: #31b7f0 !important;
+    color-scheme: light;
+  }
+
+  body[data-mode="child"]:has(.up-main[data-route="today"]) {
+    /* A single width-anchored source means no drifting as Safari chrome
+       expands/collapses, and PWA draws the *same* sky behind the notch. */
+    background-image: url("assets/hd/today-island-reference-v1.webp") !important;
+    background-position: center top !important;
+    background-size: 100% auto !important;
+    background-repeat: no-repeat !important;
+    background-attachment: scroll !important;
+    background-color: #31b7f0 !important; /* matches the root and Safari theme; never beige */
+    min-height: 100dvh;
+    padding: 0 !important;
+  }
+
+  /* Never paint two island photos on top of each other on an iPhone. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension,
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    display: none !important;
+    background-image: none !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    background: transparent !important;
+    background-image: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Keep the approved three tab icons and small illustrated shoreline,
+     but do not replace the entire lower viewport with a flat beige bar. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    isolation: isolate;
+    z-index: 60 !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::before {
+    background-image: url("assets/hd/tab-sand-line.svg") !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    background-size: 100% 100% !important;
+    top: auto !important;
+    bottom: 0 !important;
+    height: 38px !important;
+    opacity: .96;
+    pointer-events: none !important;
+  }
+}
+
+/* In an installed iPhone PWA, viewport-fit=cover and black-translucent status
+   bar allow the original photograph to extend behind system indicators.
+   Keep DOM controls clear of the safe inset. */
+@media (max-width: 530px) and (display-mode: standalone) {
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: max(24px, calc(env(safe-area-inset-top, 0px) + 12px)) !important;
+  }
+  body[data-mode="child"] .phone > .up-nav {
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* For larger screens: the panorama belongs to the margins, never on top of
+   the central scene. Keep existing iPad responsive / container-query rules. */
+@media (min-width: 700px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+  }
+}
