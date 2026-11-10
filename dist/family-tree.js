@@ -158,8 +158,13 @@ function renderStories(){
  const shown=all.filter(x=>recordFilter==="all"||x.recordType===recordFilter);
  $("storiesList").innerHTML=shown.length?shown.map(x=>{
   const isMoment=x.recordType==="moment";
+  // Artwork is tied to the actual demo story, never the card's list position:
+  // filtering/reordering must not make a child's picture belong to another entry.
+  const previewArt={"sample-growth":"swimming","sample-note":"seashell","sample-basketball":"basketball"};
+  const art=previewArt[x.id]||"";
   return '<article class="ft-paper ft-story-item '+(isMoment?"is-moment":"is-note")+
-  '" data-'+(isMoment?"moment":"note")+'="'+esc(x.id)+'">'+
+  '" data-'+(isMoment?"moment":"note")+'="'+esc(x.id)+'"'+
+  (art?' data-art="'+art+'"':"")+'>'+
   '<div class="ft-paper-head"><span class="ft-category '+(isMoment?"ft-category-moment":"ft-category-note")+
   '">'+(isMoment?"成长回忆":"家庭便签")+'</span><span>'+esc(x.sortDay)+" · "+esc(names[x.author]||"家人")+
   '</span></div>'+
