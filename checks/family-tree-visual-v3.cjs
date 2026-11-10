@@ -48,6 +48,7 @@ try{
       width+': elements stay inside painted scene');
     assert.ok(geometry.sw<=geometry.iw+1,width+': no horizontal overflow');
 
+    await page.screenshot({path:'/tmp/family-tree-v3-home-'+width+'.png',fullPage:true});
     await page.locator('.ft-write-button').click();
     await page.locator('#editor').waitFor({state:'visible'});
     const titleStyle=await page.locator('#editorTitle').evaluate(el=>getComputedStyle(el).backgroundImage);
