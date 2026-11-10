@@ -47,6 +47,12 @@ for(const page of ['child.html','parent.html']){
   s=s.replace(/<body([^>]*)>/,(_all,attrs)=>'<body'+attrs+'>'+dataNote);
  }
 
+ if(page==='child.html'){
+  // Loaded after upgrade.js/child-dialogs.js so their legacy completion callbacks
+  // are overridden only in the isolated child page, never on production.
+  assert.ok(s.includes('</body>'),'staging child page has no closing body');
+  s=s.replace('</body>','<script src="kaixin-stage-child-actions.js?v=20261110-child-v2a"></script>\n</body>');
+ }
  write(page,s);
 }
 let demo=read('demo-core.js');
@@ -96,6 +102,7 @@ assert.deepEqual(violations,[],'staging build must not include production endpoi
 for(const page of ['child.html','parent.html']){
  const s=read(page);
  assert.ok(s.includes('kaixin-stage-sync.js'));
+ if(page==='child.html')assert.ok(s.includes('kaixin-stage-child-actions.js'));
  assert.ok(!s.includes('src="cloud-sync.js')&&!s.includes('src="family-access.js')&&!s.includes('src="realtime-signal.js'));
 }
 console.log('PASS KAIXIN staging build, isolated Auth/CAS, identical original pages and assets; no production endpoint or family-code gate');
