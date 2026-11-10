@@ -426,3 +426,17 @@ body[data-mode=child] .island-growth-dialog .up-dialog-body{
  .gc-page .gc-memory-photo{width:89px;height:92px}
  body[data-mode=child] .island-growth-dialog .up-dialog-body{padding:56px 10px 16px!important}
 }
+
+/* Avoid collision of two real growth marks and the +N indicator in 7-column grids. */
+.gc-page .gc-month-day .gc-markers{position:relative;width:100%;min-width:0;max-width:100%;display:flex;justify-content:center}
+.gc-page .gc-month-day .gc-more{position:absolute;right:0;bottom:13px;z-index:3}
+.gc-page .gc-month-day.selected .gc-more{border-color:#fff;box-shadow:0 1px #8b9a55}
+.gc-page .gc-month-day .gc-markers .gc-mark{flex:0 0 20px}
+.gc-page .gc-wood-heading:before,.gc-page .gc-wood-heading:after{display:none}
+@media(max-width:359px){
+ .gc-page .gc-month-day .gc-markers{gap:0}
+ .gc-page .gc-month-day .gc-markers .gc-mark{flex-basis:17px;width:17px;height:17px}
+ .gc-page .gc-month-day .gc-mark img{width:18px;height:18px}
+ .gc-page .gc-month-day.selected .gc-mark img{width:19px;height:19px}
+ .gc-page .gc-month-day .gc-more{bottom:11px;right:-1px;min-width:14px;min-height:14px;font-size:8px!important}
+}
