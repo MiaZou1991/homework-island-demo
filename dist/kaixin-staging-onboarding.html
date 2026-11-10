@@ -48,8 +48,9 @@ label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}.status{bor
 <p class="help">请使用可以长期收邮件的邮箱。即使邮箱验证成功，也不会自动取得家长权限；必须在独立测试库中核实并授权这个账号。</p>
 <form id="parent-form" autocomplete="on">
 <label for="email">邮箱地址</label><input id="email" type="email" autocomplete="username" required>
-<label for="password">密码</label><input id="password" type="password" autocomplete="current-password" minlength="8" required>
-<div class="stack"><button type="button" id="signup">创建测试家长账号</button><button type="submit">登录测试家长账号</button></div>
+<label for="password">密码</label><input id="password" type="password" autocomplete="current-password" required>
+<p class="smallnote" id="password-help">新注册密码至少 8 位；已有账号可以输入原密码登录。如果之前设置了 6 位密码，请先尝试直接登录。</p>
+<div class="stack"><button type="button" id="signup">创建测试家长账号</button><button type="submit">登录测试家长账号</button><button type="button" class="secondary" id="reset-password">忘记密码／发送重置邮件</button></div>
 </form><p class="smallnote">密码只提交给 Supabase Auth。请勿把密码、验证码、登录链接发到聊天里。</p>
 </section>
 <section id="parent-actions" class="hidden" aria-labelledby="parent-manage-title">
