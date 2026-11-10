@@ -14,7 +14,7 @@
   const CODE=/^[0-9a-f]{64}$/;
   function fail(code) {const error=new Error(code);error.code=code;return error;}
   function create(client,{redirectTo}={}) {
-    if (!client?.auth?.getUser || typeof client.rpc!=='function')throw fail('missing_supabase_client');
+    if (!client?.auth?.getSession || !client?.auth?.getUser || typeof client.rpc!=='function')throw fail('missing_supabase_client');
     async function call(name,args) {
       const {data,error}=await client.rpc(name,args||{});
       if(error)throw fail('server_unavailable');
@@ -22,6 +22,11 @@
       return data;
     }
     async function current() {
+      // Supabase getUser() returns AuthSessionMissingError when a new child's
+      // browser has no session. That is expected, not an authentication failure.
+      const sessionResult=await client.auth.getSession();
+      if(sessionResult.error)throw fail('session_error');
+      if(!sessionResult.data?.session)return {kind:'signed_out'};
       const {data,error}=await client.auth.getUser();
       if(error)throw fail('session_error');
       const user=data?.user;
