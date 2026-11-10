@@ -107,7 +107,7 @@ html,body{overflow-x:hidden}
 .ft-story-filters button[aria-pressed="true"]{border-color:#90b46a!important;background:linear-gradient(#e2f3c8,#c9e4a8)!important;color:#41772f!important}
 .ft-hanging-list{gap:9px!important;margin:0 0 4px!important;display:grid}
 .ft-story-item{
- position:relative!important;min-width:0!important;min-height:108px!important;height:108px!important;
+ position:relative!important;min-width:0!important;min-height:114px!important;height:114px!important;
  display:block!important;padding:10px 13px 10px!important;
  background:url("assets/family-tree-hifi/story-card-frame.svg") center/100% 100% no-repeat!important;
  border:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important;transform:none!important
@@ -132,6 +132,18 @@ html,body{overflow-x:hidden}
  color:transparent!important;font-size:0!important;text-shadow:none!important;overflow:hidden!important
 }
 .ft-story-item .ft-story-stamp:before{content:none!important}
+.ft-story-item[data-art] .ft-story-stamp{overflow:visible!important}
+.ft-story-item[data-art] .ft-story-stamp:before{
+ content:""!important;display:block!important;position:absolute;z-index:2;
+ left:34%;top:-7px;width:29px;height:10px;border:1px solid #e3b4a7;
+ border-radius:2px;background:#f4c9c7cc;transform:rotate(7deg);
+ box-shadow:0 1px 2px #9d694321;pointer-events:none
+}
+.ft-story-item:not([data-art]) .ft-story-stamp{
+ background:radial-gradient(circle at 28% 26%,#fffcef,#e9e6cd)!important;
+ color:#7e9c58!important;font-size:26px!important;
+ display:grid!important;place-items:center!important
+}
 .ft-story-item[data-art="swimming"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-swimming-approved.webp")}
 .ft-story-item[data-art="seashell"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-seashell-approved.webp");transform:rotate(2deg)!important}
 .ft-story-item[data-art="basketball"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-basketball-approved.webp")}
@@ -196,7 +208,7 @@ html,body{overflow-x:hidden}
  .ft-section-head{min-height:40px!important;height:40px!important;margin-bottom:2px!important}
  .ft-story-filters{margin:1px 2px 5px!important;min-height:28px!important}
  .ft-story-filters button{height:28px!important;min-height:28px!important;padding:3px 11px!important}
- .ft-story-item{min-height:108px!important;height:108px!important;padding:11px 13px 9px!important}
+ .ft-story-item{min-height:114px!important;height:114px!important;padding:10px 13px 8px!important}
  .ft-hanging-list{gap:9px!important}
  .ft-story-item .ft-story-row{height:44px!important;min-height:44px!important}
  .ft-story-item .ft-paper-copy{font-size:12px!important;max-height:38px!important}
