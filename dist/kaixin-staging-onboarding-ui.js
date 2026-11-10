@@ -56,7 +56,7 @@
    child:'已绑定：KAIXIN 孩子设备。无需选择家庭或孩子档案。'
   };
   $('identity-state').textContent=kinds[state.kind]||'未知身份，请退出后重试。';
-  $('account-id').textContent=state.userId?'测试用户 ID：'+state.userId+'（此 ID 可用于测试库授权；不要发送密码）':'';
+  $('account-id').textContent=state.userId?(state.kind==='child'?'这台孩子设备的识别码：'+state.userId.slice(0,8)+'（家长在设备清单中对照）\n测试用户 ID：'+state.userId:'测试用户 ID：'+state.userId+'（此 ID 可用于测试库授权；不要发送密码）'):'';
   const parent=state.kind==='parent';
   const child=state.kind==='child';
   const anonUnbound=state.kind==='unbound'&&state.anonymous;
@@ -74,25 +74,78 @@
   if(state.kind==='parent')await showDevices();
   return state;
  }
+ // Previously seeded, synthetic staging accounts. They are NOT identified as the user's phones.
+ const HISTORICAL_QA_IDS=new Set([
+  '0d1ab085-a7f6-48fb-8114-c9b9ae21c1d6',
+  '33333333-3333-4333-8333-333333333333',
+  '6c952ade-2ee5-4ddf-a618-5798879fa6f8',
+  '79a8696c-fbf3-4dd1-900c-d4da5e6a8712',
+  'd64f577c-68f7-49d2-a16b-e44963d339f9'
+ ]);
+ const DEVICE_LABELS_KEY='kaixin_staging_child_labels_v1';
+ function deviceNames(){
+  try {
+   const stored=JSON.parse(localStorage.getItem(DEVICE_LABELS_KEY)||'{}');
+   return stored&&typeof stored==='object'&&!Array.isArray(stored)?stored:{};
+  }catch(_){return {};}
+ }
+ function labelDevice(id,name){
+  const names=deviceNames();
+  if(name)names[id]=name;else delete names[id];
+  localStorage.setItem(DEVICE_LABELS_KEY,JSON.stringify(names));
+ }
+ function makeDeviceRow(device,history){
+  const row=document.createElement('div');row.className='device';
+  const info=document.createElement('div');
+  const heading=document.createElement('div');heading.style.fontWeight='700';
+  const names=deviceNames();
+  heading.textContent=history?'开发测试身份（非当前手机）':names[device.id]||'孩子手机（待命名）';
+  const code=document.createElement('p');code.className='smallnote mono';code.style.margin='6px 0';
+  code.textContent='识别码：'+device.id.slice(0,8);
+  info.append(heading,code);
+  if(history){row.append(info);return row;}
+  const controls=document.createElement('div');controls.className='stack';
+  const rename=document.createElement('button');rename.type='button';rename.className='secondary';rename.textContent='给设备命名';
+  rename.addEventListener('click',()=>{
+   const proposed=window.prompt('为这台孩子设备起个名字（只保存在本浏览器）。请先对照孩子手机显示的识别码：'+device.id.slice(0,8),deviceNames()[device.id]||'孩子的手机');
+   if(proposed===null)return;
+   const name=proposed.trim().slice(0,20);
+   if(!name){feedback('设备名称不能为空。');return;}
+   try{labelDevice(device.id,name);showDevices().catch(statusError);feedback('设备名称已保存到这台家长设备的浏览器。');}
+   catch(_){feedback('浏览器无法保存名称，可继续用识别码对照。');}
+  });
+  const revoke=document.createElement('button');revoke.type='button';revoke.className='danger';revoke.textContent='撤销设备';
+  revoke.addEventListener('click',async()=>{
+   if(!window.confirm('确定撤销「'+(deviceNames()[device.id]||device.id.slice(0,8))+'」的测试访问权限？请先核对孩子手机识别码。'))return;
+   revoke.disabled=true;
+   try{const removed=await flow.revokeDevice(device.id);
+    feedback(removed?'已撤销这台测试设备。':'设备已经撤销或不存在。');
+    await showDevices();
+   }catch(e){statusError(e);revoke.disabled=false;}
+  });
+  controls.append(rename,revoke);row.append(info,controls);return row;
+ }
  async function showDevices() {
   const devices=await flow.childDevices();
   const list=$('devices-list');list.replaceChildren();
-  if(!devices.length){const p=document.createElement('p');p.className='smallnote';p.textContent='暂无已绑定的孩子设备。';list.append(p);return;}
-  devices.forEach((d,i)=>{
-   const row=document.createElement('div');row.className='device';
-   const title=document.createElement('span');title.textContent='孩子设备 '+(i+1)+' · '+d.id.slice(0,8);
-   const button=document.createElement('button');button.type='button';button.className='danger';button.textContent='撤销设备';
-   button.addEventListener('click',async()=>{
-    if(!window.confirm('确定撤销这台孩子测试设备的 KAIXIN 访问权限？'))return;
-    button.disabled=true;
-    try {
-     const revoked=await flow.revokeDevice(d.id);
-     feedback(revoked?'已撤销设备访问。旧设备需重新配对。':'设备已经撤销或不存在。');
-     await showDevices();
-    }catch(e){statusError(e);button.disabled=false;}
-   });
-   row.append(title,button);list.append(row);
-  });
+  const live=devices.filter(d=>!HISTORICAL_QA_IDS.has(d.id));
+  const old=devices.filter(d=>HISTORICAL_QA_IDS.has(d.id));
+  const intro=document.createElement('p');intro.className='help';
+  intro.textContent='辨认方法：在孩子手机打开此测试页，找到「当前登录身份」下的设备识别码（ID 前 8 位），与这里核对。可以给新绑定设备命名；名称仅保存在当前家长浏览器。';
+  list.append(intro);
+  const headline=document.createElement('h3');headline.style.margin='14px 0 8px';
+  headline.textContent='新绑定的孩子设备（'+live.length+'）';list.append(headline);
+  if(!live.length){const p=document.createElement('p');p.className='smallnote';
+   p.textContent='暂无新绑定的孩子手机。先用另一台手机完成一次性配对，然后点「刷新设备清单」。';list.append(p);
+  }else live.forEach(d=>list.append(makeDeviceRow(d,false)));
+  if(old.length){
+   const details=document.createElement('details');details.style.marginTop='20px';
+   const summary=document.createElement('summary');summary.style.cursor='pointer';summary.style.fontWeight='700';
+   summary.textContent='开发历史测试记录（'+old.length+' 条，点此展开）';
+   const note=document.createElement('p');note.className='smallnote';
+   note.textContent='这几条是开发联调时保留的测试账号，不代表你的手机；为避免误操作已单独折叠，不建议撤销。';
+   details.append(summary,note);old.forEach(d=>details.append(makeDeviceRow(d,true)));list.append(details);
+  }
  }
  async function start() {
   if(!window.supabase?.createClient||!window.KaixinStagingOnboarding?.create) {
