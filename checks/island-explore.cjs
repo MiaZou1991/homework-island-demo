@@ -105,7 +105,13 @@ const places = [
         assert.equal(await page.locator('#detailTitle').textContent(), title, id + ': scene title');
         assert.equal(await page.locator('#detailMap').evaluate(img => img.complete && img.naturalWidth > 0),
           true, id + ': scene illustration loads');
-        if (id === 'tree') assert.equal(await page.locator('#detailTree').isVisible(), true);
+        if (id === 'tree') {
+          assert.equal(await page.locator('#detailTree').isVisible(), false,
+            'family tree is integrated with flowerbed, not a pasted PNG');
+          assert.ok((await page.locator('#detailScene').evaluate(el =>
+            getComputedStyle(el).backgroundImage)).includes('family-tree-v3/entrance-scene.webp'),
+            'approved family tree art is used for scenic entrance');
+        }
         await page.locator('#back').click();
         assert.equal(await page.locator('#detail').evaluate(dialog => dialog.open), false, id + ': returns');
         assert.deepEqual(await page.evaluate(() => ({x: IslandWalk.state.x, y: IslandWalk.state.y})),

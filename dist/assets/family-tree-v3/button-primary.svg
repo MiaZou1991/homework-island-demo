@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80">
+<defs><linearGradient id="button" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b4e668"/><stop offset=".27" stop-color="#87cc47"/><stop offset=".62" stop-color="#4eaa2a"/><stop offset="1" stop-color="#2f8028"/></linearGradient>
+<linearGradient id="shine" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff8d9" stop-opacity=".65"/><stop offset="1" stop-color="#fff8d9" stop-opacity="0"/></linearGradient>
+</defs>
+<rect x="7" y="9" width="306" height="65" rx="32" fill="#57782f" opacity=".42"/>
+<rect x="5" y="4" width="310" height="65" rx="32" fill="url(#button)" stroke="#ecf8ba" stroke-width="6"/>
+<rect x="12" y="10" width="296" height="50" rx="25" fill="none" stroke="#467a25" stroke-opacity=".5" stroke-width="2"/>
+<path d="M34 14 Q45 9 84 9 L245 9 Q278 9 290 23 L291 29 Q276 23 247 23 L64 23 Q39 23 30 30 Z" fill="url(#shine)"/>
+</svg>

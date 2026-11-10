@@ -20,7 +20,7 @@
       later: '下一阶段会接入花朵与装饰物的收藏、摆放。'},
     {id: 'tree', title: '家庭树', x: 432, y: 490, radius: 115, focus: '22% 50%',
       action: '看看家庭树', intro: '一棵陪着我们长大的树，把家庭里温暖的时光留在这里。',
-      later: '家庭便签、成长记录和爱心互动将在后续阶段接入。'},
+      later: '走进家庭树，读一读家人的记录，也可以送出今天的爱心。'},
     {id: 'treehouse', title: '森林书屋', x: 766, y: 340, radius: 119, focus: '50% 5%',
       action: '走进森林书屋', intro: '顺着石阶往上走，花丛和瀑布旁藏着一间安静的森林书屋。',
       later: '书屋内部布置和阅读收藏将在后续阶段开放。'},
@@ -225,8 +225,9 @@
     $('detailFuture').textContent = place.later;
     $('detailMap').style.objectPosition = place.focus;
     $('detailScene').dataset.place = place.id;
-    $('detailTree').hidden = place.id !== 'tree';
-    $('detailKid').hidden = place.id !== 'tree';
+    $('detail').dataset.tree = String(place.id === 'tree');
+    $('detailTree').hidden = true; // Family tree is integrated in the approved flowerbed artwork.
+    $('detailKid').hidden = true; // No loose PNGs pasted over the garden.
     $('treeEnter').hidden = place.id !== 'tree';
     const stageBadge=$('treePreviewState');
     stageBadge.hidden=true;
