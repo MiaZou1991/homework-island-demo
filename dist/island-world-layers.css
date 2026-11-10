@@ -65,8 +65,6 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
    shows only where the original artwork ends; do not fade/scale the island. */
 @media (max-width: 530px) {
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
-    -webkit-mask-image: none;
-    mask-image: none;
     background-size: 100% auto;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
