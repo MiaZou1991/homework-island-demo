@@ -55,6 +55,11 @@ write('demo-core.js',demo);
 const sourceHub=read('kaixin-staging-onboarding.html');
 const links='<section aria-label="进入完整页面测试"><h2>打开全量 KAIXIN 测试版</h2><p class="help">只有已经获得测试角色授权的账号才可以访问。家长和孩子请使用不同的浏览器或设备。</p><div class="stack"><a href="./parent.html" style="color:#38834c;font-weight:bold">家长端完整页面</a><a href="./child.html" style="color:#38834c;font-weight:bold">儿童端完整页面</a></div></section>';
 assert.ok(sourceHub.includes('<div id="feedback"'));
+assert.ok(sourceHub.includes('id="reset-password"'),'staging login must offer recovery');
+assert.ok(sourceHub.includes('id="password-help"'),'staging signup must explain 8-char requirement');
+assert.ok(!/id="password"[^>]*minlength="8"/.test(sourceHub),'existing six-char password must not be blocked at login');
+const authFlow=read('kaixin-staging-onboarding-flow.js');
+assert.ok(authFlow.includes('resetPasswordForEmail') && authFlow.includes('updateUser({password})'),'password recovery must be implemented');
 write('index.html',sourceHub.replace('<div id="feedback"',links+'\n<div id="feedback"'));
 write('manifest.json',JSON.stringify({name:'KAIXIN V2 独立测试',short_name:'KAIXIN TEST',start_url:'./index.html',display:'standalone',background_color:'#f6f3e9',theme_color:'#a1c994'},null,2));
 write('KAIXIN_STAGE_NOT_PRODUCTION.txt',[
