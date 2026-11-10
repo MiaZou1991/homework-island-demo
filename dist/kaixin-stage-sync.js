@@ -28,7 +28,8 @@
  function viewPayload(remote){
    if(typeof createDefaultData!=='function')throw Error('staging_domain_defaults_missing');
    const projected={...createDefaultData(),...safeClone(remote)};
-   if(window.DemoCore?.ensure)window.DemoCore.ensure(projected);
+   if(typeof DemoCore==='undefined'||typeof DemoCore.ensure!=='function')throw Error('staging_demo_core_missing');
+   DemoCore.ensure(projected);
    return projected;
  }
 
