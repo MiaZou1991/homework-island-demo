@@ -22,7 +22,7 @@ const meta='kaixin_family_tree_meta_preview_v21';
     floral:getComputedStyle(document.querySelector('.ft-story-item'),'::before').backgroundImage,
     button:bg('.ft-write-button')};
   });
-  assert.match(visual.hero,/family-tree-v3\/garden-hero\.webp/);
+  assert.match(visual.hero,/family-tree-v3\/entrance-scene\.webp/);
   assert.match(visual.plaque,/family-tree-v3\/wood-plaque\.svg/);
   assert.match(visual.floral,/family-tree-v3\/floral-corner\.svg/);
   assert.match(visual.button,/family-tree-v3\/button-primary\.svg/);
