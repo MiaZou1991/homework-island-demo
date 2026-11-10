@@ -35,6 +35,7 @@ begin
  v_array=v_row.payload->'homework';
  if jsonb_typeof(v_array) is distinct from 'array' then
     return jsonb_build_object('ok',false,'error','invalid_payload'); end if;
+ if jsonb_array_length(v_array)=0 then return jsonb_build_object('ok',false,'error','not_found_or_duplicate'); end if;
  for v_idx in 0..jsonb_array_length(v_array)-1 loop
    v_item=v_array->v_idx;
    if v_item->>'id'=p_homework_id then
