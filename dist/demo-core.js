@@ -88,8 +88,9 @@ const DemoCore=(()=>{
   ['🐨','koala','小考拉','休息一下也很好，我一直陪着你。'],
   ['🦝','raccoon','小浣熊','今天又会遇到什么有趣的事呢？'],
   ['🦔','hedgehog','小刺猬','小小的勇气，也值得被珍惜。'],
-  ['🐘','elephant','小象','你做过的每一件努力，我都会记得。']
- ].map(([emoji,id,name,line])=>({emoji,id,name,line,src:'assets/characters/companion-'+id+'-v7.png'}));
+  ['🐘','elephant','小象','你做过的每一件努力，我都会记得。'],
+  ['🐭','mouse','小老鼠','小小的脚步，也能走出大大的进步。']
+ ].map(([emoji,id,name,line])=>({emoji,id,name,line,src:'assets/characters/companion-'+id+'-v7'+(id==='mouse'?'.svg':'.png')}));
  const roomSlots=[{id:'0',zone:'desk',name:'书桌左侧',x:22,y:43},{id:'2',zone:'window',name:'窗边',x:22,y:36},{id:'desk-2',zone:'desk',name:'书桌右侧',x:34,y:42}];
  for(let row=0;row<3;row++)for(let col=0;col<4;col++)roomSlots.push({id:row===0&&col===0?'1':`shelf-${row*4+col+1}`,zone:'shelf',name:`展示架第 ${row+1} 层 · ${col+1} 号`,x:52+col*11,y:22+row*10});
  function roomUsage(d,item){return Object.values(ensure(d).demoGrowth.room).filter(x=>x===item).length;}
