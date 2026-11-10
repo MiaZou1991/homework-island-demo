@@ -52,8 +52,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(await page.locator('#up-dialog .gc-paper-raised').count()>=3,true,'note, schedule, habits and moments have raised material panels');
    const assetState=await page.evaluate(()=>window.GrowthPopupPng);
    assert.ok(assetState?.ready && Object.values(assetState.files).every(Boolean),'all five PNGs are actually enabled');
-   const artResult=await page.locator('#up-dialog .gc-ribbon-icon, #up-dialog .gc-detail-row-icon').evaluateAll(images=>
-     images.map(img=>({src:img.getAttribute('src'),ok:img.complete&&img.naturalWidth>0})));
+   const artResult=await page.locator('#up-dialog .gc-ribbon-icon, #up-dialog .gc-detail-row-icon').evaluateAll(async images=>{
+     await Promise.all(images.map(img=>img.decode().catch(()=>null)));
+     return images.map(img=>({src:img.getAttribute('src'),ok:img.complete&&img.naturalWidth>0}));
+   });
    assert.deepEqual(artResult.filter(x=>!x.ok),[],'all section and schedule illustrations load in real popup');
    const dialogUI=await page.evaluate(()=>{
     const panel=document.querySelector('#up-dialog .island-dialog-surface')?.getBoundingClientRect();
@@ -66,6 +68,13 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(await page.locator('#up-dialog .gc-detail-stat').count(),3,'date scrapbook has three pastel summary tiles');
    const raised=await page.locator('#up-dialog .gc-diary-paper').evaluate(el=>getComputedStyle(el).borderImageSource);
    assert.match(raised,/dialogs-v3\/panel\.webp/,'actual page uses illustrated paper, not a flat box');
+   const ribbons=await page.locator('#up-dialog .gc-detail-ribbon').evaluateAll(xs=>xs.map(el=>({
+      text:el.textContent.trim(),
+      image:el.querySelector('img')?.getAttribute('src'),
+      background:getComputedStyle(el,'::before').backgroundImage
+   })));
+   assert.equal(ribbons.length,4,'four visible scrapbook module headers are rendered');
+   assert.ok(ribbons.every(r=>r.image&&r.background.includes('linear-gradient')),'headers have illustrated icon and raised inset material');
    await page.screenshot({path:'/tmp/growth-calendar-dialog-'+width+'.png',fullPage:true});
    await page.locator('#up-dialog [data-up="journal-edit"]').click();
    await page.locator('#up-dialog [data-up="journal-mood"][data-mood="happy"]').click();
