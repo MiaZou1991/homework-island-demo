@@ -167,8 +167,8 @@ html.gc-png-ready body[data-mode=child] .island-growth-dialog.island-growth-deta
   box-sizing:border-box!important;min-width:0;
   background:transparent!important;background-color:transparent!important;
   border:17px solid transparent!important;
-  border-image-source:url("assets/hd/dialogs-v3/panel.webp")!important;
-  border-image-slice:110 fill!important;
+  border-image-source:url("assets/hd/today-homework-frame-v1.webp")!important;
+  border-image-slice:54 fill!important;
   border-image-width:17px!important;
   border-image-repeat:stretch!important;
   box-shadow:none!important;
