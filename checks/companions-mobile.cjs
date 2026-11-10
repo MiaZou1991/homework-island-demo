@@ -17,10 +17,14 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
      const nav=getComputedStyle(document.querySelector('.phone > .up-nav'));
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
+     const navEdge=getComputedStyle(document.querySelector('.phone > .up-nav'),'::before');
+     const root=getComputedStyle(document.documentElement);
      return {bodyImage:body.backgroundImage,bodySize:body.backgroundSize,bodyPosition:body.backgroundPosition,
+       bodyColor:body.backgroundColor,rootColor:root.backgroundColor,
        worldDisplay:world.display,worldImage:world.backgroundImage,
        originalDisplay:original.display,phoneImage:phone.backgroundImage,
-       navImage:nav.backgroundImage,navPosition:nav.position,
+       navImage:nav.backgroundImage,navColor:nav.backgroundColor,navPosition:nav.position,
+       navEdgeImage:navEdge.backgroundImage,navEdgeHeight:navEdge.height,
        heroHeight:hero.height,logoTop:top.top,bodyTop:document.body.getBoundingClientRect().top};
    });
    const lift=Math.min(44,Math.max(34,width/10));
@@ -31,7 +35,12 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(scene.originalDisplay,'none','no second overlapping island bitmap '+width);
    assert.equal(scene.phoneImage,'none','no third phone-container background '+width);
    assert.equal(scene.navPosition,'fixed','nav remains viewport-fixed '+width);
-   assert.ok(scene.navImage.includes('linear-gradient'),'tabs have protected solid sand field '+width);
+   assert.equal(scene.rootColor,'rgb(49, 183, 240)','root sky tint must not be beige '+width);
+   assert.equal(scene.bodyColor,scene.rootColor,'Safari status tint and page background must match '+width);
+   assert.equal(scene.navImage,'none','no second beige gradient covering water behind tabs '+width);
+   assert.equal(scene.navColor,'rgba(0, 0, 0, 0)','tabs show the single island scene below '+width);
+   assert.ok(scene.navEdgeImage.includes('tab-sand-line.svg'),'keep original narrow sand-wave illustration '+width);
+   assert.equal(scene.navEdgeHeight,'38px','only a thin sand-wave edge, no beige panel '+width);
    assert.ok(Math.abs(scene.bodyTop)<1,'scene anchored to viewport top '+width);
    assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'task layout remains aligned '+width);
    assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo stays clear of browser header '+width);
