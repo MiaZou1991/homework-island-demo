@@ -22,10 +22,10 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension 
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
-  background-image: url("assets/hd/kaixin-island-scenic-extension-v2.webp");
-  background-repeat: repeat-x;
+  background-image: url("assets/hd/kaixin-island-scenic-panorama-v3.webp");
+  background-repeat: no-repeat;
   background-position: center top;
-  background-size: auto 100dvh;
+  background-size: 100% 100dvh;
 }
 body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
   position: relative;
@@ -68,7 +68,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     background-size: 100% auto;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
-    background-size: auto 100dvh;
+    background-size: 100% 100dvh;
   }
 }
 /* Tablet: extend the *world*, not the text and interactive cards. The source
@@ -104,7 +104,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     max-width: 500px !important;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
-    background-size: auto 100dvh;
+    background-size: 100% 100dvh;
   }
   /* Give the source art room to breathe; keep it visually behind the header. */
   body[data-mode="child"] .up-main[data-route="today"] .tf-top {
