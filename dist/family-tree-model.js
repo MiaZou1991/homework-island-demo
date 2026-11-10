@@ -135,8 +135,8 @@
  }
  function dailyUsage(state,actor,day){
   if(!validMember(actor))return 0;
-  return privateState(state).hearts.filter(x=>x.from===actor&&x.day===day).length+
-   privateState(state).reactions.filter(x=>x.from===actor&&x.day===day).length;
+  return privateState(state).hearts.filter(x=>x.from===actor&&(x.day||dateInZone(x.createdAt))===day).length+
+   privateState(state).reactions.filter(x=>x.from===actor&&(x.day||dateInZone(x.createdAt))===day).length;
  }
  function applyPrivate(previous,actor,action,now,id,options={}){
   if(!validMember(actor))throw Error("请先验证家庭成员身份");
@@ -145,11 +145,17 @@
   const day=options.serverDay?validDate(options.serverDay):dateInZone(m.createdAt,options.timeZone||"Asia/Shanghai");
   if(action.type==="sendHeart"||action.type==="reactRecord"){
    // Idempotent replay: return existing state instead of charging twice.
-   if(state.hearts.some(x=>x.id===m.id)||state.reactions.some(x=>x.id===m.id))return state;
+   const existing=state.hearts.find(x=>x.id===m.id)||state.reactions.find(x=>x.id===m.id);
+   if(existing){
+    const sameActor=existing.from===actor;
+    const sameKind=action.type==="sendHeart"?"to" in existing:"recordType" in existing;
+    if(!sameActor||!sameKind)throw Error("操作编号已被使用");
+    return state;
+   }
    if(dailyUsage(state,actor,day)>=2)throw Error("今天的爱心已送完啦，明天再来");
    if(action.type==="sendHeart"){
     if(!validMember(action.to)||action.to===actor)throw Error("请选择要送达的家人");
-    if(state.hearts.length>=5000)throw Error("爱心记录已达上限");
+    if(state.hearts.length>=20000)throw Error("爱心记录已达上限");
     state.hearts.push({...m,day,from:actor,to:action.to,text:clean(action.text,120),readAt:null});
    }else{
     const type=action.recordType,idText=String(action.recordId||"");
