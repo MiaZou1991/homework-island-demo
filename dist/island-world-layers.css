@@ -47,6 +47,10 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-mai
   background-repeat: no-repeat;
   background-size: 100% auto;
   background-position: center calc(0px - var(--p0-island-lift, 0px));
+  /* Let the detailed beach wallpaper take over behind the lower cards instead
+     of leaving a sharp blue-water rectangle around the bottom of the island. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
+  mask-image: linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
 }
 body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .stage {
   position: relative;
@@ -92,8 +96,10 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
     background-size: 100% auto;
     background-position: center top;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
-    mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right, transparent 0%, #000 18%, #000 82%, transparent 100%), linear-gradient(to bottom, #000 0, #000 135cqw, transparent 190cqw);
+    mask-composite: intersect;
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     width: min(500px, calc(100vw - 80px)) !important;
