@@ -273,8 +273,8 @@ function sendHeart(event){
  event.preventDefault();
  if(heartBusy)return;
  if(remaining()===0){quotaPopup();return;}
- heartBusy=true;render();
  const action={type:"sendHeart",to:$("heartTo").value,text:$("heartText").value};
+ heartBusy=true;render();
  pendingHeartId=pendingHeartId||makeID();
  const ok=perform(action,true,"心意已送出（本地体验）",pendingHeartId);
  heartBusy=false;render();
