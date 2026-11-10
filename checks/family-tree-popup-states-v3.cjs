@@ -89,7 +89,9 @@ const meta='kaixin_family_tree_meta_preview_v21';
   // 12/13: delete record/reply confirmation.
   await page.locator('[data-section="stories"]').click();
   await page.locator('#activeMember').selectOption('kid');
-  await page.locator('.ft-story-item [data-delete="moment"]').first().click();
+  await page.locator('.ft-story-item [data-more="moment"]').first().click();
+  assert.match(await page.locator('#ftModalTitle').textContent(),/这条记录/);
+  await page.locator('#ftModalActions button').getByText('删除记录').click();
   assert.match(await page.locator('#ftModalTitle').textContent(),/确认删除/);
   await page.screenshot({path:'/tmp/family-tree-v3-state-12-delete-record.png'});
   await page.locator('#ftModalActions button').first().click();
