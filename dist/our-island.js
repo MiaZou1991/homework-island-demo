@@ -228,6 +228,19 @@
     $('detailTree').hidden = place.id !== 'tree';
     $('detailKid').hidden = place.id !== 'tree';
     $('treeEnter').hidden = place.id !== 'tree';
+    const stageBadge=$('treePreviewState');
+    stageBadge.hidden=true;
+    if(place.id==='tree'){
+      try{
+        const summary=JSON.parse(localStorage.getItem('kaixin_family_tree_aggregate_preview_v21')||'null');
+        if(summary&&Number.isInteger(summary.stage)&&summary.stage>=0&&summary.stage<=5){
+          const stageNames=['初芽树','幼树','成长树','开花树','繁盛树','家庭大树'];
+          const n=Number(summary.count)||0;
+          stageBadge.textContent='🌱 '+stageNames[summary.stage]+' · 家人累计 '+Math.max(0,Math.floor(n))+' 颗爱心（体验数据）';
+          stageBadge.hidden=false;
+        }
+      }catch(_){}
+    }
     $('detail').showModal();
     $('back').focus();
     return true;
