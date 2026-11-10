@@ -23,6 +23,7 @@ jobs:
           node --check dist/kaixin-staging-onboarding-flow.js
           node --check dist/kaixin-staging-onboarding-ui.js
           node checks/kaixin-staging-onboarding-flow.cjs
+          node checks/kaixin-staging-preview-http.cjs
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
