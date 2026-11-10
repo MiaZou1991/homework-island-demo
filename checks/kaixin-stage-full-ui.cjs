@@ -66,7 +66,7 @@ async function boot(browser,role,route='child.html'){
   await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
   assert.equal(await parent.page.locator('#kaixin-stage-gate').count(),0);
   assert.ok((await parent.page.title()).includes('独立测试'));
-  assert.equal(await parent.page.evaluate(()=>window.DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
+  assert.equal(await parent.page.evaluate(()=>DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
   assert.equal(await parent.page.evaluate(()=>window.__qaRemote.calls.includes('family_load_v2')),true);
   const id='qa_parent_add_20261110';
   await parent.page.evaluate(id=>{
