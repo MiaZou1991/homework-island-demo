@@ -2,7 +2,7 @@
    真实素材 + DOM 动态文字，所有规则仅在五个 PNG 加载成功后启用。
    原有 growth-calendar.css 为图片失败时的安全回退样式。
 */
-html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog.island-growth-detail {
+html.gc-png-ready body[data-mode=child] dialog.island-growth-dialog.island-growth-detail[open] {
 
   position:fixed!important;inset:0!important;
   display:block!important;
