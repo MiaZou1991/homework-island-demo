@@ -22,8 +22,8 @@ function sample(){
  const day=nowDay();
  return {version:1,moments:[
  {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！",createdAt:iso()},
- {id:"sample-together",author:"mom",day,category:"together",text:"我们在海边散步，发现了漂亮的小贝壳。",createdAt:new Date(Date.now()-86400000).toISOString()}
- ],notes:[{id:"sample-note",author:"kid",text:"今天我敢把头埋进水里啦！",createdAt:iso()}],
+ {id:"sample-together",author:"mom",day,category:"together",text:"我们一起做了美味的早餐，开心极了！",createdAt:new Date(Date.now()-86400000).toISOString()}
+ ],notes:[{id:"sample-note",author:"kid",text:"周末一起去海边散步吧！看看有没有新贝壳 🐚",createdAt:iso()}],
  replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"周末教教我吧。",createdAt:iso()}]};
 }
 function load(){
