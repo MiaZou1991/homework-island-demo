@@ -1,0 +1,120 @@
+/* 开心岛 · 场景图层 V1 · 2026-11-10
+   1) 独立 SVG 天空、远山、海面延展层，覆盖全屏和 iPad 两侧
+   2) 原来的高清小岛插画保持原比例，在中央独立绘制
+   3) Logo、作业、课程、伙伴、Tab 都是可交互 DOM，不受场景遮罩影响
+   不靠纯色顶栏或渐变色补片拼接 iPhone 刘海区域。 */
+
+body[data-mode="child"] > .tf-world-extension,
+body[data-mode="child"] .phone > .tf-world-main {
+  display: none;
+}
+
+/* The art is wallpaper, not an interactive/scroll container. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) {
+  position: relative;
+  background: transparent !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("assets/hd/island-world-extension-v1.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  background: none !important;
+  background-image: none !important;
+  background-color: transparent !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+  display: block;
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0 !important;
+  pointer-events: none;
+  background-image: url("assets/hd/today-island-reference-v1.webp");
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+  background-position: center calc(0px - var(--p0-island-lift, 0px));
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .stage {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+  z-index: 60 !important;
+}
+
+/* Phone: keep the original full-width artwork in front. The separate extension
+   shows only where the original artwork ends; do not fade/scale the island. */
+@media (max-width: 530px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    -webkit-mask-image: none;
+    mask-image: none;
+    background-size: 100% auto;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+    background-size: auto 100%;
+  }
+}
+/* Tablet: extend the *world*, not the text and interactive cards. The source
+   image stays centered; only its left/right margin fades into the backdrop. */
+@media (min-width: 700px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) {
+    padding: 0 !important;
+    min-height: 100dvh;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    box-sizing: border-box;
+    width: min(500px, calc(100vw - 80px)) !important;
+    max-width: 500px !important;
+    min-height: 100dvh !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+    margin: 0 auto;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    background-size: 100% auto;
+    background-position: center top;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    width: min(500px, calc(100vw - 80px)) !important;
+    max-width: 500px !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+    background-size: cover;
+  }
+  /* Give the source art room to breathe; keep it visually behind the header. */
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: max(24px, calc(env(safe-area-inset-top, 0px) + 12px)) !important;
+  }
+}
+/* Middle-size foldables / small iPads: fill the sides without broadening DOM
+   cards beyond their known 390px-safe layout. */
+@media (min-width: 531px) and (max-width: 699px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body[data-mode="child"] > .tf-world-extension { animation: none !important; }
+}
