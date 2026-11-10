@@ -185,6 +185,12 @@ function render(){
  $("treeAge").textContent="已陪伴 "+g.years+"年"+g.months+"个月";
  $("treeNext").textContent=g.nextOn?"下阶段 "+g.nextOn+" 解锁":"五周年已到，小树长成大树";
  $("treeGrowthProgress").setAttribute("aria-valuenow",String(g.stage));
+ // Island-scene preview reads only this public aggregate, never private letters.
+ // Production replaces it with a server-authorized numeric aggregate.
+ try{localStorage.setItem("kaixin_family_tree_aggregate_preview_v21",JSON.stringify({
+  count:g.count,stage:g.stage,name:g.name,activationDate:activatedOn,
+  years:g.years,months:g.months,updatedAt:iso()
+ }));}catch(_){}
  document.querySelector(".ft-hero").dataset.growthStage=String(g.stage);
  document.querySelector(".ft-hero").dataset.decoration=String(g.decorationCount);
 }
