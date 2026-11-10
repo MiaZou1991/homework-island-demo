@@ -14,13 +14,14 @@ const sdkMock=`(()=>{
     ||options?.auth?.storageKey!=='kaixin_staging_auth_preview_v1')throw Error('wrong staging config');
   return {
    auth:{
-    getUser:async()=>({data:{user:state.role?{id:state.role==='parent'?'11111111-1111-4111-8111-111111111111':'22222222-2222-4222-8222-222222222222',is_anonymous:state.role==='child'}:null},error:null}),
+    getUser:async()=>state.role?({data:{user:{id:state.role==='parent'?'11111111-1111-4111-8111-111111111111':'22222222-2222-4222-8222-222222222222',is_anonymous:state.role!=='parent'}},error:null}):({data:{user:null},error:{name:'AuthSessionMissingError',message:'Auth session missing'}}),
+    signInAnonymously:async()=>{state.role='unbound';return{data:{user:{id:'22222222-2222-4222-8222-222222222222'}},error:null}},
     getSession:async()=>({data:{session:state.role?{access_token:'test'}:null}}),
     onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}}),
    },
    rpc:async(name,body={})=>{
     state.calls.push(name);
-    if(name==='kaixin_identity')return{data:state.role?{ok:true,family:'KAIXIN',role:state.role}:{ok:false,error:'unauthorized'},error:null};
+    if(name==='kaixin_identity')return{data:['parent','child'].includes(state.role)?{ok:true,family:'KAIXIN',role:state.role}:{ok:false,error:'unauthorized'},error:null};
     if(name==='kaixin_list_child_devices')return{data:{ok:true,family:'KAIXIN',devices:[
       {id:'33333333-3333-4333-8333-333333333333'},
       {id:'b71b98fd-51ee-479c-a029-410a62a317bd'}]},error:null};
@@ -68,6 +69,17 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await anon.page.locator('.phone').isVisible(),false);
   assert.equal((await anon.page.evaluate(()=>window.__qaRemote.calls)).includes('family_load_v2'),false);
   await anon.page.close();
+
+  // Fresh iPhone Safari: getUser() without a session would raise
+  // AuthSessionMissingError. The child must still be able to create a guest.
+  const fresh=await boot(browser,null,'index.html');
+  await fresh.page.locator('#feedback').getByText('测试页面已就绪', {exact:false}).waitFor({timeout:10000});
+  assert.equal(await fresh.page.locator('#guest').isEnabled(),true);
+  await fresh.page.locator('#guest').click();
+  await fresh.page.getByText('临时孩子身份已经建立', {exact:false}).waitFor({timeout:10000});
+  assert.equal(await fresh.page.locator('#redeem').isEnabled(),true);
+  assert.deepEqual(fresh.errors,[],'fresh Safari child pairing must not crash due to missing Auth session');
+  await fresh.page.close();
 
   const onboarding=await boot(browser,'parent','index.html');
   await onboarding.page.locator('#devices-list details summary').waitFor();
