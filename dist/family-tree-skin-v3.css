@@ -299,3 +299,11 @@ body{background:radial-gradient(ellipse at 50% 0%,#e0efd1 0%,#e3f0e5 42%,#fcf1d9
  .ft-tree-tag{min-height:86px;font-size:10px}
  .ft-tree-tag b{font-size:10px}
 }
+
+/* V3 popup atlas: SVG pictograms replace OS-specific emoji (consistent on iOS). */
+.ft-popup-icon{width:116px;max-width:55%;height:108px;display:flex;align-items:center;justify-content:center;margin:0 auto 3px}
+.ft-popup-icon svg{display:block;width:100%;height:100%;filter:drop-shadow(0 4px 2px #9f876c29)}
+#ftModal[data-kind="success"] .ft-popup-icon svg{filter:drop-shadow(0 4px 5px #e99e8a58)}
+#ftModal[data-kind="growth"] .ft-popup-icon svg{filter:drop-shadow(0 4px 4px #9cad775a)}
+#ftModal[data-kind="quota"] .ft-popup-icon svg{filter:drop-shadow(0 4px 3px #af79744c)}
+@media(max-height:580px){.ft-popup-icon{height:70px;width:80px}.ft-popup-shell{padding-top:18px!important}}
