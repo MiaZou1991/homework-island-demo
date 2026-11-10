@@ -84,7 +84,9 @@
       <div id="photoPicker" class="ft-photo-picker">
         <label for="editorPhoto">添加照片（可选，体验模式不上传）</label>
         <input type="file" id="editorPhoto" accept="image/png,image/jpeg,image/webp" multiple>
-        <p id="photoStatus" role="status">正式保存照片需要独立的图片权限与上传服务。</p>
+        <p id="photoStatus" role="status">当前可选择图片预览，正式上传需要独立的图片权限。</p>
+        <div id="photoPreview" class="ft-photo-preview" aria-label="所选照片预览" hidden></div>
+        <button type="button" id="removePhoto" class="ft-secondary" hidden>移除所选照片</button>
       </div>
       <label for="editorText">想记录的话</label>
       <textarea id="editorText" maxlength="300" rows="5" required></textarea>
