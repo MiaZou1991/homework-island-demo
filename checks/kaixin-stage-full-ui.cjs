@@ -52,7 +52,7 @@ async function boot(browser,role,route='child.html'){
  return{page,errors};
 }
 (async()=>{
- const browser=await chromium.launch({headless:true});
+ const browser=await chromium.launch({channel:'chrome',headless:true});
  try{
   // An unauthenticated visitor must not see any family-specific data or cloud read.
   const anon=await boot(browser,null);
