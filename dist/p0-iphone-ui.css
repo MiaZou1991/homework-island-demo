@@ -330,3 +330,32 @@ body[data-mode="child"]:has(.up-main[data-route="plan"]) .phone > .up-nav {
     padding-right: max(12px, env(safe-area-inset-right, 0px)) !important;
   }
 }
+
+/* P0-5 · iPhone Safari top-edge continuity (2026-11-10, photo verification).
+   Safari 26+ may sample the root's *solid* colour for the system status bar.
+   Do not use a root gradient: it can leave a white strip above the island.
+   The illustrated scene remains a single width-anchored source, never resized
+   independently when the URL toolbar expands or collapses. */
+@media (max-width: 530px) {
+  html:has(body[data-mode="child"] .up-main[data-route="today"]) {
+    background: #5badf3 !important;
+    background-color: #5badf3 !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) {
+    background-color: #5badf3 !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    background-position: center -14px !important;
+    background-repeat: no-repeat !important;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: max(24px, calc(var(--p0-safe-top) + 12px)) !important;
+  }
+}
+/* In home-screen full-screen mode, keep the badge/wordmark outside the
+   camera/sensor region: safe top wins over the tab-mode optical shift. */
+@media (display-mode: standalone) and (max-width: 530px) {
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top: calc(var(--p0-safe-top) + 12px) !important;
+  }
+}
