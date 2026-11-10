@@ -25,7 +25,7 @@ function sample(){
  const day=nowDay(),yesterday=M.dateInZone(new Date(Date.now()-86400000).toISOString(),ZONE),
  twoDaysAgo=M.dateInZone(new Date(Date.now()-2*86400000).toISOString(),ZONE);
  return {version:1,moments:[
- {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！超有成就感！",createdAt:iso()},
+ {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！",createdAt:iso()},
  {id:"sample-basketball",author:"kid",day:twoDaysAgo,category:"growth",text:"我学会了新的篮球动作！",createdAt:new Date(Date.now()-2*86400000).toISOString()}
  ],notes:[{id:"sample-note",author:"mom",text:"周末我们一起去海边散步吧！看看有没有新的小贝壳。",createdAt:new Date(Date.now()-86400000).toISOString()}],
  replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"好呀，一起去！",createdAt:new Date(Date.now()-86400000).toISOString()}]};
