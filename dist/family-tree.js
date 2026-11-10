@@ -237,7 +237,10 @@ function clearPhotos(){
  for(const url of photoUrls)URL.revokeObjectURL(url);
  photoUrls=[];
  $("editorPhoto").value="";
- $("photoStatus").textContent="图片仅预览，尚未接入安全上传服务。";
+ $("photoPreview").replaceChildren();
+ $("photoPreview").hidden=true;
+ $("removePhoto").hidden=true;
+ $("photoStatus").textContent="当前只支持本地图片预览，尚未接入私密上传服务。";
 }
 function openEditor(kind,item){
  const selected=kind==="story"?(recordFilter==="note"?"note":"moment"):kind;
@@ -407,10 +410,22 @@ $("editorPhoto").addEventListener("change",()=>{
   return;
  }
  photoUrls=selected.map(x=>URL.createObjectURL(x));
+ $("photoPreview").replaceChildren();
+ photoUrls.forEach((url,i)=>{
+  const image=document.createElement("img");image.src=url;image.alt="照片 "+(i+1)+" 预览";
+  image.loading="lazy";$("photoPreview").append(image);
+ });
+ $("photoPreview").hidden=!selected.length;
+ $("removePhoto").hidden=!selected.length;
  $("photoStatus").textContent=selected.length?
- "已选择 "+selected.length+" 张照片：当前仅预览，正式上传需安全服务；可移除后继续保存文字。":"未选择照片";
+ "已选择 "+selected.length+" 张照片：当前仅预览，尚未上传；可移除后继续发表文字。":"未选择照片";
 });
-function clearPhotosExceptInput(){for(const url of photoUrls)URL.revokeObjectURL(url);photoUrls=[];}
+function clearPhotosExceptInput(){
+ for(const url of photoUrls)URL.revokeObjectURL(url);
+ photoUrls=[];$("photoPreview").replaceChildren();
+ $("photoPreview").hidden=true;$("removePhoto").hidden=true;
+}
+$("removePhoto").addEventListener("click",clearPhotos);
 $("backIsland").addEventListener("click",event=>{
  if(window.parent!==window){
   event.preventDefault();
