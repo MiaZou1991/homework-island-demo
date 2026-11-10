@@ -42,6 +42,11 @@ for(const page of ['child.html','parent.html']){
  s=s.replace(/<title>([^<]+)<\/title>/,(_,title)=>'<title>'+title+' · KAIXIN V2 独立测试</title>');
  // Persistent visual banner, covers only 10px at top, rest of the original UI intact.
  s=s.replace(/<body([^>]*)>/,(_all,attrs)=>'<body'+attrs+'><div id="kaixin-stage-badge" style="position:fixed;top:env(safe-area-inset-top, 0px);left:8px;z-index:800000;background:#fff4d8;border:1px solid #deb96e;border-radius:0 0 9px 9px;padding:2px 8px;font:11px system-ui;color:#75562c">KAIXIN V2 · 隔离测试</div>');
+ if(page==='parent.html'){
+  const dataNote='<div id="kaixin-stage-data-note" role="note" style="position:fixed;top:36px;left:12px;right:12px;max-width:480px;margin:0 auto;z-index:800001;border:1px solid #c8aa64;border-radius:14px;background:#fff9e5;color:#684e32;padding:11px 42px 11px 14px;font:13px/1.5 system-ui;box-shadow:0 4px 14px #0002">这里是独立 V2 测试库，不含正式开心岛历史作业。开发测试记录可能没有作业日期，因此不会显示在今日任务中。请新建一条模拟作业进行测试。<button type="button" aria-label="关闭测试提示" style="position:absolute;right:8px;top:7px;padding:3px 8px;border:0;border-radius:8px;background:#e3d1a9;color:#5c432a;font-size:20px" onclick="this.parentElement.remove()">×</button></div>';
+  s=s.replace(/<body([^>]*)>/,(_all,attrs)=>'<body'+attrs+'>'+dataNote);
+ }
+
  write(page,s);
 }
 let demo=read('demo-core.js');
@@ -57,6 +62,9 @@ const links='<section aria-label="进入完整页面测试"><h2>打开全量 KAI
 assert.ok(sourceHub.includes('<div id="feedback"'));
 assert.ok(sourceHub.includes('id="reset-password"'),'staging login must offer recovery');
 assert.ok(sourceHub.includes('id="password-help"'),'staging signup must explain 8-char requirement');
+assert.ok(sourceHub.includes('历史开发测试记录'),'device history must be explained');
+const onboardingUI=read('kaixin-staging-onboarding-ui.js');
+assert.ok(onboardingUI.includes('HISTORICAL_QA_IDS')&&onboardingUI.includes('设备识别码'),'new devices must be separated and identifiable');
 assert.ok(!/id="password"[^>]*minlength="8"/.test(sourceHub),'existing six-char password must not be blocked at login');
 const authFlow=read('kaixin-staging-onboarding-flow.js');
 assert.ok(authFlow.includes('resetPasswordForEmail') && authFlow.includes('updateUser({password})'),'password recovery must be implemented');
