@@ -1,5 +1,5 @@
-/* 开心岛 · 场景图层 V1 · 2026-11-10
-   1) 独立 SVG 天空、远山、海面延展层，覆盖全屏和 iPad 两侧
+/* 开心岛 · 场景图层 V2 · 2026-11-10
+   1) 独立 WebP 天空、远山、立体海面与沙滩延展层，覆盖全屏和 iPad 两侧
    2) 原来的高清小岛插画保持原比例，在中央独立绘制
    3) Logo、作业、课程、伙伴、Tab 都是可交互 DOM，不受场景遮罩影响
    不靠纯色顶栏或渐变色补片拼接 iPhone 刘海区域。 */
@@ -22,10 +22,11 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension 
   height: 100dvh;
   z-index: 0;
   pointer-events: none;
-  background-image: url("assets/hd/island-world-extension-v1.svg");
+  background-image: url("assets/hd/island-world-panoramic-v2.webp");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
+  image-rendering: auto;
 }
 body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
   position: relative;
@@ -92,7 +93,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
     background-size: 100% auto;
     background-position: center top;
-    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 21%, #000 79%, transparent 100%);
     mask-image: linear-gradient(to right, transparent 0%, #000 11%, #000 89%, transparent 100%);
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
@@ -101,6 +102,7 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
   }
   body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
     background-size: cover;
+    background-position: 50% 30%;
   }
   /* Give the source art room to breathe; keep it visually behind the header. */
   body[data-mode="child"] .up-main[data-route="today"] .tf-top {
@@ -117,4 +119,9 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
 }
 @media (prefers-reduced-motion: reduce) {
   body[data-mode="child"] > .tf-world-extension { animation: none !important; }
+}
+
+/* On short tablet landscape preserve the upper sky and horizon instead of centering on open water. */
+@media (min-width:700px) and (orientation:landscape){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {background-position:center 15%;}
 }
