@@ -24,6 +24,15 @@ assert.match(calendar,/成长日历/);
 assert.equal((calendar.match(/class="gc-month-day /g)||[]).length,30);
 assert.match(calendar,/gc-more">\+2/,'a date shows up to two primary marks and +2');
 assert.match(calendar,/月视图/);
+assert.match(calendar,/gc-memory-book/,'month view uses illustrated paper notebook');
+assert.match(calendar,/gc-stamps/,'habit progress displays day-by-day stamp cells');
+assert.doesNotMatch(calendar,/gc-family/,'month does not show the family filter bar');
+assert.match(calendar,/assets\/hd\/growth-calendar\/star\.svg/,'task star uses dedicated artwork');
+assert.match(calendar,/assets\/hd\/growth-calendar\/flower\.svg/,'special moments use dedicated artwork');
+for(const name of ['star','heart','leaf','flower','memory-autumn']){
+ assert.ok(fs.existsSync(path.join(__dirname,'../dist/assets/hd/growth-calendar',name+'.svg')),name+' artwork must be packaged');
+}
+
 const week=Growth.render({...ctx,range:'week'});
 assert.equal((week.match(/class="gc-week-row"/g)||[]).length,3);
 assert.match(week,/钢琴课/);
@@ -35,6 +44,8 @@ assert.match(detail,/今天超开心/);
 assert.match(detail,/每天阅读20分钟/);
 assert.match(detail,/第一次自己整理书桌/);
 assert.match(detail,/课程和携带物品只作提醒/);
+assert.equal((detail.match(/class="gc-detail-stat /g)||[]).length,3,'date details have 3 pastel summary badges');
+
 const other='2026-11-10';
 assert.equal(Growth.marks(ctx,other).length,0,'no fake record for an unrecorded date');
 const onlyClass={...ctx,dayItems:()=>[{kind:'class',cls:{name:'数学课'},done:false}]};
