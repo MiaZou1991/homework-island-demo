@@ -68,7 +68,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(await page.locator('#up-dialog .gc-detail-meadow').count(),1,'bottom meadow illustration is present');
    assert.equal(await page.locator('#up-dialog .gc-detail-stat').count(),3,'date scrapbook has three pastel summary tiles');
    const raised=await page.locator('#up-dialog .gc-diary-paper').evaluate(el=>getComputedStyle(el).borderImageSource);
-   assert.match(raised,/dialogs-v3\/panel\.webp/,'actual page uses illustrated paper, not a flat box');
+   assert.match(raised,/today-homework-frame-v1\.webp/,'actual page uses warm rounded golden paper image');
    const ribbons=await page.locator('#up-dialog .gc-detail-ribbon').evaluateAll(xs=>xs.map(el=>({
       text:el.textContent.trim(),
       image:el.querySelector('img')?.getAttribute('src'),
