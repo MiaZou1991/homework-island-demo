@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="216" height="160" viewBox="0 0 216 160">
+<defs>
+ <linearGradient id="paper" x1=".08" y1="0" x2=".92" y2="1"><stop stop-color="#fffef6"/><stop offset=".5" stop-color="#fff7e3"/><stop offset="1" stop-color="#eed9b7"/></linearGradient>
+ <linearGradient id="cord" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#8a5c31"/><stop offset=".55" stop-color="#e1b576"/><stop offset="1" stop-color="#90663e"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#684e2e" flood-opacity=".35"/></filter>
+</defs>
+<g stroke-linecap="round"><path d="M50-5Q47 23 53 46M166-5Q169 24 166 46" stroke="#6d482b" stroke-width="7"/><path d="M50-5Q47 23 53 46M166-5Q169 24 166 46" stroke="url(#cord)" stroke-width="4" stroke-dasharray="1 6"/></g>
+<path d="M18 45Q17 35 34 33L181 32Q199 33 200 49L206 131Q207 148 189 151L29 150Q10 149 12 132L16 64Z" fill="url(#paper)" stroke="#c39c6b" stroke-width="3" filter="url(#shadow)"/>
+<path d="M23 45Q31 40 48 40L181 40Q191 41 191 51L197 129Q195 141 184 142H34Q23 140 23 130Z" fill="none" stroke="#fffefa" stroke-width="2" opacity=".95"/>
+<g><circle cx="52" cy="44" r="7" fill="#bd894e" stroke="#865f38" stroke-width="2"/><circle cx="166" cy="44" r="7" fill="#bd894e" stroke="#865f38" stroke-width="2"/><circle cx="52" cy="43" r="2" fill="#fff1c1"/><circle cx="166" cy="43" r="2" fill="#fff1c1"/></g>
+<g transform="translate(170 22)"><path d="M5 24Q19 12 31 5" fill="none" stroke="#668d49" stroke-width="4"/><ellipse cx="12" cy="16" rx="14" ry="7" fill="#8db75a" transform="rotate(-43 12 16)"/><ellipse cx="25" cy="11" rx="12" ry="6" fill="#b3d270" transform="rotate(27 25 11)"/><g fill="#fff8eb" stroke="#eddca6" stroke-width=".6"><ellipse cx="24" cy="20" rx="5" ry="9"/><ellipse cx="24" cy="20" rx="5" ry="9" transform="rotate(72 24 20)"/><ellipse cx="24" cy="20" rx="5" ry="9" transform="rotate(144 24 20)"/><ellipse cx="24" cy="20" rx="5" ry="9" transform="rotate(216 24 20)"/><ellipse cx="24" cy="20" rx="5" ry="9" transform="rotate(288 24 20)"/></g><circle cx="24" cy="20" r="4" fill="#f5c962"/></g>
+<path d="M26 132Q44 141 67 140" fill="none" stroke="#e6c28e" stroke-opacity=".48" stroke-width="2"/>
+</svg>
