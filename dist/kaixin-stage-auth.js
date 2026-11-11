@@ -72,6 +72,8 @@
      showGate('请先完成测试身份验证。',requiredRole);return false;
    }
    const {data,error}=await c.rpc('kaixin_identity');
+   // A verified parent can preview child UI, but is never granted the child
+   // write capability. Child RPCs continue to require an actual child member.
    if(error||data?.ok!==true||data?.family!=='KAIXIN'
       ||data?.role!==requiredRole){
      showGate(requiredRole==='parent'
