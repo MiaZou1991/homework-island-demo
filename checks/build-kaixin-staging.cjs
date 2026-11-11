@@ -95,7 +95,7 @@ assert.ok(demo.includes(migration),'legacy migration changed - fail closed');
 demo=demo.replace(migration,"if(false&&!d&&!ISLAND_PREVIEW&&FAMILY_CODE&&!localStorage.getItem('homework_island_family_migrated_v1'))");
 write('demo-core.js',demo);
 const sourceHub=read('kaixin-staging-onboarding.html');
-const links='<section aria-label="进入完整页面测试"><h2>打开全量 KAIXIN 测试版</h2><p class="help">只有已经获得测试角色授权的账号才可以访问。家长和孩子请使用不同的浏览器或设备。</p><div class="stack"><a href="./parent.html" style="color:#38834c;font-weight:bold">家长端完整页面</a><a href="./child.html" style="color:#38834c;font-weight:bold">儿童端完整页面</a></div></section>';
+const links='<section aria-label="进入完整页面测试"><h2>打开全量 KAIXIN 测试版</h2><p class="help">只有已经获得测试角色授权的账号才可以访问。家长和孩子请使用不同的浏览器或设备。</p><div class="stack"><a href="./parent.html" style="color:#38834c;font-weight:bold">家长端完整页面</a><a href="./child.html?parentPreview=1" style="color:#38834c;font-weight:bold">家长查看儿童端（只读，无需额外绑定）</a><a href="./child.html" style="color:#38834c;font-weight:bold">孩子独立设备进入（需要绑定一次）</a></div></section>';
 assert.ok(sourceHub.includes('<div id="feedback"'));
 assert.ok(sourceHub.includes('id="reset-password"'),'staging login must offer recovery');
 assert.ok(sourceHub.includes('id="password-help"'),'staging signup must explain 8-char requirement');
