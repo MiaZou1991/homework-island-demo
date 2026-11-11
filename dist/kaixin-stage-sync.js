@@ -12,7 +12,7 @@
  const Ops=window.KaixinV2Operations;
  if(!Ops)throw new Error('staging_operation_engine_missing');
  let started=false,authorized=false,role='',baseline=null,revision=null,refresh=null;
- let writing=Promise.resolve(),busy=null,readBusy=null,updateTimer=null;
+ let writing=Promise.resolve(),busy=null,readBusy=null;
  let state={cloudRecord:'unknown',current:'unknown',message:'独立测试版：等待身份验证'};
  let outboxPromise=null;
  const allowed=()=>window.__KAIXIN_STAGE_BUILD__===true && (
@@ -348,17 +348,11 @@
      revision=loaded.revision;
      localApply(loaded.payload);
      emit({cloudRecord:'yes',current:'synced',message:'已加载 KAIXIN 测试数据 · 版本 '+revision});
-     // A second foreground read covers the race where the other phone has
-     // only just started uploading when this page is manually reloaded.
-     setTimeout(()=>{if(!document.hidden)resume();},1500);
    }catch(_){window.KaixinStageAuth.showGate('测试云端或登录验证暂不可用，本机数据保持原样。请稍后再试。',role);emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
    window.addEventListener('online',resume);
    window.addEventListener('pageshow',resume);
    window.addEventListener('focus',resume);
    document.addEventListener('visibilitychange',resume);
-   // Poll while foregrounded: family devices on different phones cannot rely
-   // on storage events. Offline and hidden pages skip network requests.
-   updateTimer=setInterval(()=>{if(!document.hidden)resume();},12000);
  }
  window.IslandSync=Object.freeze({
    start,schedulePush,checkRemote,flush,getStatus:()=>({...state}),
