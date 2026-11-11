@@ -10,28 +10,55 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
    const scene=await p.evaluate(()=>{
+     const root=getComputedStyle(document.documentElement);
      const world=getComputedStyle(document.querySelector('.tf-world-extension'));
+     const sky=getComputedStyle(document.querySelector('.tf-sky-extension'));
      const original=getComputedStyle(document.querySelector('.tf-world-main'));
-     const phone=getComputedStyle(document.querySelector('.phone'));
+     const paint=getComputedStyle(document.querySelector('.tf-world-paint'));
+     const beach=getComputedStyle(document.querySelector('.tf-beach-transition'));
+     const nav=document.querySelector('.up-nav');
+     const navRect=nav.getBoundingClientRect();
+     const navPseudo=getComputedStyle(nav,'::before');
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
-     return {extendedImage:world.backgroundImage,worldDisplay:world.display,
-       artImage:original.backgroundImage,artPositionY:original.backgroundPositionY,
-       artSize:original.backgroundSize,phoneImage:phone.backgroundImage,
-       heroHeight:hero.height,logoTop:top.top};
+     const phone=document.querySelector('.phone');
+     return {rootColor:root.backgroundColor,world:world.backgroundImage,worldShow:world.display,
+       sky:sky.backgroundImage,skyShow:sky.display,main:original.backgroundImage,
+       paint:paint.backgroundImage,paintMask:paint.maskImage,beach:beach.backgroundImage,
+       navBackground:getComputedStyle(nav).backgroundImage,navPosition:getComputedStyle(nav).position,
+       navBottom:navRect.bottom,shoreline:navPseudo.backgroundImage,
+       mainRect:document.querySelector('.tf-world-main').getBoundingClientRect().toJSON(),
+       phoneRect:phone.getBoundingClientRect().toJSON(),
+       heroHeight:hero.height,logoTop:top.top,scrollWidth:document.documentElement.scrollWidth};
    });
    const lift=Math.min(44,Math.max(34,width/10));
-   assert.equal(scene.worldDisplay,'block','independent extension layer visible '+width);
-   assert.ok(scene.extendedImage.includes('island-world-panoramic-v2.webp'),'cloud, mountain and ocean extension '+width);
-   const photoLoaded=await p.evaluate(async()=>{const i=new Image();i.src='assets/hd/island-world-panoramic-v2.webp';try{await i.decode();return {w:i.naturalWidth,h:i.naturalHeight};}catch{return {w:0,h:0};}});
-   assert.equal(photoLoaded.w,720,'panoramic photo asset should load '+width);
-   assert.equal(photoLoaded.h,900,'panoramic photo aspect ratio retained '+width);
-   assert.ok(scene.artImage.includes('today-island-reference-v1.webp'),'original island stays intact '+width);
-   assert.equal(scene.phoneImage,'none','scene no longer attached to phone background '+width);
-   assert.equal(scene.artSize,'100% auto','retain native island artwork proportions '+width);
-   assert.ok(Math.abs(parseFloat(scene.artPositionY)+lift)<1,'lift original scenery layer '+width);
-   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'move dock and task content with artwork '+width);
-   assert.ok(scene.logoTop>=22&&scene.logoTop<=29,'logo and points remain safe '+width);
+   assert.equal(scene.worldShow,'block','world extension visible '+width);
+   assert.equal(scene.skyShow,'block','independent sky visible '+width);
+   assert.ok(scene.world.includes('side-world-extension-v1.webp'),'no duplicate village panorama '+width);
+   assert.ok(scene.sky.includes('sky-extension-v1.webp'),'painted sky not solid bar '+width);
+   assert.equal(scene.main,'none','main wrapper must not paint a second image '+width);
+   assert.ok(scene.paint.includes('today-island-reference-v1.webp'),'original island only once '+width);
+   assert.notEqual(scene.paintMask,'none','upper/lower fade prevents hard rectangular seam '+width);
+   assert.ok(scene.beach.includes('beach-transition-v1.webp'),'registered, transparent beach layer '+width);
+   assert.equal(scene.navBackground,'none','no large beige navigation field '+width);
+   assert.ok(scene.shoreline.includes('tab-shoreline-v1.svg'),'narrow hand-drawn shoreline '+width);
+   assert.equal(scene.navPosition,'fixed','three tabs remain fixed '+width);
+   assert.ok(Math.abs(scene.navBottom-850)<2,'nav anchored at viewport bottom '+width);
+   assert.ok(Math.abs(scene.mainRect.width-width)<2,'original island equals screen width '+width);
+   assert.ok(Math.abs(scene.mainRect.height-width*1748/900)<2,'original island aspect preserved '+width);
+   assert.ok(scene.scrollWidth<=width+2,'no horizontal overflow '+width);
+   assert.ok(Math.abs(scene.heroHeight-(width*.93-lift))<2,'task placement preserved '+width);
+   assert.ok(scene.logoTop>=22 && scene.logoTop<=29,'logo safe at top '+width);
+   const loaded=await p.evaluate(async()=>{
+     const paths=['assets/hd/five-layers/sky-extension-v1.webp',
+       'assets/hd/five-layers/side-world-extension-v1.webp',
+       'assets/hd/five-layers/beach-transition-v1.webp'];
+     return Promise.all(paths.map(async src=>{const i=new Image();i.src=src;
+       try{await i.decode();return [i.naturalWidth,i.naturalHeight];}
+       catch{return [0,0];}
+     }));
+   });
+   assert.deepEqual(loaded,[[1800,600],[2400,1748],[900,480]],'new transparent textures decode '+width);
    await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();
@@ -115,27 +142,29 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    await p.goto('http://127.0.0.1:8189/child.html?preview=1&design=original');
    await p.locator('#island-loader').waitFor({state:'detached'});
    const layout=await p.evaluate(()=>{
-     const phone=document.querySelector('.phone');
+     const phone=document.querySelector('.phone'),nav=document.querySelector('.up-nav');
      const world=document.querySelector('.tf-world-extension');
-     const art=document.querySelector('.tf-world-main');
-     const nav=document.querySelector('.up-nav');
-     const prect=phone.getBoundingClientRect();
-     const nrect=nav.getBoundingClientRect();
-     return {world:getComputedStyle(world).backgroundImage,
-       art:getComputedStyle(art).backgroundImage,mask:getComputedStyle(art).maskImage,
+     const main=document.querySelector('.tf-world-main'),paint=document.querySelector('.tf-world-paint');
+     const sky=document.querySelector('.tf-sky-extension');
+     const prect=phone.getBoundingClientRect(),nrect=nav.getBoundingClientRect();
+     return {world:getComputedStyle(world).backgroundImage,sky:getComputedStyle(sky).backgroundImage,
+       main:getComputedStyle(main).backgroundImage,paint:getComputedStyle(paint).backgroundImage,
+       sideMask:getComputedStyle(main).maskImage,topMask:getComputedStyle(paint).maskImage,
        phoneWidth:prect.width,phoneCenter:prect.x+prect.width/2,
        navWidth:nrect.width,navBottom:nrect.bottom,
-       scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth,
-       activeTab:nav.querySelector('[aria-current="page"]')?.textContent?.trim()};
+       scrollWidth:document.documentElement.scrollWidth,viewport:innerWidth};
    });
-   assert.ok(layout.world.includes('island-world-panoramic-v2.webp'),'tablet extension image '+width);
-   assert.ok(layout.art.includes('today-island-reference-v1.webp'),'tablet retains original island '+width);
-   assert.ok(layout.mask!=='none','tablet island art should feather into surrounding panorama '+width);
-   assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'tablet content column width '+width);
-   assert.ok(Math.abs(layout.phoneCenter-width/2)<3,'tablet island centered '+width);
-   assert.ok(Math.abs(layout.navWidth-layout.phoneWidth)<3,'tablet original tabs share content width '+width);
-   assert.ok(Math.abs(layout.navBottom-1024)<2,'tablet tabs fixed at viewport bottom '+width);
-   assert.ok(layout.scrollWidth<=width+2,'no unwanted horizontal scroll on tablet '+width);
+   assert.ok(layout.world.includes('side-world-extension-v1.webp'),'iPad panorama without duplicated island '+width);
+   assert.ok(layout.sky.includes('sky-extension-v1.webp'),'iPad sky overlay '+width);
+   assert.equal(layout.main,'none','iPad has one island bitmap, not two '+width);
+   assert.ok(layout.paint.includes('today-island-reference-v1.webp'),'central island original retained '+width);
+   assert.notEqual(layout.sideMask,'none','left/right feathering applied '+width);
+   assert.notEqual(layout.topMask,'none','top/bottom feathering applied '+width);
+   assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'iPad content max width '+width);
+   assert.ok(Math.abs(layout.phoneCenter-width/2)<3,'iPad island centered '+width);
+   assert.ok(Math.abs(layout.navWidth-layout.phoneWidth)<3,'original tabs share column width '+width);
+   assert.ok(Math.abs(layout.navBottom-1024)<2,'iPad tabs fixed at viewport bottom '+width);
+   assert.ok(layout.scrollWidth<=width+2,'no horizontal scroll on iPad '+width);
    await p.screenshot({path:'/tmp/island-world-tablet-'+width+'.png'});
    assert.deepEqual(errors,[],'no browser errors on tablet '+width);
    await p.close();

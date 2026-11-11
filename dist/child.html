@@ -21,8 +21,9 @@
 <link rel="stylesheet" href="iphone-safearea.css?v=20261110-single-art">
 <link rel="stylesheet" href="p0-iphone-ui.css?v=20261110-p0e">
 <link rel="stylesheet" href="island-world-layers.css?v=20261110-world-v2">
+<link rel="stylesheet" href="island-five-layers-v1.css?v=20261111-multilayer1">
 <link rel="preload" as="image" href="assets/hd/today-island-reference-v1.webp">
-<link rel="preload" as="image" href="assets/hd/island-world-panoramic-v2.webp">
+<link rel="preload" as="image" href="assets/hd/five-layers/sky-extension-v1.webp">
 </head>
 <body data-mode="child"><style>
 .island-booting .phone{visibility:hidden!important}
@@ -70,9 +71,10 @@
     shop      积分商城
   孩子自加安排：「我想做点什么」→ ovl-event（自己加的事件不给分）
 -->
+<div class="tf-sky-extension" aria-hidden="true"></div>
 <div class="tf-world-extension" aria-hidden="true"></div>
 <div class="phone">
-    <div class="tf-world-main" aria-hidden="true"></div>
+    <div class="tf-world-main" aria-hidden="true"><div class="tf-world-paint"><div class="tf-beach-transition"></div></div></div>
 
     <!-- ===== 天空底 ===== -->
     <div class="sky">
