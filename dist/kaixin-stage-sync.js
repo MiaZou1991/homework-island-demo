@@ -37,14 +37,33 @@
    state={...state,...change};
    window.dispatchEvent(new CustomEvent('island-sync-state',{detail:{...state}}));
    const label=document.getElementById('kaixin-stage-status');
-   if(label)label.textContent='KAIXIN 测试同步：'+state.message;
+   if(label){const msg=label.querySelector('#kaixin-stage-status-message');if(msg)msg.textContent='KAIXIN 测试同步：'+state.message;}
  }
  function initStatus(){
    if(document.getElementById('kaixin-stage-status'))return;
    const el=document.createElement('div');
    el.id='kaixin-stage-status';
    el.setAttribute('role','status');
-   el.style.cssText='position:fixed;bottom:10px;left:10px;right:10px;max-width:440px;margin:0 auto;background:#fef6dc;color:#715432;border:1px solid #dfc290;padding:7px 12px;border-radius:13px;z-index:900001;font:12px/1.5 system-ui,sans-serif;box-shadow:0 2px 9px #0002;pointer-events:none';
+   el.style.cssText='position:fixed;bottom:10px;left:10px;right:10px;max-width:440px;margin:0 auto;background:#fef6dc;color:#715432;border:1px solid #dfc290;padding:7px 12px;border-radius:13px;z-index:900001;font:12px/1.5 system-ui,sans-serif;box-shadow:0 2px 9px #0002;display:flex;gap:8px;align-items:center;justify-content:space-between';
+   const message=document.createElement('span');
+   message.id='kaixin-stage-status-message';
+   message.style.flex='1';
+   const button=document.createElement('button');
+   button.id='kaixin-stage-refresh';
+   button.type='button';
+   button.textContent='立即同步';
+   button.style.cssText='background:#7caf79;color:white;border:0;border-radius:9px;padding:6px 10px;font:600 12px system-ui;flex-shrink:0;cursor:pointer';
+   button.addEventListener('click',async()=>{
+     if(button.disabled)return;
+     button.disabled=true;button.textContent='正在同步…';
+     try{
+       const result=await refreshNow();
+       if(result?.ok)emit({current:'synced',message:'手动核对完成 · 云端版本 '+result.revision});
+       else if(!result?.pending)emit({message:'尚未完成同步，请检查当前登录身份和网络'});
+     }catch(_){emit({message:'无法获取云端最新数据；保留本机内容，请检查网络'});}
+     finally{button.disabled=false;button.textContent='立即同步';}
+   });
+   el.append(message,button);
    document.body.appendChild(el);
    emit({});
  }
@@ -288,6 +307,15 @@
    }).catch(()=>block('本机操作队列持久化失败'));
    writing.then(()=>flush());
  }
+ async function refreshNow(){
+   if(!authorized||!allowed())return {ok:false};
+   if(document.hidden||navigator.onLine===false)return {ok:false,pending:true};
+   if(localStorage.getItem(BLOCK)||localStorage.getItem(DIRTY))
+     return {ok:false,pending:true};
+   const queued=(await (await openOutbox()).all()).length;
+   if(queued)return flush();
+   return checkRemote();
+ }
  function resume(){
    if(!authorized||document.hidden||navigator.onLine===false)return;
    writing.then(async()=>{
@@ -320,6 +348,9 @@
      revision=loaded.revision;
      localApply(loaded.payload);
      emit({cloudRecord:'yes',current:'synced',message:'已加载 KAIXIN 测试数据 · 版本 '+revision});
+     // A second foreground read covers the race where the other phone has
+     // only just started uploading when this page is manually reloaded.
+     setTimeout(()=>{if(!document.hidden)resume();},1500);
    }catch(_){window.KaixinStageAuth.showGate('测试云端或登录验证暂不可用，本机数据保持原样。请稍后再试。',role);emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
    window.addEventListener('online',resume);
    window.addEventListener('pageshow',resume);
