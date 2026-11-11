@@ -55,6 +55,14 @@
  }
  async function verifiedRole(requiredRole) {
    assertStage();
+   // Security gate remains visible until SDK, Auth and server-role checks finish.
+   showGate('正在验证测试身份与连接状态…',requiredRole);
+   try{
+     if(window.__kaixinStageSdkReady)await window.__kaixinStageSdkReady;
+   }catch(_){
+     showGate('测试页面的网络依赖尚未加载成功，请检查网络后重新进入。',requiredRole);
+     return false;
+   }
    const c=client();
    // Avoid an extra Auth API round trip on every mobile page open.
    // getSession only checks presence; the following kaixin_identity RPC
