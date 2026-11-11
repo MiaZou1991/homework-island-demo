@@ -8,6 +8,7 @@
  const FAMILY='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
  const DIRTY='kaixin_stage_v2_unpersisted_v1';
  const BLOCK='kaixin_stage_v2_blocked_v1';
+ const BACKUP='kaixin_stage_legacy_local_backup_v1';
  const DB='kaixin_stage_v2_queue_v1',STORE='ops';
  const Ops=window.KaixinV2Operations;
  if(!Ops)throw new Error('staging_operation_engine_missing');
@@ -68,8 +69,23 @@
    emit({});
  }
  function block(reason) {
-   try {localStorage.setItem(BLOCK,'1');} catch (_) {}
-   emit({current:'blocked',message:reason+'；本机内容保留，未上传云端'});
+   preserveLocal('unsupported');
+   emit({current:'pending',message:reason+'；本机修改已备份，云端仍可访问'});
+ }
+ function preserveLocal(reason) {
+   try {
+     if(!localStorage.getItem(BACKUP)){
+       const raw=localStorage.getItem(localKey());
+       if(raw)localStorage.setItem(BACKUP,JSON.stringify({reason,at:new Date().toISOString(),snapshot:JSON.parse(raw)}));
+     }
+   }catch(_){}
+ }
+ function clearLegacyLock(){
+   if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
+     preserveLocal('legacy_lock');
+     localStorage.removeItem(DIRTY);
+     localStorage.removeItem(BLOCK);
+   }
  }
  function openOutbox(){
    if(outboxPromise)return outboxPromise;
@@ -122,7 +138,6 @@
    if(refresh)refresh(uiData);
  }
  async function clean(){
-   if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK))return false;
    return (await (await openOutbox()).all()).length===0;
  }
  async function checkRemote(){
@@ -217,8 +232,7 @@
    if(busy)return busy;
    busy=(async()=>{
      await writing;
-     if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK))
-       return {ok:false,blocked:true};
+     clearLegacyLock();
      const store=await openOutbox();
      const ops=await store.all();
      if(!ops.length)return checkRemote();
@@ -271,9 +285,7 @@
  function schedulePush(next){
    if(!authorized||!started)return; // provisional startup data never uploaded
    if(role==='child'){
-     if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
-       emit({current:'blocked',message:'此前有未确认操作，禁止覆盖，请家长核对'});return;
-     }
+     clearLegacyLock();
      let op;
      try{op=childToggleTransition(next);}
      catch(_){block('孩子设备当前只支持作业完成／撤销完成同步，其余本机改动已保留');return;}
@@ -287,10 +299,7 @@
      writing.then(()=>flush());
      return;
    }
-   if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
-     emit({current:'blocked',message:'此前有未确认的本机变更，禁止覆盖上传'});
-     return;
-   }
+   clearLegacyLock();
    let planned;
    try {planned=Ops.planTransition(baseline,next,()=>crypto.randomUUID());}
    catch (_){block('本机数据结构无法安全合并');return;}
@@ -310,8 +319,7 @@
  async function refreshNow(){
    if(!authorized||!allowed())return {ok:false};
    if(document.hidden||navigator.onLine===false)return {ok:false,pending:true};
-   if(localStorage.getItem(BLOCK)||localStorage.getItem(DIRTY))
-     return {ok:false,pending:true};
+   clearLegacyLock();
    const queued=(await (await openOutbox()).all()).length;
    if(queued)return flush();
    return checkRemote();
@@ -319,7 +327,7 @@
  function resume(){
    if(!authorized||document.hidden||navigator.onLine===false)return;
    writing.then(async()=>{
-     if(localStorage.getItem(BLOCK)||localStorage.getItem(DIRTY))return;
+     clearLegacyLock();
      if((await (await openOutbox()).all()).length)await flush();
      else await checkRemote();
    }).catch(()=>{});
@@ -368,10 +376,7 @@
      if(!verified){emit({current:'unauthorized',message:'请先完成 KAIXIN 测试身份验证'});return;}
      authorized=true;
      const store=await openOutbox();
-     if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
-       await reconcileStartupMarkers(store);
-       return;
-     }
+     clearLegacyLock();
      if((await store.all()).length){
        emit({current:'pending',message:'上次离线待上传操作尚未确认，保留本机数据'});
        await flush();
