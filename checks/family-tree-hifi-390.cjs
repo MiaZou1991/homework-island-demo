@@ -29,8 +29,32 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert.match(dims.growthArtwork,/family-tree-hifi\/growth-panel.svg/);
   assert.match(dims.storyArtwork,/family-tree-hifi\/story-card-frame.svg/);
   assert.match(dims.photoArtwork,/family-tree-hifi\/photo-swimming-approved.webp/);
+  assert.equal(await page.locator('#previewNotice').evaluate(el=>el.open),false,'test member tools stay collapsed in primary UI');
+  assert.equal(await page.locator('[data-moment="sample-growth"] .ft-heart-status.is-own').count(),1,
+    'own story renders a status, not a disabled action');
+  assert.equal(await page.locator('[data-note="sample-note"] .ft-story-heart:not(.is-exhausted)').count(),1,
+    'another member’s story offers a high-contrast heart action');
+  assert.match(await page.locator('[data-moment="sample-growth"] .ft-story-comments').textContent(),/留言 \\d+/);
+  assert.equal((await page.locator('.ft-tree-tag span').first().innerText()).includes('…'),false,
+    'hanging cards do not show dangling ellipses');
+  const cardEdges=await page.locator('.ft-story-item').evaluateAll(cards=>cards.map(card=>{
+    const bounds=el=>{const b=el.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right}};
+    return {card:bounds(card),actions:bounds(card.querySelector('.ft-record-controls')),
+      image:card.dataset.art?bounds(card.querySelector('.ft-story-stamp')):null};
+  }));
+  assert.ok(cardEdges.every(x=>x.actions.bottom<=x.card.bottom+3),'story controls remain inside art cards: '+JSON.stringify(cardEdges));
+  assert.ok(cardEdges.every(x=>!x.image||x.image.right<=x.card.right+3),'photo stickers do not leave card bounds');
   await page.screenshot({path:'/tmp/family-tree-hifi-390-firstscreen.png',animations:'disabled'});
   await page.screenshot({path:'/tmp/family-tree-hifi-390-full.png',fullPage:true,animations:'disabled'});
+  // Demo identity tools exist only in the collapsible test panel.
+  await page.locator('#previewNotice summary').click();
+  await page.locator('#activeMember').selectOption('mom');
+  assert.equal(await page.locator('[data-note="sample-note"] .ft-heart-status.is-own').count(),1,
+    'mom sees own note as a non-clickable status');
+  assert.equal(await page.locator('[data-moment="sample-growth"] .ft-story-heart').count(),1,
+    'mom can send a heart on the child’s record');
+  await page.locator('#activeMember').selectOption('kid');
+  await page.locator('#previewNotice summary').click();
   // Ensure high-fidelity skin did not remove real interaction.
   await page.locator('.ft-write-button').click();
   assert.equal(await page.locator('#editor').evaluate(d=>d.open),true);
