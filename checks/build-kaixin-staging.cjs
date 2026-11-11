@@ -38,7 +38,7 @@ for(const page of ['child.html','parent.html']){
  s=s.replace(inline,[
   '<script src="kaixin-stage-auth.js?v=20261111-bootperf1"></script>',
   '<script src="v2-operation-engine.js"></script>',
-  '<script src="kaixin-stage-sync.js?v=20261111-on-demand1"></script>'
+  '<script src="kaixin-stage-sync.js?v=20261111-marker-recovery1"></script>'
  ].join('\n'));
  s=s.replace(family,'<!-- STAGING: role-based Auth gate replaces insecure family code / math puzzle -->');
  s=s.replace(signal,'<!-- STAGING: no unauthenticated legacy realtime subscription -->');
