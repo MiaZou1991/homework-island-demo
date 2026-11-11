@@ -125,6 +125,25 @@ async function boot(browser,role,route='child.html',sparse=false){
   });
   assert.ok(refreshResult.after>refreshResult.before,'manual cloud button must actually query backend');
 
+  // V2 now synchronizes by user and page lifecycle events, never by intervals.
+  const schedule=await parent.page.evaluate(async()=>{
+    const sync=await fetch('kaixin-stage-sync.js?v=20261111-on-demand1').then(r=>r.text());
+    const before=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
+    window.dispatchEvent(new Event('focus'));
+    await new Promise(resolve=>setTimeout(resolve,250));
+    const onFocus=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
+    window.dispatchEvent(new Event('online'));
+    await new Promise(resolve=>setTimeout(resolve,250));
+    const onOnline=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
+    return {noInterval:!sync.includes('setInterval('),noDelayedRecheck:!sync.includes('setTimeout(()=>{if(!document.hidden)resume()'),
+      onFocus:onFocus-before,onOnline:onOnline-onFocus};
+  });
+  assert.equal(schedule.noInterval,true,'event-driven transport must not poll periodically');
+  assert.equal(schedule.noDelayedRecheck,true,'opening page must not schedule a delayed second read');
+  assert.ok(schedule.onFocus>0,'returning focus must recheck cloud');
+  assert.ok(schedule.onOnline>0,'restoring network must recheck cloud');
+
+
   const id='qa_parent_add_20261110';
   await parent.page.evaluate(id=>{
     const d=getData();
