@@ -59,6 +59,22 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.deepEqual(sourceDimensions,[[1800,600],[2400,1748],[900,480],[1560,120]],
      'all four new scenery assets decode at original dimensions');
    await p.screenshot({path:'/tmp/companions-gallery-home-'+width+'.png'});
+   /* Screenshots after vertical scroll caught the formerly doubled beach.
+      Assert the sole background remains viewport-anchored while the cards scroll. */
+   const scrollTest=await p.evaluate(()=>{
+     const maxScroll=Math.max(0,document.documentElement.scrollHeight-innerHeight);
+     window.scrollTo(0,Math.min(360,maxScroll));
+     const art=document.querySelector('.tf-world-main');
+     return {maxScroll,scrollY:window.scrollY,artTop:art.getBoundingClientRect().top,
+       beachDisplay:getComputedStyle(document.querySelector('.tf-bottom-transition')).display,
+       skyDisplay:getComputedStyle(document.querySelector('.tf-sky-layer')).display};
+   });
+   assert.equal(scrollTest.beachDisplay,'none','do not repaint beach while page scrolls '+width);
+   assert.equal(scrollTest.skyDisplay,'none','do not repaint cloud strip while page scrolls '+width);
+   assert.ok(Math.abs(scrollTest.artTop)<2,'main wallpaper must not drift during scroll '+width);
+   if(scrollTest.maxScroll>50) assert.ok(scrollTest.scrollY>0,'long page must actually scroll '+width);
+   await p.screenshot({path:'/tmp/companions-gallery-scrolled-'+width+'.png'});
+   await p.evaluate(()=>window.scrollTo(0,0));
    await p.locator('button[data-up="mate-picker"]').first().click();
    await p.locator('.island-mate-grid').waitFor();
    assert.equal(await p.locator('.island-mate-tile').count(),17,width+' should show all companions');
