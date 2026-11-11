@@ -44,6 +44,8 @@ const sdkMock=`(()=>{
       }
       return{data:{ok:true,revision:state.revision,payload:JSON.parse(JSON.stringify(state.payload))},error:null};
     }
+    if(name==='kaixin_homework_last_change_v2')return{data:{ok:true,exists:true,
+      at:'2026-11-11T12:55:00Z',actor:'孩子',action:'修改作业',fields:['content']},error:null};
     if(name==='kaixin_child_set_homework_done'){
       if(state.role!=='child')return{data:{ok:false,error:'unauthorized'},error:null};
       const item=state.payload.homework.find(h=>h.id===body.p_homework_id);
@@ -204,6 +206,39 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(opposite.cloudDone,false);
   assert.notEqual(opposite.after,opposite.before,
     'parent upgraded visible page must redraw when completion is undone');
+  // Cloud is the single state. A collision asks once, server-audited action
+  // is visible, and cancelling discards ONLY the local uncommitted operation.
+  await parent.page.evaluate(id=>{
+    const d=getData();d.homework.find(h=>h.id===id).content='我的旧设备编辑';
+    window.__qaRemote.payload.homework.find(h=>h.id===id).content='云端另一设备编辑';
+    window.__qaRemote.revision++;saveData(d);
+  },id);
+  await parent.page.locator('#kaixin-stage-conflict').waitFor({state:'visible',timeout:15000});
+  assert.match(await parent.page.locator('#kaixin-stage-conflict').textContent(),/孩子.*2026.*修改作业/s);
+  await parent.page.getByRole('button',{name:'使用云端最新状态'}).click();
+  await parent.page.waitForFunction(id=>
+    getData().homework.find(h=>h.id===id)?.content==='云端另一设备编辑'
+    &&window.IslandSync?.getStatus?.().current==='synced',id,{timeout:15000});
+  assert.equal(await parent.page.evaluate(id=>window.__qaRemote.payload.homework.find(h=>h.id===id).content,id),
+    '云端另一设备编辑');
+
+  // Confirming collision rebases just changed field; child's concurrent
+  // done status stays true in the single authoritative cloud record.
+  await parent.page.evaluate(id=>{
+    const d=getData();d.homework.find(h=>h.id===id).content='家长确认保留的内容';
+    const remote=window.__qaRemote.payload.homework.find(h=>h.id===id);
+    remote.content='云端冲突的新文字';remote.done=true;
+    remote.completedAt='2026-11-11T12:55:00Z';
+    window.__qaRemote.revision++;saveData(d);
+  },id);
+  await parent.page.locator('#kaixin-stage-conflict').waitFor({state:'visible',timeout:15000});
+  await parent.page.getByRole('button',{name:'仍提交我的修改'}).click();
+  await parent.page.waitForFunction(id=>{
+    const h=window.__qaRemote.payload.homework.find(h=>h.id===id);
+    return h?.content==='家长确认保留的内容'&&h?.done===true
+      &&window.IslandSync?.getStatus?.().current==='synced';
+  },id,{timeout:15000});
+
   await parent.page.evaluate(()=>sessionStorage.setItem('__qaFixedCloud',
     JSON.stringify(window.__qaRemote.payload)));
   // Crash/reload recovery: a stale marker must clear ONLY when the local
@@ -214,7 +249,8 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),null,
     'exact equality + empty outbox safely recovers stale marker');
 
-  // A genuinely different local snapshot must remain protected across reload.
+  // Old Safari global locks no longer disable cloud access. The divergent
+  // local snapshot is preserved as a backup before cloud state becomes visible.
   await parent.page.evaluate(()=>{
     const key=DEMO_KEY,local=JSON.parse(localStorage.getItem(key));
     local.kidName='只存在于本机的安全测试';
@@ -222,11 +258,15 @@ async function boot(browser,role,route='child.html',sparse=false){
     localStorage.setItem('kaixin_stage_v2_blocked_v1','1');
   });
   await parent.page.reload({waitUntil:'domcontentloaded'});
-  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='blocked',{timeout:15000});
-  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),'1');
-  assert.equal(await parent.page.evaluate(()=>getData().kidName),'只存在于本机的安全测试',
-    'mismatched local edits must not be overwritten');
-  assert.equal(await parent.page.evaluate(()=>window.IslandSync.getStatus().message.includes('本机与云端内容不同')),true);
+  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),null);
+  const backup=await parent.page.evaluate(()=>{
+    const keys=Object.keys(localStorage).filter(k=>k.startsWith('kaixin_stage_legacy_local_backup_v1_'));
+    return keys.map(k=>JSON.parse(localStorage.getItem(k)).snapshot.kidName);
+  });
+  assert.ok(backup.includes('只存在于本机的安全测试'),'legacy local edits are backed up');
+  assert.notEqual(await parent.page.evaluate(()=>getData().kidName),'只存在于本机的安全测试',
+    'cloud is the one visible state after backup');
   assert.deepEqual(parent.errors,[],'parent staging UI must not produce JS errors');
   await parent.page.close();
 
@@ -272,10 +312,10 @@ async function boot(browser,role,route='child.html',sparse=false){
     d.homework.push({id:'qa_child_local',subject:'数学',content:'本机未同步的测试作业',done:false});
     saveData(d);
   });
-  await child.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='blocked',{timeout:9000});
+  await child.page.waitForFunction(()=>window.IslandSync?.getStatus?.().message?.includes('本机修改已备份'),{timeout:9000});
   assert.equal((await child.page.evaluate(()=>window.__qaRemote.calls)).includes('family_save_v2'),false,
     'child write API not approved: must NEVER post parent snapshot RPC');
-  assert.equal(await child.page.evaluate(()=>window.IslandSync.getStatus().message.includes('本机内容保留')),true);
+  assert.equal(await child.page.evaluate(()=>window.IslandSync.getStatus().message.includes('本机修改已备份')),true);
   assert.deepEqual(child.errors,[],'child staging UI must not produce JS errors');
   await child.page.close();
   console.log('PASS isolated KAIXIN full-UI 390px: unauthorized gate; parent Auth + real UI add operation CAS/readback; child write fail-closed and original UI intact (mocked server)');
