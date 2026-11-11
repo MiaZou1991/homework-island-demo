@@ -190,6 +190,12 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::afte
     background-position: center top !important;
     background-size: cover !important;
   }
+  /* iPad: complete the lower fade before the original bottom flowers,
+     otherwise the 1748px portrait leaves ghost plants on the ocean. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .tf-world-main > .tf-world-paint {
+    -webkit-mask-image: linear-gradient(to bottom,transparent 0px,#000 54px,#000 65%,transparent 84%) !important;
+    mask-image: linear-gradient(to bottom,transparent 0px,#000 54px,#000 65%,transparent 84%) !important;
+  }
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
     width: min(500px,calc(100vw - 64px)) !important;
     max-width: 500px !important;
