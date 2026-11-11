@@ -1,0 +1,30 @@
+name: KAIXIN isolated sync acceptance
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [feat/kaixin-v2-isolated-qa-build-20261110]
+permissions:
+  contents: read
+jobs:
+  staging-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify sync script syntax and domain operations
+        run: |
+          node --check dist/kaixin-stage-sync.js
+          node --check dist/kaixin-stage-auth.js
+          node checks/v2-operation-engine.cjs
+          node checks/kaixin-sync.cjs
+      - name: Install headless browser tests without system fonts
+        run: npm install --no-save --no-package-lock playwright
+      - name: Build and test independent KAIXIN V2 UI
+        run: |
+          node checks/build-kaixin-staging.cjs
+          python3 -m http.server 8191 --bind 127.0.0.1 --directory build/kaixin-staging >/tmp/kaixin-stage-sync-qa.log 2>&1 &
+          node checks/kaixin-stage-full-ui.cjs
