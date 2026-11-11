@@ -23,8 +23,14 @@ jobs:
           node checks/kaixin-sync.cjs
       - name: Install headless browser tests without system fonts
         run: npm install --no-save --no-package-lock playwright
+      - name: Generate compressed graphics and approved font subset
+        run: |
+          python3 -m pip install --disable-pip-version-check Pillow 'fonttools[woff]'
+          python3 .github/optimize_artwork.py
       - name: Build and test independent KAIXIN V2 UI
         run: |
           node checks/build-kaixin-staging.cjs
+          test -s build/kaixin-staging/assets/font-candidates/chill-ui.woff2
+          ! grep -q "chill.ttf.*format('truetype')" build/kaixin-staging/kaixin-stage-child.css
           python3 -m http.server 8191 --bind 127.0.0.1 --directory build/kaixin-staging >/tmp/kaixin-stage-sync-qa.log 2>&1 &
           node checks/kaixin-stage-full-ui.cjs
