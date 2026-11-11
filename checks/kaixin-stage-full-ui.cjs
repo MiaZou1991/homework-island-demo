@@ -36,6 +36,9 @@ const sdkMock=`(()=>{
        }else{
          state.payload=JSON.parse(JSON.stringify(window.getData()));
          state.payload.recurringTasks=[];
+       if(window.location.search.includes('parentPreview=1'))state.payload.homework.push({
+         id:'qa_parent_preview_readonly',subject:'数学',content:'家长预览用作业',
+         done:false,deadline:'2026-11-12T18:00:00',attachments:[],createdAt:'2026-11-11T00:00:00Z'});
        if(state.role==='child')state.payload.homework.push({id:'qa_child_assigned',
          subject:'数学',content:'孩子端完成与撤销验收',deadline:'2026-11-11T20:00:00',
          done:false,attachments:[],createdAt:'2026-11-10T00:00:00Z'});
