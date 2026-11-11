@@ -197,3 +197,36 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::afte
   }
 }
 /* Outside today's island, don't show the new wallpaper. */
+
+/* V1.1 correction after 2026-11-12 real iPhone screenshots:
+   The approved source already includes the upper sky AND the final beach.
+   Painting 01 and 04 over it duplicates clouds and beach, especially after
+   scrolling. Assets remain stored separately, but should NOT run by default.
+   A viewport-anchored single scene stays continuous in short/long homework. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-sky-layer,
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-bottom-transition{
+  display:none !important;
+  background-image:none !important;
+}
+@media(max-width:530px){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main{
+    position:fixed !important;
+    inset:0 !important;
+    top:0 !important;
+    bottom:auto !important;
+    left:0 !important;
+    width:100vw !important;
+    height:100dvh !important;
+    background-image:url("assets/hd/today-island-reference-v1.webp") !important;
+    background-position:center top !important;
+    background-size:cover !important;
+    background-repeat:no-repeat !important;
+    -webkit-mask-image:none !important;
+    mask-image:none !important;
+    pointer-events:none !important;
+  }
+  /* No repeated panoramic second scene behind the original picture. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension{
+    display:none !important;
+  }
+}
