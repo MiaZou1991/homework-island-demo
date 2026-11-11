@@ -38,7 +38,23 @@
    state={...state,...change};
    window.dispatchEvent(new CustomEvent('island-sync-state',{detail:{...state}}));
    const label=document.getElementById('kaixin-stage-status');
-   if(label){const msg=label.querySelector('#kaixin-stage-status-message');if(msg)msg.textContent='KAIXIN 测试同步：'+state.message;}
+   if(label){
+     const calm=state.current==='synced';
+     const msg=label.querySelector('#kaixin-stage-status-message');
+     if(msg){
+       msg.textContent=calm?'已同步':('KAIXIN 测试同步：'+state.message);
+       msg.style.flex=calm?'0':'1';
+     }
+     // During normal use keep a compact sync control. Only pending/failed
+     // operations expand the message; no full-width permanent yellow banner.
+     label.style.left=calm?'auto':'10px';
+     label.style.right='10px';
+     label.style.width=calm?'auto':'auto';
+     label.style.maxWidth=calm?'none':'440px';
+     label.style.padding=calm?'5px 7px':'7px 12px';
+     label.style.opacity=calm?'.88':'1';
+     label.style.fontSize=calm?'11px':'12px';
+   }
  }
  function initStatus(){
    if(document.getElementById('kaixin-stage-status'))return;
