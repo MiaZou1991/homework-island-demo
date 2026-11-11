@@ -75,6 +75,25 @@ async function boot(browser,role,route='child.html',sparse=false){
 (async()=>{
  const browser=await chromium.launch({channel:'chrome',headless:true});
  try{
+  // Simulate a slow third-party CDN: it must NOT delay DOMContentLoaded,
+  // trigger the old 9s fatal loader, or bypass Auth gating.
+  const slowSdk=await browser.newPage({viewport:{width:390,height:844}});
+  await slowSdk.addInitScript(()=>{window.__qaRole='child';});
+  await slowSdk.route('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js',
+    async route=>{
+      await new Promise(resolve=>setTimeout(resolve,10000));
+      await route.fulfill({status:200,contentType:'text/javascript',body:sdkMock});
+    });
+  const startedAt=Date.now();
+  await slowSdk.goto(URL+'/child.html',{waitUntil:'domcontentloaded'});
+  assert.ok(Date.now()-startedAt<8000,
+    'slow remote Supabase SDK must not delay local island initial render');
+  await slowSdk.locator('#upgrade-root .up-main').count(); // DOM is rendered independently
+  await slowSdk.waitForFunction(()=>document.querySelector('#upgrade-root > *')!==null,{timeout:6000});
+  await slowSdk.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:17000});
+  assert.equal(await slowSdk.locator('#kaixin-stage-gate').count(),0);
+  await slowSdk.close();
+
   // An unauthenticated visitor must not see any family-specific data or cloud read.
   const anon=await boot(browser,null);
   await anon.page.locator('#kaixin-stage-gate').waitFor({state:'visible'});
