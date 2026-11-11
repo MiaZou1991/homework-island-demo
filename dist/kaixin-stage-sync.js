@@ -323,8 +323,11 @@
    }catch(_){window.KaixinStageAuth.showGate('测试云端或登录验证暂不可用，本机数据保持原样。请稍后再试。',role);emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
    window.addEventListener('online',resume);
    window.addEventListener('pageshow',resume);
+   window.addEventListener('focus',resume);
    document.addEventListener('visibilitychange',resume);
-   updateTimer=setInterval(()=>{if(!document.hidden)resume();},60000);
+   // Poll while foregrounded: family devices on different phones cannot rely
+   // on storage events. Offline and hidden pages skip network requests.
+   updateTimer=setInterval(()=>{if(!document.hidden)resume();},12000);
  }
  window.IslandSync=Object.freeze({
    start,schedulePush,checkRemote,flush,getStatus:()=>({...state}),
