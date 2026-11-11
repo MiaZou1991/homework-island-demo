@@ -28,6 +28,8 @@ const sdkMock=`(()=>{
     if(name==='family_load_v2'){
       if(!state.role)return{data:{ok:false,error:'unauthorized'},error:null};
       if(state.payload===null){
+       const persisted=window.sessionStorage.getItem('__qaFixedCloud');
+       if(persisted){state.payload=JSON.parse(persisted);}else{
        // Exact domain defaults from the app itself, preserving all side-effect fields.
        if(window.__qaSparse){
          state.payload={homework:[{id:'qa-old-fixture',subject:'数学',content:'只用于测试',done:false,attachments:[]}],qaHistory:{preserved:true}};
@@ -37,6 +39,7 @@ const sdkMock=`(()=>{
        if(state.role==='child')state.payload.homework.push({id:'qa_child_assigned',
          subject:'数学',content:'孩子端完成与撤销验收',deadline:'2026-11-11T20:00:00',
          done:false,attachments:[],createdAt:'2026-11-10T00:00:00Z'});
+       }
        }
       }
       return{data:{ok:true,revision:state.revision,payload:JSON.parse(JSON.stringify(state.payload))},error:null};
@@ -201,6 +204,8 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(opposite.cloudDone,false);
   assert.notEqual(opposite.after,opposite.before,
     'parent upgraded visible page must redraw when completion is undone');
+  await parent.page.evaluate(()=>sessionStorage.setItem('__qaFixedCloud',
+    JSON.stringify(window.__qaRemote.payload)));
   // Crash/reload recovery: a stale marker must clear ONLY when the local
   // snapshot and cloud projection are identical, with no queued operations.
   await parent.page.evaluate(()=>localStorage.setItem('kaixin_stage_v2_blocked_v1','1'));
