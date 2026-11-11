@@ -12,6 +12,8 @@ await page.locator('#previewNotice').waitFor({state:'visible'});
 assert.equal(await page.locator('[data-moment]').count(),2,width+' seed moments');
 assert.equal(await page.locator('[data-note]').count(),1,width+' seed note');
 assert.equal(await page.locator('.ft-tabs button').count(),2,'only family records and send hearts');
+assert.equal(await page.locator('#previewNotice').evaluate(el=>el.open),false,'preview identity switch starts collapsed');
+assert.equal(await page.locator('[data-moment="sample-growth"] .ft-heart-status.is-own').count(),1,'own story has status, not fake disabled love button');
 assert.equal(await page.locator('#storiesTitle').textContent(),'家庭记录');
 assert.equal(await page.locator('#treeHeartCount').textContent(),'0','no auto hearts for family records');
 await page.locator('[data-open="story"]').click();
@@ -65,6 +67,7 @@ if(width===390){
   assert.equal(await page.locator('#ftModalTitle').textContent(),'今日的爱心已送达');
   await page.locator('#ftModalClose').click();
 }
+await page.locator('#previewNotice summary').click();
 await page.locator('#activeMember').selectOption('dad');
 assert.equal(await page.locator('[data-heart]').count(),width===390?1:0,width+' dad only sees letters addressed to dad');
 if(width===390)assert.match(await page.locator('[data-heart]').first().innerText(),/谢谢爸爸/,'dad sees only his own letter');
@@ -82,6 +85,7 @@ assert.equal(overflow,false,width+' no horizontal overflow');
 assert.deepEqual(errors,[],width+' browser console errors');
 await page.screenshot({path:'/tmp/family-tree-'+width+'.png',fullPage:true});
 await page.reload();
+await page.locator('#previewNotice summary').click();
 await page.locator('#activeMember').selectOption('kid');
 await page.locator('[data-section="stories"]').click();
 assert.equal(await page.locator('[data-moment]').count(),3,width+' persisted moments after reload');
