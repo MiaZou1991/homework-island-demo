@@ -7,7 +7,7 @@
   <title>家庭树 · 开心岛</title>
   <link rel="stylesheet" href="family-tree.css?v=20261110-family-fullstate-v3">
   <link rel="stylesheet" href="family-tree-skin-v3.css?v=20261110-approved-v3b">
-  <link rel="stylesheet" href="family-tree-hifi-390.css?v=20261110-stage1-polish2">
+  <link rel="stylesheet" href="family-tree-hifi-390.css?v=20261111-polish3">
 </head>
 <body>
 <main class="ft-app">
@@ -31,13 +31,16 @@
   </header>
 
   <section class="ft-content" aria-label="家庭记录与爱心">
-    <details id="previewNotice" class="ft-preview" hidden><summary>体验模式 · 本机测试数据，不影响正式家庭记录</summary><p>成员切换仅用于演示，不能代替身份验证。私密爱心和家庭照片仍待安全服务端接入，本页面不写入家庭正式数据库。</p></details>
-    <div class="ft-person-bar">
-      <label for="activeMember">此刻是谁在树下？</label>
-      <select id="activeMember" aria-label="体验成员身份">
-        <option value="kid">开心</option><option value="mom">妈妈</option><option value="dad">爸爸</option>
-      </select>
-    </div>
+    <details id="previewNotice" class="ft-preview ft-devtools" hidden>
+      <summary>体验设置 · 本机数据，不影响正式家庭记录</summary>
+      <div class="ft-person-bar">
+        <label for="activeMember">体验成员</label>
+        <select id="activeMember" aria-label="体验成员身份">
+          <option value="kid">开心</option><option value="mom">妈妈</option><option value="dad">爸爸</option>
+        </select>
+      </div>
+      <p>成员切换仅用于演示，不是身份验证；私密爱心和家庭照片仍待安全后端接入。</p>
+    </details>
 
     <nav class="ft-tabs" aria-label="家庭树栏目">
       <button type="button" data-section="stories" aria-current="page">家庭记录</button>
@@ -141,6 +144,6 @@
   </dialog>
 </main>
 <script src="family-tree-model.js?v=20261110-family-fullstate-v3"></script>
-<script src="family-tree.js?v=20261110-approved-v3b"></script>
+<script src="family-tree.js?v=20261111-visual3"></script>
 </body>
 </html>
