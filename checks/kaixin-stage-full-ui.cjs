@@ -201,6 +201,27 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(opposite.cloudDone,false);
   assert.notEqual(opposite.after,opposite.before,
     'parent upgraded visible page must redraw when completion is undone');
+  // Crash/reload recovery: a stale marker must clear ONLY when the local
+  // snapshot and cloud projection are identical, with no queued operations.
+  await parent.page.evaluate(()=>localStorage.setItem('kaixin_stage_v2_blocked_v1','1'));
+  await parent.page.reload({waitUntil:'domcontentloaded'});
+  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),null,
+    'exact equality + empty outbox safely recovers stale marker');
+
+  // A genuinely different local snapshot must remain protected across reload.
+  await parent.page.evaluate(()=>{
+    const key=DEMO_KEY,local=JSON.parse(localStorage.getItem(key));
+    local.kidName='只存在于本机的安全测试';
+    localStorage.setItem(key,JSON.stringify(local));
+    localStorage.setItem('kaixin_stage_v2_blocked_v1','1');
+  });
+  await parent.page.reload({waitUntil:'domcontentloaded'});
+  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='blocked',{timeout:15000});
+  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),'1');
+  assert.equal(await parent.page.evaluate(()=>getData().kidName),'只存在于本机的安全测试',
+    'mismatched local edits must not be overwritten');
+  assert.equal(await parent.page.evaluate(()=>window.IslandSync.getStatus().message.includes('本机与云端内容不同')),true);
   assert.deepEqual(parent.errors,[],'parent staging UI must not produce JS errors');
   await parent.page.close();
 
