@@ -21,7 +21,10 @@ function write(file,s){fs.writeFileSync(path.join(target,file),s);}
 const blocked=['cloud-sync.js','realtime-signal.js','family-access.js'];
 for(const filename of blocked)fs.rmSync(path.join(target,filename),{force:true});
 const stageTag='<script>window.__KAIXIN_STAGE_BUILD__=true;document.documentElement.classList.add("kaixin-stage-gated");</script>';
-const sdk='<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>';
+// Fetch remote SDK asynchronously so a slow CDN cannot hold DOMContentLoaded
+// or the island's initial visual render hostage. The auth gate awaits readiness.
+const sdk='<script>window.__kaixinStageSdkReady=new Promise(function(resolve,reject){window.__kaixinStageSdkResolve=resolve;window.__kaixinStageSdkReject=reject})</script>'+
+ '<script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js" onload="window.__kaixinStageSdkResolve()" onerror="window.__kaixinStageSdkReject(new Error(\'sdk_load_failed\'))"></script>';
 const gateCss='<style>html.kaixin-stage-gated .phone{visibility:hidden!important;pointer-events:none!important}</style>';
 for(const page of ['child.html','parent.html']){
  let s=read(page);
@@ -49,6 +52,16 @@ for(const page of ['child.html','parent.html']){
  }
 
  if(page==='child.html'){
+  // The old 9s watchdog starts while stylesheets and blocking scripts are
+  // still downloading. A slow iPhone was falsely labelled a failed island.
+  // Preserve a genuine recovery link after 30s, and show a non-fatal status
+  // after 9s instead of turning a slow boot into an error.
+  const watchdog='},9000)})();</script>';
+  assert.ok(s.includes(watchdog),'child startup watchdog changed');
+  s=s.replace(watchdog,'},30000)})();</script>');
+  const loaderTag='<h1 class="island-loader-title">小岛正在醒来</h1>';
+  assert.ok(s.includes(loaderTag),'child startup loader changed');
+  s=s.replace(loaderTag,loaderTag+'<script>setTimeout(function(){var el=document.getElementById("island-loader");if(el&&!el.classList.contains("is-ready")){var note=el.querySelector(".island-loader-sub");if(note)note.textContent="正在连接小岛，网络较慢时可能需要多一点时间…"}},9000)</script>');
   // Loaded after upgrade.js/child-dialogs.js so their legacy completion callbacks
   // are overridden only in the isolated child page, never on production.
   assert.ok(s.includes('</body>'),'staging child page has no closing body');
