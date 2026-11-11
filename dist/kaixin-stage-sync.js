@@ -206,8 +206,19 @@
    const when=date&&Number.isFinite(date.getTime())?date.toLocaleString('zh-CN',{hour12:false}):'暂无具体操作时间记录';
    return {item,when,details};
  }
- function askConflict(op,remote){
-   const {when,details}=conflictMessage(op,remote);
+ async function askConflict(op,remote){
+   let {when,details}=conflictMessage(op,remote);
+   let actor='操作设备未记录',action='修改作业';
+   try{
+     const result=await call('kaixin_homework_last_change_v2',{
+       p_family_id:FAMILY,p_homework_id:op.homeworkId||op.id
+     });
+     if(result.exists){
+       const at=new Date(result.at);
+       if(Number.isFinite(at.getTime()))when=at.toLocaleString('zh-CN',{hour12:false});
+       actor=result.actor||actor;action=result.action||action;
+     }
+   }catch(_){/* Older server audit not installed: never invent attribution. */}
    return new Promise(resolve=>{
      const dialog=document.createElement('dialog');
      dialog.id='kaixin-stage-conflict';
@@ -215,7 +226,7 @@
      const title=document.createElement('h2');title.textContent='这条作业有新的修改';title.style.margin='0 0 12px';
      const summary=document.createElement('p');
      summary.style.cssText='font:14px/1.7 system-ui;white-space:pre-wrap';
-     summary.textContent='云端最近操作时间：'+when+'\n'+details+'\n你是否仍要提交本机这次修改？确认后只覆盖本次修改的字段。';
+     summary.textContent='最新云端操作：'+actor+' · '+when+'\n操作：'+action+'\n'+details+'\n是否仍要提交本机这次修改？确认后只更新本次修改的字段。';
      const row=document.createElement('div');row.style.cssText='display:flex;gap:10px;flex-wrap:wrap';
      const keep=document.createElement('button');keep.textContent='仍提交我的修改';keep.style.cssText='padding:11px;border:0;border-radius:11px;background:#74a76e;color:white';
      const newest=document.createElement('button');newest.textContent='使用云端最新状态';newest.style.cssText='padding:11px;border:1px solid #c4d3aa;border-radius:11px;background:white';
