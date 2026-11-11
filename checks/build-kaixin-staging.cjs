@@ -42,6 +42,17 @@ for(const page of ['child.html','parent.html']){
  ].join('\n'));
  s=s.replace(family,'<!-- STAGING: role-based Auth gate replaces insecure family code / math puzzle -->');
  s=s.replace(signal,'<!-- STAGING: no unauthenticated legacy realtime subscription -->');
+ // Preserve the original CSS cascade, while reducing ten blocking stylesheet
+ // requests to one on the child and three to one on the parent. CSS remains in
+ // the site root, so all relative asset URLs retain their meaning.
+ const sheetPattern=/<link\\s+rel="stylesheet"\\s+href="([^"]+\\.css)(?:\\?[^"]*)?"\\s*\\/?\\s*>/g;
+ const sheets=[...s.matchAll(sheetPattern)];
+ assert.ok(sheets.length>=(page==='child.html'?10:3),'unexpected stylesheet topology');
+ const bundle='kaixin-stage-'+(page==='child'?'child':'parent')+'.css';
+ const contents=sheets.map((m,i)=>'/* original '+m[1]+' '+i+' */\\n'+read(m[1])).join('\\n');
+ write(bundle,contents);
+ let firstSheet=true;
+ s=s.replace(sheetPattern,()=>{if(firstSheet){firstSheet=false;return '<link rel="stylesheet" href="'+bundle+'?v=20261111-perf-css1">';}return '';});
  s=s.replace('</head>',sdk+'\n'+gateCss+'\n'+stageTag+'\n</head>');
  s=s.replace(/<title>([^<]+)<\/title>/,(_,title)=>'<title>'+title+' · KAIXIN V2 独立测试</title>');
  // Persistent visual banner, covers only 10px at top, rest of the original UI intact.
