@@ -124,6 +124,31 @@ async function boot(browser,role,route='child.html',sparse=false){
     &&window.__qaRemote.calls.includes('family_save_v2')
     &&window.IslandSync.getStatus().current==='synced',
    id,{timeout:15000});
+  // Simulate a child on another device completing homework in the server:
+  // the visible upgraded parent screen MUST reflect the remote update.
+  const upstream=await parent.page.evaluate(async id=>{
+    const before=document.querySelector('#upgrade-root')?.textContent||'';
+    const record=window.__qaRemote.payload.homework.find(h=>h.id===id);
+    record.done=true;record.completedAt=new Date().toISOString();
+    window.__qaRemote.revision++;
+    await window.IslandSync.checkRemote();
+    return {before,after:document.querySelector('#upgrade-root')?.textContent||'',
+      cloudDone:getData().homework.find(h=>h.id===id)?.done};
+  },id);
+  assert.equal(upstream.cloudDone,true,'child completion must be pulled to parent');
+  assert.notEqual(upstream.after,upstream.before,
+    'parent upgraded visible page must redraw when the child completes');
+  const opposite=await parent.page.evaluate(async id=>{
+    const before=document.querySelector('#upgrade-root')?.textContent||'';
+    const record=window.__qaRemote.payload.homework.find(h=>h.id===id);
+    record.done=false;record.completedAt=null;window.__qaRemote.revision++;
+    await window.IslandSync.checkRemote();
+    return {before,after:document.querySelector('#upgrade-root')?.textContent||'',
+      cloudDone:getData().homework.find(h=>h.id===id)?.done};
+  },id);
+  assert.equal(opposite.cloudDone,false);
+  assert.notEqual(opposite.after,opposite.before,
+    'parent upgraded visible page must redraw when completion is undone');
   assert.deepEqual(parent.errors,[],'parent staging UI must not produce JS errors');
   await parent.page.close();
 
