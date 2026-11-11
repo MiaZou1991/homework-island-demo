@@ -20,7 +20,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
      const hero=document.querySelector('.tf-hero').getBoundingClientRect();
      const top=document.querySelector('.tf-top').getBoundingClientRect();
      return {main:getComputedStyle(main).backgroundImage,mainDisplay:getComputedStyle(main).display,
-       mainPosition:getComputedStyle(main).backgroundPositionY,sky:getComputedStyle(sky).backgroundImage,
+       mainPosition:getComputedStyle(main).backgroundPositionY,mainPositionMode:getComputedStyle(main).position,
+       mainSize:getComputedStyle(main).backgroundSize,
+       mainHeight:main.getBoundingClientRect().height,
+       sky:getComputedStyle(sky).backgroundImage,
        skyDisplay:getComputedStyle(sky).display,beach:getComputedStyle(beach).backgroundImage,
        beachDisplay:getComputedStyle(beach).display,worldDisplay:getComputedStyle(world).display,
        phoneImage:getComputedStyle(phone).backgroundImage,
@@ -33,11 +36,12 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    assert.equal(scene.phoneImage,'none','main island should be in exactly one dedicated layer '+width);
    assert.equal(scene.mainDisplay,'block','central original island layer visible '+width);
    assert.ok(scene.main.includes('today-island-reference-v1.webp'),'original island bitmap retained '+width);
-   assert.equal(scene.mainPosition,'0%','central artwork anchored to the real page top '+width);
-   assert.equal(scene.skyDisplay,'block','top sky layer visible '+width);
-   assert.ok(scene.sky.includes('01-top-sky.webp'),'top sky approved asset '+width);
-   assert.equal(scene.beachDisplay,'block','bottom beach transition layer visible '+width);
-   assert.ok(scene.beach.includes('04-beach-transition.webp'),'bottom beach approved asset '+width);
+   assert.equal(scene.mainPosition,'0%','central artwork anchored to the real viewport top '+width);
+   assert.equal(scene.mainPositionMode,'fixed','mobile art stays behind scrollable task cards '+width);
+   assert.equal(scene.mainSize,'cover','mobile art preserves geometry while filling the viewport '+width);
+   assert.ok(Math.abs(scene.mainHeight-850)<2,'art covers full viewport and does not repeat on long homework '+width);
+   assert.equal(scene.skyDisplay,'none','source already has sky; no second cloud overlay '+width);
+   assert.equal(scene.beachDisplay,'none','source already has beach; no second beach overlay '+width);
    assert.equal(scene.navPosition,'fixed','original three tabs remain viewport-fixed '+width);
    assert.equal(scene.nav,'none','do not cover the nav with a big beige background '+width);
    assert.ok(scene.navBefore.includes('05-tab-shoreline.webp'),'thin independent tab shoreline '+width);
@@ -157,8 +161,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
      beach:getComputedStyle(document.querySelector('.tf-bottom-transition')).backgroundImage,
      nav:getComputedStyle(document.querySelector('.up-nav'),'::before').backgroundImage
    }));
-   assert.ok(blend.sky.includes('01-top-sky.webp'),'tablet top sky '+width);
-   assert.ok(blend.beach.includes('04-beach-transition.webp'),'tablet beach transition '+width);
+   const skyDisplay=await p.locator('.tf-sky-layer').evaluate(el=>getComputedStyle(el).display);
+   const beachDisplay=await p.locator('.tf-bottom-transition').evaluate(el=>getComputedStyle(el).display);
+   assert.equal(skyDisplay,'none','tablet main artwork already contains original sky '+width);
+   assert.equal(beachDisplay,'none','tablet original beach is drawn only once '+width);
    assert.ok(blend.nav.includes('05-tab-shoreline.webp'),'tablet thin shoreline '+width);
    assert.ok(layout.mask!=='none','tablet island art should feather into surrounding panorama '+width);
    assert.ok(layout.phoneWidth>=490&&layout.phoneWidth<=501,'tablet content column width '+width);
