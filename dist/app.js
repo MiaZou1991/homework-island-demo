@@ -191,7 +191,9 @@ function refreshCurrentView() {
     const bodyMode = document.body.getAttribute('data-mode');
     // The upgraded child UI owns the visible DOM. Rebuilding the hidden legacy
     // screens on every cloud update wastes main-thread time and misses the new tab.
-    if (bodyMode === 'child' && window.__ISLAND_UPGRADE_LOADED__) {
+    if (window.__ISLAND_UPGRADE_LOADED__ && (bodyMode === 'child' || bodyMode === 'parent')) {
+        // Both upgraded views own their DOM; legacy renderParent does NOT redraw
+        // the visible upgraded parent page after cloud sync.
         window.dispatchEvent(new Event('island-family-data-updated'));
         return;
     }
