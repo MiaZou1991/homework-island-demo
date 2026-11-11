@@ -31,10 +31,11 @@ for(const page of ['child.html','parent.html']){
  assert.match(s,inline,'main script must explicitly load legacy cloud-sync');
  assert.match(s,family,'main script must explicitly load legacy family-access');
  assert.match(s,signal,'main script must explicitly load legacy realtime');
+ s=s.replace('app.js?v=20261110-performance1','app.js?v=20261111-parent-refresh1');
  s=s.replace(inline,[
   '<script src="kaixin-stage-auth.js"></script>',
   '<script src="v2-operation-engine.js"></script>',
-  '<script src="kaixin-stage-sync.js?v=20261110-childdone1"></script>'
+  '<script src="kaixin-stage-sync.js?v=20261111-fast-poll1"></script>'
  ].join('\n'));
  s=s.replace(family,'<!-- STAGING: role-based Auth gate replaces insecure family code / math puzzle -->');
  s=s.replace(signal,'<!-- STAGING: no unauthenticated legacy realtime subscription -->');
