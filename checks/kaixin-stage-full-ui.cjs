@@ -136,6 +136,11 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await parent.page.evaluate(()=>DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
   assert.equal(await parent.page.evaluate(()=>window.__qaRemote.calls.includes('family_load_v2')),true);
   assert.equal(await parent.page.locator('#kaixin-stage-refresh').isVisible(),true);
+  assert.equal(await parent.page.locator('link[rel="stylesheet"]').count(),1,
+    'parent uses one bundled, ordered stylesheet');
+  assert.equal(await parent.page.evaluate(()=>document.getElementById('kaixin-stage-status-message')?.textContent),'已同步',
+    'normal sync state is a compact indicator');
+
   const refreshResult=await parent.page.evaluate(async()=>{
     const callsBefore=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
     document.querySelector('#kaixin-stage-refresh').click();
@@ -291,6 +296,9 @@ async function boot(browser,role,route='child.html',sparse=false){
   // points or touch historical growth fields.
   const childToggle=await boot(browser,'child','child.html');
   await childToggle.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  assert.equal(await childToggle.page.locator('link[rel="stylesheet"]').count(),1,
+    'child uses one bundled, ordered stylesheet');
+
   await childToggle.page.evaluate(()=>completeHomework('qa_child_assigned'));
   await childToggle.page.waitForFunction(()=>window.__qaRemote.payload.homework.find(h=>h.id==='qa_child_assigned')?.done===true
     &&window.IslandSync.getStatus().current==='synced',{timeout:15000});
