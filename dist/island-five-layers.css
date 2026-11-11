@@ -170,8 +170,20 @@ body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::afte
   body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-sky-layer {
     height:120px;
   }
+  /* cqw outside a query container uses viewport width, which would misplace
+     the beach overlay at 1024/1366px. Anchor to the 500px central art instead. */
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-bottom-transition {
+    top:910px;
+    height:267px;
+  }
   body[data-mode="child"] .up-main[data-route="today"] .tf-top {
     top:max(44px,calc(env(safe-area-inset-top,0px) + 12px)) !important;
+  }
+}
+@media(min-width:531px) and (max-width:699px){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-bottom-transition{
+    top:696px;
+    height:208px;
   }
 }
 @media(display-mode:standalone){
