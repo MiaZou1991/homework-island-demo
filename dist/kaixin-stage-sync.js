@@ -160,7 +160,7 @@
    if(readBusy)return readBusy;
    readBusy=(async()=>{
      await writing;
-     if(!(await clean())) {
+     if(role!=='parent-preview'&&!(await clean())) {
        emit({current:'pending',message:'有本机待处理变更，暂不覆盖本机数据'});
        return {ok:false,pending:true};
      }
@@ -311,6 +311,7 @@
  }
  async function flush(){
    if(!authorized||!allowed())return {ok:false};
+   if(role==='parent-preview')return checkRemote();
    if(busy)return busy;
    busy=(async()=>{
      await writing;
@@ -372,7 +373,12 @@
    }finally{busy=null;}
  }
  function schedulePush(next){
-   if(!authorized||!started)return; // provisional startup data never uploaded
+   if(!authorized||!started)return;
+   // Parent can inspect child UI but never use child/parent write APIs here.
+   if(role==='parent-preview'){
+     emit({current:'synced',message:'家长只读预览，未提交任何修改'});
+     return;
+   } // provisional startup data never uploaded
    if(role==='child'){
      clearLegacyLock();
      let op;
@@ -408,6 +414,7 @@
  async function refreshNow(){
    if(!authorized||!allowed())return {ok:false};
    if(document.hidden||navigator.onLine===false)return {ok:false,pending:true};
+   if(role==='parent-preview')return checkRemote();
    clearLegacyLock();
    const queued=(await (await openOutbox()).all()).length;
    if(queued)return flush();
@@ -416,6 +423,7 @@
  function resume(){
    if(!authorized||document.hidden||navigator.onLine===false)return;
    writing.then(async()=>{
+     if(role==='parent-preview'){await checkRemote();return;}
      clearLegacyLock();
      if((await (await openOutbox()).all()).length)await flush();
      else await checkRemote();
@@ -427,10 +435,19 @@
    initStatus();
    if(!allowed()){block('测试版不能运行在正式域名');return;}
    try{
-     role=document.body.dataset.mode==='parent'?'parent':'child';
-     const verified=await window.KaixinStageAuth.verifiedRole(role);
+     role=document.body.dataset.mode==='parent'?'parent':
+       (new URLSearchParams(location.search).get('parentPreview')==='1'?'parent-preview':'child');
+     const verified=await window.KaixinStageAuth.verifiedRole(role==='parent-preview'?'parent':role);
      if(!verified){emit({current:'unauthorized',message:'请先完成 KAIXIN 测试身份验证'});return;}
      authorized=true;
+     if(role==='parent-preview'){
+       // Keep the parent preview independent of the child device outbox and
+       // stale local flags. The server-authorized snapshot is always canonical.
+       const loaded=await load();
+       revision=loaded.revision;
+       localApply(loaded.payload);
+       emit({cloudRecord:'yes',current:'synced',message:'家长只读预览 · 云端版本 '+revision});
+     }else{
      const store=await openOutbox();
      clearLegacyLock();
      if((await store.all()).length){
@@ -442,6 +459,7 @@
      revision=loaded.revision;
      localApply(loaded.payload);
      emit({cloudRecord:'yes',current:'synced',message:'已加载 KAIXIN 测试数据 · 版本 '+revision});
+     }
    }catch(_){window.KaixinStageAuth.showGate('测试云端或登录验证暂不可用，本机数据保持原样。请稍后再试。',role);emit({current:'unknown',message:'测试云端读取失败，本机数据保留；不会上传旧数据'});}
    window.addEventListener('online',resume);
    window.addEventListener('pageshow',resume);
