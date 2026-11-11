@@ -41,7 +41,7 @@ for(const page of ['child.html','parent.html']){
  s=s.replace(inline,[
   '<script src="kaixin-stage-auth.js?v=20261111-bootperf1"></script>',
   '<script src="v2-operation-engine.js"></script>',
-  '<script src="kaixin-stage-sync.js?v=20261111-single-state1"></script>'
+  '<script src="kaixin-stage-sync.js?v=20261112-parent-view1"></script>'
  ].join('\n'));
  s=s.replace(family,'<!-- STAGING: role-based Auth gate replaces insecure family code / math puzzle -->');
  s=s.replace(signal,'<!-- STAGING: no unauthenticated legacy realtime subscription -->');
@@ -65,6 +65,9 @@ for(const page of ['child.html','parent.html']){
   s=s.replace(/<body([^>]*)>/,(_all,attrs)=>'<body'+attrs+'>'+dataNote);
  }
 
+ // Always provide an authorized, read-only parent preview of the child screen.
+ // This script also changes the parent header link to point to that preview.
+ s=s.replace('</body>','<script src="kaixin-stage-parent-preview.js?v=20261112-parent-view1"></script>\n</body>');
  if(page==='child.html'){
   // The old 9s watchdog starts while stylesheets and blocking scripts are
   // still downloading. A slow iPhone was falsely labelled a failed island.
@@ -79,7 +82,7 @@ for(const page of ['child.html','parent.html']){
   // Loaded after upgrade.js/child-dialogs.js so their legacy completion callbacks
   // are overridden only in the isolated child page, never on production.
   assert.ok(s.includes('</body>'),'staging child page has no closing body');
-  s=s.replace('</body>','<script src="kaixin-stage-child-actions.js?v=20261110-child-v2a"></script>\n</body>');
+  s=s.replace('</body>','<script src="kaixin-stage-child-actions.js?v=20261112-parent-view1"></script>\n</body>');
  }
  write(page,s);
 }
