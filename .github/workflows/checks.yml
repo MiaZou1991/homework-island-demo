@@ -35,8 +35,13 @@ jobs:
           node checks/loading-performance.cjs
       - name: Install fonts for mobile rendering
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-cjk
+          # Do not let unavailable Ubuntu mirrors block mobile visual QA.
+          if ! timeout 75s sudo apt-get update -qq; then
+            echo "WARN: system font index update timed out; use bundled project fonts"
+          fi
+          if ! timeout 75s sudo apt-get install -y -qq fonts-noto-cjk; then
+            echo "WARN: CJK system font install unavailable; continue with bundled project fonts"
+          fi
           fc-cache -f
       - name: Mobile family calendar QA (320 / 375 / 390 / 430)
         run: |
@@ -48,6 +53,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: companion-gallery-mobile-qa
-          path: /tmp/companions-gallery-*.png
+          path: |
+            /tmp/companions-gallery-*.png
+            /tmp/island-world-tablet-*.png
           if-no-files-found: ignore
           retention-days: 3
