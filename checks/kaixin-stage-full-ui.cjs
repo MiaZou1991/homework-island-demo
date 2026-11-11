@@ -129,9 +129,53 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.deepEqual(onboarding.errors,[],'staging onboarding must identify, fold and rename devices');
   await onboarding.page.close();
 
+  // Same authorized parent login may VIEW the real child UI without pairing
+  // a child device. This access is strictly read-only.
+  const parentPreview=await boot(browser,'parent','child.html?parentPreview=1');
+  await parentPreview.page.waitForFunction(()=>
+    window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
+  assert.equal(await parentPreview.page.evaluate(()=>
+    window.KaixinStageSyncDiagnostics.getState().role),'parent-preview');
+  assert.equal(await parentPreview.page.locator('#kaixin-stage-gate').count(),0);
+  assert.equal(await parentPreview.page.locator('#kaixin-stage-preview-label').isVisible(),true);
+  assert.equal(await parentPreview.page.locator('.up-nav [data-up]').count(),3);
+  const previewWrites=await parentPreview.page.evaluate(async()=>{
+    const h=getData().homework[0],before=Boolean(h.done);
+    const writesBefore=window.__qaRemote.calls.filter(c=>
+      c==='family_save_v2'||c==='kaixin_child_set_homework_done').length;
+    completeHomework(h.id);
+    const denied=saveData({...getData(),kidName:'read-only forbidden update'})===false;
+    document.querySelector('#kaixin-stage-refresh').click();
+    await new Promise(resolve=>setTimeout(resolve,120));
+    const writesAfter=window.__qaRemote.calls.filter(c=>
+      c==='family_save_v2'||c==='kaixin_child_set_homework_done').length;
+    return {before,after:Boolean(getData().homework[0].done),
+      denied,writesBefore,writesAfter};
+  });
+  assert.equal(previewWrites.before,previewWrites.after,
+    'parent preview cannot toggle homework even in local storage');
+  assert.equal(previewWrites.denied,true,'all generic saves are disabled in read-only preview');
+  assert.equal(previewWrites.writesAfter,previewWrites.writesBefore,
+    'viewing child screen as parent must never invoke a write RPC');
+  assert.deepEqual(parentPreview.errors,[]);
+  await parentPreview.page.close();
+
+  // Without an explicit preview URL, the independent child device still
+  // requires its own server-authorized child identity.
+  const unpairedChild=await boot(browser,'parent','child.html');
+  await unpairedChild.page.waitForFunction(()=>
+    window.IslandSync?.getStatus?.().current==='unauthorized',{timeout:15000});
+  assert.equal(await unpairedChild.page.locator('#kaixin-stage-gate').isVisible(),true);
+  assert.equal((await unpairedChild.page.evaluate(()=>
+    window.__qaRemote.calls)).includes('family_load_v2'),false);
+  await unpairedChild.page.close();
+
   const parent=await boot(browser,'parent','parent.html');
   await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
   assert.equal(await parent.page.locator('#kaixin-stage-gate').count(),0);
+  assert.equal(await parent.page.locator('.up-mode-switch').getAttribute('href'),
+    'child.html?parentPreview=1','parent page links directly to child read-only preview');
+
   assert.ok((await parent.page.title()).includes('独立测试'));
   assert.equal(await parent.page.evaluate(()=>DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
   assert.equal(await parent.page.evaluate(()=>window.__qaRemote.calls.includes('family_load_v2')),true);
