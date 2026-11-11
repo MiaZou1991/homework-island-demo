@@ -34,7 +34,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     'own story renders a status, not a disabled action');
   assert.equal(await page.locator('[data-note="sample-note"] .ft-story-heart:not(.is-exhausted)').count(),1,
     'another member’s story offers a high-contrast heart action');
-  assert.match(await page.locator('[data-moment="sample-growth"] .ft-story-comments').textContent(),/留言 \\d+/);
+  assert.match(await page.locator('[data-moment="sample-growth"] .ft-story-comments').textContent(),/留言 \d+/);
   assert.equal((await page.locator('.ft-tree-tag span').first().innerText()).includes('…'),false,
     'hanging cards do not show dangling ellipses');
   const cardEdges=await page.locator('.ft-story-item').evaluateAll(cards=>cards.map(card=>{
