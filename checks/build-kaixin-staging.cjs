@@ -45,11 +45,11 @@ for(const page of ['child.html','parent.html']){
  // Preserve the original CSS cascade, while reducing ten blocking stylesheet
  // requests to one on the child and three to one on the parent. CSS remains in
  // the site root, so all relative asset URLs retain their meaning.
- const sheetPattern=/<link\\s+rel="stylesheet"\\s+href="([^"]+\\.css)(?:\\?[^"]*)?"\\s*\\/?\\s*>/g;
+ const sheetPattern=/<link\s+rel="stylesheet"\s+href="([^"]+\.css)(?:\?[^"]*)?"\s*\/?\s*>/g;
  const sheets=[...s.matchAll(sheetPattern)];
  assert.ok(sheets.length>=(page==='child.html'?10:3),'unexpected stylesheet topology');
- const bundle='kaixin-stage-'+(page==='child'?'child':'parent')+'.css';
- const contents=sheets.map((m,i)=>'/* original '+m[1]+' '+i+' */\\n'+read(m[1])).join('\\n');
+ const bundle='kaixin-stage-'+(page==='child.html'?'child':'parent')+'.css';
+ const contents=sheets.map((m,i)=>'/* original '+m[1]+' '+i+' */\n'+read(m[1])).join('\n');
  write(bundle,contents);
  let firstSheet=true;
  s=s.replace(sheetPattern,()=>{if(firstSheet){firstSheet=false;return '<link rel="stylesheet" href="'+bundle+'?v=20261111-perf-css1">';}return '';});
