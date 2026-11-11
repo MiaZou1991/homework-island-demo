@@ -56,8 +56,13 @@
  async function verifiedRole(requiredRole) {
    assertStage();
    const c=client();
-   const {data:userData,error:userError}=await c.auth.getUser();
-   if(userError||!userData?.user){showGate('请先完成测试身份验证。','parent');return false;}
+   // Avoid an extra Auth API round trip on every mobile page open.
+   // getSession only checks presence; the following kaixin_identity RPC
+   // validates the JWT and bound role on the SERVER (never trust session alone).
+   const {data:sessionData,error:sessionError}=await c.auth.getSession();
+   if(sessionError||!sessionData?.session){
+     showGate('请先完成测试身份验证。',requiredRole);return false;
+   }
    const {data,error}=await c.rpc('kaixin_identity');
    if(error||data?.ok!==true||data?.family!=='KAIXIN'
       ||data?.role!==requiredRole){
