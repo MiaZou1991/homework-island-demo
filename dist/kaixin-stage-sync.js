@@ -74,10 +74,9 @@
  }
  function preserveLocal(reason) {
    try {
-     if(!localStorage.getItem(BACKUP)){
-       const raw=localStorage.getItem(localKey());
-       if(raw)localStorage.setItem(BACKUP,JSON.stringify({reason,at:new Date().toISOString(),snapshot:JSON.parse(raw)}));
-     }
+     const raw=localStorage.getItem(localKey());
+     if(raw)localStorage.setItem(BACKUP+'_'+crypto.randomUUID(),
+       JSON.stringify({reason,at:new Date().toISOString(),snapshot:JSON.parse(raw)}));
    }catch(_){}
  }
  function clearLegacyLock(){
@@ -251,7 +250,7 @@
    try{return Ops.make({entity:op.entity,before:current,after,operationId:crypto.randomUUID()});}
    catch(error){if(error.code==='no_change')return null;throw error;}
  }
- async function flushChildOperation(op,store){
+ async function flushChildOperation(op,store,attempt=0){
    if(op.kind!=='child_homework_done') {
      block('孩子设备队列含未识别操作，需核实');
      return {ok:false,blocked:true};
@@ -272,7 +271,8 @@
        }
        const retry={...op,operationId:crypto.randomUUID(),expectedDone:Boolean(current.done)};
        await store.put(retry);await store.remove(op.operationId);
-       return flushChildOperation(retry,store);
+       if(attempt>=4){emit({current:'pending',message:'这条作业多次产生冲突，请再次点击立即同步'});return {ok:false,conflict:true};}
+       return flushChildOperation(retry,store,attempt+1);
      }
      if(result.data?.error==='unauthorized'){
        block('孩子设备权限已经失效；当前修改仍保留');
@@ -404,39 +404,6 @@
      if((await (await openOutbox()).all()).length)await flush();
      else await checkRemote();
    }).catch(()=>{});
- }
- // A stale safety marker is recoverable only when there are NO queued
- // operations and the full local snapshot matches the server projection.
- // A mismatch is never silently discarded or overwritten.
- async function reconcileStartupMarkers(store){
-   const queued=await store.all();
-   if(queued.length){
-     emit({current:'blocked',message:'本机有 '+queued.length+' 项待核实的操作，已保留；请勿清除 Safari 数据'});
-     return false;
-   }
-   const localText=localStorage.getItem(localKey());
-   if(!localText){
-     emit({current:'blocked',message:'本机有保护标记但缺少可核对的数据，已暂停同步'});
-     return false;
-   }
-   let local;
-   try{local=JSON.parse(localText);}catch(_){
-     emit({current:'blocked',message:'本机数据无法读取，已保留保护标记，不能覆盖'});
-     return false;
-   }
-   const remote=await load();
-   const projected=viewPayload(remote.payload);
-   if(JSON.stringify(local)!==JSON.stringify(projected)){
-     emit({current:'blocked',message:'本机与云端内容不同，已保留本机修改；需核对后恢复'});
-     return false;
-   }
-   // Equal content + no queue is the only safe automatic marker recovery.
-   localStorage.removeItem(DIRTY);
-   localStorage.removeItem(BLOCK);
-   revision=remote.revision;
-   localApply(remote.payload);
-   emit({cloudRecord:'yes',current:'synced',message:'已核对本机与云端完全一致，安全保护状态已恢复 · 版本 '+revision});
-   return true;
  }
  async function start({onRemoteUpdate}={}){
    if(started)return;
