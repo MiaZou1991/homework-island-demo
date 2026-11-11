@@ -27,6 +27,7 @@ const meta='kaixin_family_tree_meta_preview_v21';
   assert.match(visual.floral,/family-tree-v3\/floral-corner\.svg/);
   assert.match(visual.button,/family-tree-v3\/button-primary\.svg/);
   assert.equal(await page.locator('.ft-tabs button').count(),2);
+  assert.equal(await page.locator('#previewNotice').evaluate(el=>el.open),false,'preview identity tools initially collapsed');
   await page.screenshot({path:'/tmp/family-tree-v3-state-00-home.png',fullPage:true});
 
   // 01: write story default; 02: growth memory; 03: shared note.
@@ -78,7 +79,8 @@ const meta='kaixin_family_tree_meta_preview_v21';
   // 08/09: received and sent inbox with per-recipient visibility.
   assert.equal(await page.locator('[data-heart-view="sent"]').getAttribute('aria-pressed'),'true');
   await page.screenshot({path:'/tmp/family-tree-v3-state-09-sent.png'});
-  await page.locator('#activeMember').selectOption('mom');
+  await page.locator('#previewNotice summary').click();
+await page.locator('#activeMember').selectOption('mom');
   assert.equal(await page.locator('[data-heart]').count(),1);
   assert.match(await page.locator('[data-heart]').first().innerText(),/谢谢妈妈/);
   await page.screenshot({path:'/tmp/family-tree-v3-state-08-received.png'});
