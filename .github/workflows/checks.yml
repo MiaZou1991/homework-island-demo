@@ -33,11 +33,13 @@ jobs:
         run: |
           python3 -m http.server 8190 --bind 127.0.0.1 --directory build/pages >/tmp/kaixin-pages-perf-server.log 2>&1 &
           node checks/loading-performance.cjs
-      - name: Install fonts for mobile rendering
+      - name: Install bundled Chinese font for mobile rendering (offline)
         run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-cjk
-          fc-cache -f
+          test -s dist/assets/font-candidates/chill.ttf
+          mkdir -p "$HOME/.local/share/fonts"
+          cp dist/assets/font-candidates/chill.ttf "$HOME/.local/share/fonts/kaixin-chill.ttf"
+          fc-cache -f "$HOME/.local/share/fonts"
+          fc-match 'Chill'
       - name: Mobile family calendar QA (320 / 375 / 390 / 430)
         run: |
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
