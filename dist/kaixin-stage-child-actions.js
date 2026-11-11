@@ -6,6 +6,10 @@
  'use strict';
  if(window.__KAIXIN_STAGE_BUILD__!==true||document.body?.dataset.mode!=='child')return;
  function toggle(id,done){
+   if(window.__KAIXIN_PARENT_PREVIEW_READONLY__){
+     if(typeof showToast==='function')showToast('家长预览是只读页面，请回家长端操作');
+     return;
+   }
    const payload=getData();
    const task=payload.homework?.find(h=>h.id===id);
    if(!task||Boolean(task.done)===done)return;
