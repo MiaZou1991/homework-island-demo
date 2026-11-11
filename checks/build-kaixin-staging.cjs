@@ -9,7 +9,10 @@ const fs=require('node:fs');
 const path=require('node:path');
 const assert=require('node:assert/strict');
 const base=path.resolve(__dirname,'..');
-const source=path.join(base,'dist');
+// Prefer the existing optimized site (WebP art and approved WOFF2 subset)
+// when its build is present; fallback to source dist for local functional QA.
+const optimized=path.join(base,'build','pages');
+const source=fs.existsSync(path.join(optimized,'child.html'))?optimized:path.join(base,'dist');
 const target=path.resolve(base,process.argv[2]||'build/kaixin-staging');
 assert.ok(target.startsWith(path.join(base,'build')+path.sep),'output must be build/ only');
 assert.ok(fs.existsSync(path.join(source,'child.html'))&&fs.existsSync(path.join(source,'parent.html')));
