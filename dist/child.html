@@ -21,8 +21,10 @@
 <link rel="stylesheet" href="iphone-safearea.css?v=20261110-single-art">
 <link rel="stylesheet" href="p0-iphone-ui.css?v=20261110-p0e">
 <link rel="stylesheet" href="island-world-layers.css?v=20261110-world-v2">
+<link rel="stylesheet" href="island-five-layers.css?v=20261111-5layers-v1">
 <link rel="preload" as="image" href="assets/hd/today-island-reference-v1.webp">
-<link rel="preload" as="image" href="assets/hd/island-world-panoramic-v2.webp">
+<link rel="preload" as="image" href="assets/hd/layers/01-top-sky.webp">
+<link rel="preload" as="image" href="assets/hd/layers/03-side-world.webp" media="(min-width:531px)">
 </head>
 <body data-mode="child"><style>
 .island-booting .phone{visibility:hidden!important}
@@ -73,6 +75,8 @@
 <div class="tf-world-extension" aria-hidden="true"></div>
 <div class="phone">
     <div class="tf-world-main" aria-hidden="true"></div>
+    <div class="tf-sky-layer" aria-hidden="true"></div>
+    <div class="tf-bottom-transition" aria-hidden="true"></div>
 
     <!-- ===== 天空底 ===== -->
     <div class="sky">

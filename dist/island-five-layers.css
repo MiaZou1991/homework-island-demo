@@ -1,0 +1,187 @@
+/* 开心岛五图层场景 V1 | 2026-11-11 | draft only
+   ① 独立柔云天空；② 现有唯一主岛；③ 宽屏左右远山海面；
+   ④ 岸边透明过渡；⑤ 仅一条透明的 Tab 沙线。
+   All UI, companions, homework and calendar remain independent DOM elements. */
+body[data-mode="child"] > .tf-world-extension,
+body[data-mode="child"] .phone > .tf-world-main,
+body[data-mode="child"] .phone > .tf-sky-layer,
+body[data-mode="child"] .phone > .tf-bottom-transition { display:none; }
+
+html:has(body[data-mode="child"] .up-main[data-route="today"]) {
+  background:#25aff0 !important;
+  color-scheme:light;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) {
+  background:transparent !important;
+  padding:0 !important;
+  min-height:100dvh;
+  overscroll-behavior-y:contain;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+  display:block;
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background: #16bee6 url("assets/hd/layers/03-side-world.webp") center top / cover no-repeat;
+}
+/* Keep fixed navigation viewport-bound; the central island is the sole main
+   painted scene, so the old v2 panoramic bitmap cannot bleed through. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+  position:relative;
+  z-index:1;
+  isolation:isolate;
+  background:transparent !important;
+  background-image:none !important;
+  background-color:transparent !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+  display:block;
+  position:absolute !important;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0 !important;
+  pointer-events:none;
+  background:url("assets/hd/today-island-reference-v1.webp") center top / 100% auto no-repeat;
+  -webkit-mask-image:none;
+  mask-image:none;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-sky-layer {
+  display:block;
+  position:absolute;
+  z-index:1;
+  pointer-events:none;
+  top:0;
+  left:0;
+  width:100%;
+  height:clamp(74px,22vw,154px);
+  background:url("assets/hd/layers/01-top-sky.webp") center top / cover no-repeat;
+  -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 17%, transparent 100%);
+  mask-image:linear-gradient(to bottom, #000 0%, #000 17%, transparent 100%);
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-bottom-transition {
+  display:block;
+  position:absolute;
+  z-index:1;
+  pointer-events:none;
+  top:calc(194.222cqw - 62px);
+  left:0;
+  width:100%;
+  height:53.333cqw;
+  background:url("assets/hd/layers/04-beach-transition.webp") center top / 100% 100% no-repeat;
+  -webkit-mask-image:linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+  mask-image:linear-gradient(to bottom, transparent 0%, #000 32%, #000 100%);
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .stage {
+  position:relative;
+  z-index:2;
+  background:transparent;
+}
+/* UI nav has its own painted skinny shoreline: no repeated beach panorama,
+   no full-height yellow block, while labels and icons remain interactive. */
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+  position:fixed !important;
+  z-index:60 !important;
+  background:transparent !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  isolation:isolate;
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::before {
+  content:"" !important;
+  display:block !important;
+  position:absolute !important;
+  pointer-events:none !important;
+  left:0 !important;
+  right:0 !important;
+  top:-9px !important;
+  bottom:auto !important;
+  width:100% !important;
+  height:clamp(25px,7.8vw,48px) !important;
+  z-index:-1 !important;
+  background:url("assets/hd/layers/05-tab-shoreline.webp") center top / 100% 100% no-repeat !important;
+  opacity:1;
+  transform:none !important;
+  filter:none !important;
+}
+body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::after{
+  content:none !important;
+  display:none !important;
+}
+@media(max-width:530px){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    box-sizing:border-box;
+    width:100% !important;
+    max-width:none !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    overflow:visible !important;
+    min-height:100dvh !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+    display:none !important; /* do not paint an entire second island under the phone */
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    background-position:center top;
+    background-size:100% auto;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-sky-layer {
+    height:clamp(76px,24vw,118px);
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top:max(44px,calc(env(safe-area-inset-top,0px) + 12px)) !important;
+  }
+}
+@media(min-width:531px) and (max-width:699px){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main{
+    -webkit-mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);
+    mask-image:linear-gradient(to right,transparent,#000 10%,#000 90%,transparent);
+  }
+}
+@media(min-width:700px){
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone {
+    width:min(500px,calc(100vw - 80px)) !important;
+    max-width:500px !important;
+    min-height:100dvh !important;
+    height:auto !important;
+    aspect-ratio:auto !important;
+    margin:0 auto;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    overflow:visible !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-world-main {
+    -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 14%,#000 86%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0%,#000 14%,#000 86%,transparent 100%);
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) > .tf-world-extension {
+    background-size:cover;
+    background-position:center top;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav {
+    width:min(500px,calc(100vw - 80px)) !important;
+    max-width:500px !important;
+  }
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .tf-sky-layer {
+    height:120px;
+  }
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top:max(44px,calc(env(safe-area-inset-top,0px) + 12px)) !important;
+  }
+}
+@media(display-mode:standalone){
+  body[data-mode="child"] .up-main[data-route="today"] .tf-top {
+    top:max(44px,calc(env(safe-area-inset-top,0px) + 12px)) !important;
+  }
+}
+@media(orientation:landscape) and (max-height:500px) {
+  body[data-mode="child"]:has(.up-main[data-route="today"]) .phone > .up-nav::before{
+    height:28px !important;
+  }
+}
+/* Outside today's island, don't show the new wallpaper. */
