@@ -320,10 +320,14 @@ async function boot(browser,role,route='child.html',sparse=false){
     d.homework.push({id:'qa_child_local',subject:'数学',content:'本机未同步的测试作业',done:false});
     saveData(d);
   });
-  await child.page.waitForFunction(()=>window.IslandSync?.getStatus?.().message?.includes('本机修改已备份'),{timeout:9000});
+  await child.page.waitForFunction(()=>
+    Object.keys(localStorage).some(k=>k.startsWith('kaixin_stage_legacy_local_backup_v1_')),
+    {timeout:9000});
   assert.equal((await child.page.evaluate(()=>window.__qaRemote.calls)).includes('family_save_v2'),false,
     'child write API not approved: must NEVER post parent snapshot RPC');
-  assert.equal(await child.page.evaluate(()=>window.IslandSync.getStatus().message.includes('本机修改已备份')),true);
+  assert.equal(await child.page.evaluate(()=>
+    Object.keys(localStorage).some(k=>k.startsWith('kaixin_stage_legacy_local_backup_v1_'))),true,
+    'unsupported child edit remains safely backed up independent of transient status text');
   assert.deepEqual(child.errors,[],'child staging UI must not produce JS errors');
   await child.page.close();
   console.log('PASS isolated KAIXIN full-UI 390px: unauthorized gate; parent Auth + real UI add operation CAS/readback; child write fail-closed and original UI intact (mocked server)');
