@@ -36,7 +36,7 @@ for(const page of ['child.html','parent.html']){
  assert.match(s,signal,'main script must explicitly load legacy realtime');
  s=s.replace('app.js?v=20261110-performance1','app.js?v=20261111-parent-refresh1');
  s=s.replace(inline,[
-  '<script src="kaixin-stage-auth.js"></script>',
+  '<script src="kaixin-stage-auth.js?v=20261111-bootperf1"></script>',
   '<script src="v2-operation-engine.js"></script>',
   '<script src="kaixin-stage-sync.js?v=20261111-on-demand1"></script>'
  ].join('\n'));
