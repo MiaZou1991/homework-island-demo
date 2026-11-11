@@ -111,6 +111,20 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.ok((await parent.page.title()).includes('独立测试'));
   assert.equal(await parent.page.evaluate(()=>DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
   assert.equal(await parent.page.evaluate(()=>window.__qaRemote.calls.includes('family_load_v2')),true);
+  assert.equal(await parent.page.locator('#kaixin-stage-refresh').isVisible(),true);
+  const refreshResult=await parent.page.evaluate(async()=>{
+    const callsBefore=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
+    document.querySelector('#kaixin-stage-refresh').click();
+    await new Promise(resolve=>{
+      const button=document.querySelector('#kaixin-stage-refresh');
+      const watch=new MutationObserver(()=>{if(!button.disabled){watch.disconnect();resolve();}});
+      watch.observe(button,{attributes:true,attributeFilter:['disabled']});
+      setTimeout(()=>{watch.disconnect();resolve();},2500);
+    });
+    return {before:callsBefore,after:window.__qaRemote.calls.filter(x=>x==='family_load_v2').length};
+  });
+  assert.ok(refreshResult.after>refreshResult.before,'manual cloud button must actually query backend');
+
   const id='qa_parent_add_20261110';
   await parent.page.evaluate(id=>{
     const d=getData();
