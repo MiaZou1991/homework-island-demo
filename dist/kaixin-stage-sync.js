@@ -324,6 +324,39 @@
      else await checkRemote();
    }).catch(()=>{});
  }
+ // A stale safety marker is recoverable only when there are NO queued
+ // operations and the full local snapshot matches the server projection.
+ // A mismatch is never silently discarded or overwritten.
+ async function reconcileStartupMarkers(store){
+   const queued=await store.all();
+   if(queued.length){
+     emit({current:'blocked',message:'本机有 '+queued.length+' 项待核实的操作，已保留；请勿清除 Safari 数据'});
+     return false;
+   }
+   const localText=localStorage.getItem(localKey());
+   if(!localText){
+     emit({current:'blocked',message:'本机有保护标记但缺少可核对的数据，已暂停同步'});
+     return false;
+   }
+   let local;
+   try{local=JSON.parse(localText);}catch(_){
+     emit({current:'blocked',message:'本机数据无法读取，已保留保护标记，不能覆盖'});
+     return false;
+   }
+   const remote=await load();
+   const projected=viewPayload(remote.payload);
+   if(JSON.stringify(local)!==JSON.stringify(projected)){
+     emit({current:'blocked',message:'本机与云端内容不同，已保留本机修改；需核对后恢复'});
+     return false;
+   }
+   // Equal content + no queue is the only safe automatic marker recovery.
+   localStorage.removeItem(DIRTY);
+   localStorage.removeItem(BLOCK);
+   revision=remote.revision;
+   localApply(remote.payload);
+   emit({cloudRecord:'yes',current:'synced',message:'已核对本机与云端完全一致，安全保护状态已恢复 · 版本 '+revision});
+   return true;
+ }
  async function start({onRemoteUpdate}={}){
    if(started)return;
    started=true;refresh=onRemoteUpdate||null;
@@ -334,11 +367,11 @@
      const verified=await window.KaixinStageAuth.verifiedRole(role);
      if(!verified){emit({current:'unauthorized',message:'请先完成 KAIXIN 测试身份验证'});return;}
      authorized=true;
+     const store=await openOutbox();
      if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
-       emit({current:'blocked',message:'本机有尚未核实的改动，为避免覆盖，云端同步暂停'});
+       await reconcileStartupMarkers(store);
        return;
      }
-     const store=await openOutbox();
      if((await store.all()).length){
        emit({current:'pending',message:'上次离线待上传操作尚未确认，保留本机数据'});
        await flush();
