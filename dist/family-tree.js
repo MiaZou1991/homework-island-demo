@@ -177,7 +177,7 @@ function renderStories(){
   '<div class="ft-story-stamp '+(isMoment?'ft-stamp-leaf':'ft-stamp-letter')+'" aria-hidden="true">'+
   (isMoment?'✿':'✉')+'</div></div>'+
   '<div class="ft-record-controls">'+storyHearts(x)+
-  '<button type="button" class="ft-text-button ft-story-comments" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="查看记录详情与家人留言">✉ 留言 '+publicData.replies.filter(r=>r.targetId===x.id||r.noteId===x.id||r.momentId===x.id).length+'</button>'+
+  '<button type="button" class="ft-text-button ft-story-comments" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="查看记录详情与家人留言"><img class="ft-comment-icon" src="assets/family-tree-hifi/comment-icon.svg" alt="" aria-hidden="true" width="14" height="14">留言 '+publicData.replies.filter(r=>r.targetId===x.id||r.noteId===x.id||r.momentId===x.id).length+'</button>'+
   (x.author===actor?'<button type="button" class="ft-more" data-more="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="管理这条记录">···</button>':'')+
   '</div></article>';
  }).join(""):'<div class="ft-empty"><b>树下还没有记录</b>写下成长的小事，或留句话给家人吧。</div>';
