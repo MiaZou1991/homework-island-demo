@@ -29,6 +29,28 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert.match(dims.growthArtwork,/family-tree-hifi\/growth-panel.svg/);
   assert.match(dims.storyArtwork,/family-tree-hifi\/story-card-frame.svg/);
   assert.match(dims.photoArtwork,/family-tree-hifi\/photo-swimming-approved.webp/);
+  // The approved artwork is used as separate vector icons inside live buttons,
+  // not duplicated by CSS glyphs or rendered as a flattened screenshot.
+  const tabIllustrations=await page.locator('.ft-tabs').evaluate(async nav=>{
+    await Promise.all(Array.from(nav.querySelectorAll('img')).map(img=>img.decode()));
+    return {
+      rail:getComputedStyle(nav).backgroundImage,
+      tabs:Array.from(nav.querySelectorAll('button')).map(button=>({
+        text:button.textContent.trim(),
+        icon:button.querySelector('img')?.getAttribute('src'),
+        naturalWidth:button.querySelector('img')?.naturalWidth,
+        pseudo:getComputedStyle(button,'::before').content,
+        selected:button.getAttribute('aria-current')
+      }))
+    };
+  });
+  assert.match(tabIllustrations.rail,/family-tree-hifi\/nav-rail\.svg/);
+  assert.deepEqual(tabIllustrations.tabs.map(x=>x.text),['家庭记录','送爱心']);
+  assert.match(tabIllustrations.tabs[0].icon,/family-tree-hifi\/nav-tree\.svg/);
+  assert.match(tabIllustrations.tabs[1].icon,/family-tree-hifi\/nav-heart\.svg/);
+  assert.ok(tabIllustrations.tabs.every(x=>x.naturalWidth>0),'tab icon SVGs decoded');
+  assert.ok(tabIllustrations.tabs.every(x=>x.pseudo==='none'||x.pseudo==='normal'),'no duplicate CSS glyphs');
+  assert.equal(tabIllustrations.tabs[0].selected,'page');
   assert.equal(await page.locator('#previewNotice').evaluate(el=>el.open),false,'test member tools stay collapsed in primary UI');
   assert.equal(await page.locator('[data-moment="sample-growth"] .ft-heart-status.is-own').count(),1,
     'own story renders a status, not a disabled action');
