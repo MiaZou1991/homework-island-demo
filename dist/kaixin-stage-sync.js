@@ -34,55 +34,11 @@
    return projected;
  }
 
+ // Synchronization is event-driven. Presentation lives in the per-page
+ // header/settings UI; no fixed bottom bar or permanent refresh button.
  function emit(change){
    state={...state,...change};
    window.dispatchEvent(new CustomEvent('island-sync-state',{detail:{...state}}));
-   const label=document.getElementById('kaixin-stage-status');
-   if(label){
-     const calm=state.current==='synced';
-     const msg=label.querySelector('#kaixin-stage-status-message');
-     if(msg){
-       msg.textContent=calm?'已同步':('KAIXIN 测试同步：'+state.message);
-       msg.style.flex=calm?'0':'1';
-     }
-     // During normal use keep a compact sync control. Only pending/failed
-     // operations expand the message; no full-width permanent yellow banner.
-     label.style.left=calm?'auto':'10px';
-     label.style.right='10px';
-     label.style.width=calm?'auto':'auto';
-     label.style.maxWidth=calm?'none':'440px';
-     label.style.padding=calm?'5px 7px':'7px 12px';
-     label.style.opacity=calm?'.88':'1';
-     label.style.fontSize=calm?'11px':'12px';
-   }
- }
- function initStatus(){
-   if(document.getElementById('kaixin-stage-status'))return;
-   const el=document.createElement('div');
-   el.id='kaixin-stage-status';
-   el.setAttribute('role','status');
-   el.style.cssText='position:fixed;bottom:10px;left:10px;right:10px;max-width:440px;margin:0 auto;background:#fef6dc;color:#715432;border:1px solid #dfc290;padding:7px 12px;border-radius:13px;z-index:900001;font:12px/1.5 system-ui,sans-serif;box-shadow:0 2px 9px #0002;display:flex;gap:8px;align-items:center;justify-content:space-between';
-   const message=document.createElement('span');
-   message.id='kaixin-stage-status-message';
-   message.style.flex='1';
-   const button=document.createElement('button');
-   button.id='kaixin-stage-refresh';
-   button.type='button';
-   button.textContent='立即同步';
-   button.style.cssText='background:#7caf79;color:white;border:0;border-radius:9px;padding:6px 10px;font:600 12px system-ui;flex-shrink:0;cursor:pointer';
-   button.addEventListener('click',async()=>{
-     if(button.disabled)return;
-     button.disabled=true;button.textContent='正在同步…';
-     try{
-       const result=await refreshNow();
-       if(result?.ok)emit({current:'synced',message:'手动核对完成 · 云端版本 '+result.revision});
-       else if(!result?.pending)emit({message:'尚未完成同步，请检查当前登录身份和网络'});
-     }catch(_){emit({message:'无法获取云端最新数据；保留本机内容，请检查网络'});}
-     finally{button.disabled=false;button.textContent='立即同步';}
-   });
-   el.append(message,button);
-   document.body.appendChild(el);
-   emit({});
  }
  function block(reason) {
    preserveLocal('unsupported');
@@ -432,7 +388,6 @@
  async function start({onRemoteUpdate}={}){
    if(started)return;
    started=true;refresh=onRemoteUpdate||null;
-   initStatus();
    if(!allowed()){block('测试版不能运行在正式域名');return;}
    try{
      role=document.body.dataset.mode==='parent'?'parent':
@@ -466,8 +421,17 @@
    window.addEventListener('focus',resume);
    document.addEventListener('visibilitychange',resume);
  }
+ async function manualSync(){
+   // One public entry point for parent More, child Island Settings and retry.
+   // It retains the existing offline queue, conflict dialog, and cloud readback.
+   try { return await refreshNow(); }
+   catch (_) {
+     emit({current:'pending',message:'网络连接暂时不可用，点击重试'});
+     return {ok:false,error:'network'};
+   }
+ }
  window.IslandSync=Object.freeze({
-   start,schedulePush,checkRemote,flush,getStatus:()=>({...state}),
+   start,schedulePush,checkRemote,flush,manualSync,getStatus:()=>({...state}),
    getCode:()=> 'KAIXIN',getFamily:()=> 'KAIXIN',
  });
  window.KaixinStageSyncDiagnostics=Object.freeze({
