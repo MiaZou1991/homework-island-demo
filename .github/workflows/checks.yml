@@ -20,6 +20,9 @@ jobs:
           node checks/domain.test.cjs
           node checks/companions-v7.cjs
           node checks/kaixin-sync.cjs
+          node checks/v2-operation-engine.cjs
+          node --check dist/kaixin-stage-auth.js
+          node --check dist/kaixin-stage-sync.js
           node checks/sync-traffic.cjs
           node checks/realtime-signal.cjs
           node checks/publish-flow.cjs
@@ -43,6 +46,19 @@ jobs:
           python3 -m http.server 8189 --bind 127.0.0.1 --directory dist >/tmp/kaixin-calendar-server.log 2>&1 &
           node checks/family-schedule.cjs
           node checks/companions-mobile.cjs
+      - name: Assemble and browser-test an independent KAIXIN V2 staging site
+        run: |
+          node checks/build-kaixin-staging.cjs
+          python3 -m http.server 8191 --bind 127.0.0.1 --directory build/kaixin-staging >/tmp/kaixin-v2-stage-server.log 2>&1 &
+          node checks/kaixin-stage-full-ui.cjs
+          cd build && zip -q -r kaixin-staging.zip kaixin-staging
+      - name: Publish isolated TEST PACKAGE to CI artifacts only (never Pages)
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kaixin-v2-isolated-staging-static-site
+          path: build/kaixin-staging.zip
+          retention-days: 7
       - name: Upload companion gallery QA screenshots
         if: always()
         uses: actions/upload-artifact@v4
