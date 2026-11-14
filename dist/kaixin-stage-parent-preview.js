@@ -21,7 +21,7 @@
     document.addEventListener('click',event=>{
       const target=event.target.closest('button,a,[role="button"],input,select,textarea');
       if(!target)return;
-      if(target.closest('#kaixin-stage-preview-label')||target.closest('#kaixin-stage-refresh'))return;
+      if(target.closest('#kaixin-stage-preview-label')||target.closest('#kaixin-island-settings')||target.closest('#kaixin-sync-notice'))return;
       if(target.closest('.up-nav')||target.closest('details > summary'))return;
       if(target.matches('a')) {
         const dest=target.getAttribute('href')||'';
