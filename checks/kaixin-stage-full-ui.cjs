@@ -142,14 +142,25 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await parentPreview.page.locator('#kaixin-stage-gate').count(),0);
   assert.equal(await parentPreview.page.locator('#kaixin-stage-preview-label').isVisible(),true);
   assert.equal(await parentPreview.page.locator('.up-nav [data-up]').count(),3);
+  assert.equal(await parentPreview.page.locator('#kaixin-stage-status').count(),0,
+    'no permanent bottom sync bar on the parent preview');
+  const previewPullBefore=await parentPreview.page.evaluate(()=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length);
+  await parentPreview.page.locator('.up-nav [data-up="island"]').click();
+  await parentPreview.page.locator('#kaixin-island-settings summary').waitFor({state:'visible'});
+  await parentPreview.page.locator('#kaixin-island-settings summary').click();
+  await parentPreview.page.locator('#kaixin-child-manual-sync').click();
+  await parentPreview.page.waitForFunction(before=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length>before,
+    previewPullBefore,{timeout:10000});
+  await parentPreview.page.waitForFunction(()=>
+    document.querySelector('#kaixin-child-manual-sync')?.disabled===false,{timeout:10000});
   const previewWrites=await parentPreview.page.evaluate(async()=>{
     const h=getData().homework[0],before=Boolean(h.done);
     const writesBefore=window.__qaRemote.calls.filter(c=>
       c==='family_save_v2'||c==='kaixin_child_set_homework_done').length;
     completeHomework(h.id);
     const denied=saveData({...getData(),kidName:'read-only forbidden update'})===false;
-    document.querySelector('#kaixin-stage-refresh').click();
-    await new Promise(resolve=>setTimeout(resolve,120));
     const writesAfter=window.__qaRemote.calls.filter(c=>
       c==='family_save_v2'||c==='kaixin_child_set_homework_done').length;
     return {before,after:Boolean(getData().homework[0].done),
@@ -182,24 +193,40 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.ok((await parent.page.title()).includes('独立测试'));
   assert.equal(await parent.page.evaluate(()=>DEMO_KEY.includes('KAIXIN_STAGE_QA')),true);
   assert.equal(await parent.page.evaluate(()=>window.__qaRemote.calls.includes('family_load_v2')),true);
-  assert.equal(await parent.page.locator('#kaixin-stage-refresh').isVisible(),true);
+  assert.equal(await parent.page.locator('#kaixin-stage-status').count(),0,
+    'there must be no bottom-corner persistent sync UI');
+  assert.equal(await parent.page.locator('#kaixin-stage-refresh').count(),0);
+  assert.equal(await parent.page.locator('#kaixin-sync-notice').isHidden(),true,
+    'no sync message during normal operation');
+  assert.equal(await parent.page.locator('#kaixin-parent-more-trigger').isVisible(),true);
+  assert.equal(await parent.page.locator('#kaixin-parent-more-panel').isHidden(),true);
   assert.equal(await parent.page.locator('link[rel="stylesheet"]').count(),1,
     'parent uses one bundled, ordered stylesheet');
-  assert.equal(await parent.page.evaluate(()=>document.getElementById('kaixin-stage-status-message')?.textContent),'已同步',
-    'normal sync state is a compact indicator');
 
-  const refreshResult=await parent.page.evaluate(async()=>{
-    const callsBefore=window.__qaRemote.calls.filter(x=>x==='family_load_v2').length;
-    document.querySelector('#kaixin-stage-refresh').click();
-    await new Promise(resolve=>{
-      const button=document.querySelector('#kaixin-stage-refresh');
-      const watch=new MutationObserver(()=>{if(!button.disabled){watch.disconnect();resolve();}});
-      watch.observe(button,{attributes:true,attributeFilter:['disabled']});
-      setTimeout(()=>{watch.disconnect();resolve();},2500);
-    });
-    return {before:callsBefore,after:window.__qaRemote.calls.filter(x=>x==='family_load_v2').length};
-  });
-  assert.ok(refreshResult.after>refreshResult.before,'manual cloud button must actually query backend');
+  const manualBefore=await parent.page.evaluate(()=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length);
+  await parent.page.locator('#kaixin-parent-more-trigger').click();
+  assert.equal(await parent.page.locator('#kaixin-parent-more-panel').isVisible(),true,
+    'parent header More opens sync controls');
+  await parent.page.locator('#kaixin-parent-manual-sync').click();
+  await parent.page.waitForFunction(before=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length>before,
+    manualBefore,{timeout:10000});
+  await parent.page.waitForFunction(()=>
+    document.querySelector('#kaixin-parent-manual-sync')?.disabled===false,{timeout:10000});
+  assert.match(await parent.page.locator('#kaixin-sync-notice-text').textContent(),/已同步最新数据/);
+  await parent.page.locator('#kaixin-parent-more-trigger').click();
+  assert.equal(await parent.page.locator('#kaixin-parent-more-panel').isHidden(),true);
+  await parent.page.evaluate(()=>window.dispatchEvent(new CustomEvent('island-sync-state',{
+    detail:{current:'pending',message:'网络连接暂时不可用，点击重试'}
+  })));
+  assert.equal(await parent.page.locator('#kaixin-sync-notice').isVisible(),true,
+    'a sync failure gives a lightweight, actionable notice');
+  assert.equal(await parent.page.locator('#kaixin-sync-retry').isVisible(),true);
+  await parent.page.evaluate(()=>window.dispatchEvent(new CustomEvent('island-sync-state',{
+    detail:{current:'synced',message:'已同步'}
+  })));
+  assert.equal(await parent.page.locator('#kaixin-sync-notice').isHidden(),true);
 
   // V2 now synchronizes by user and page lifecycle events, never by intervals.
   const schedule=await parent.page.evaluate(async()=>{
@@ -345,6 +372,21 @@ async function boot(browser,role,route='child.html',sparse=false){
   await childToggle.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
   assert.equal(await childToggle.page.locator('link[rel="stylesheet"]').count(),1,
     'child uses one bundled, ordered stylesheet');
+  assert.equal(await childToggle.page.locator('#kaixin-stage-status').count(),0);
+  assert.equal(await childToggle.page.locator('#kaixin-island-settings').count(),0,
+    'child settings do not occupy the daily task tab');
+  await childToggle.page.locator('.up-nav [data-up="island"]').click();
+  await childToggle.page.locator('#kaixin-island-settings summary').waitFor();
+  await childToggle.page.locator('#kaixin-island-settings summary').click();
+  const childReadBefore=await childToggle.page.evaluate(()=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length);
+  await childToggle.page.locator('#kaixin-child-manual-sync').click();
+  await childToggle.page.waitForFunction(before=>
+    window.__qaRemote.calls.filter(x=>x==='family_load_v2').length>before,
+    childReadBefore,{timeout:10000});
+  await childToggle.page.waitForFunction(()=>
+    document.querySelector('#kaixin-child-manual-sync')?.disabled===false,{timeout:10000});
+  await childToggle.page.locator('.up-nav [data-up="today"]').click();
 
   await childToggle.page.evaluate(()=>completeHomework('qa_child_assigned'));
   await childToggle.page.waitForFunction(()=>window.__qaRemote.payload.homework.find(h=>h.id==='qa_child_assigned')?.done===true
