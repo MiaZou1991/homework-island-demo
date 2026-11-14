@@ -41,7 +41,7 @@ for(const page of ['child.html','parent.html']){
  s=s.replace(inline,[
   '<script src="kaixin-stage-auth.js?v=20261111-bootperf1"></script>',
   '<script src="v2-operation-engine.js"></script>',
-  '<script src="kaixin-stage-sync.js?v=20261112-parent-view1"></script>'
+  '<script src="kaixin-stage-sync.js?v=20261114-context-sync1"></script>'
  ].join('\n'));
  s=s.replace(family,'<!-- STAGING: role-based Auth gate replaces insecure family code / math puzzle -->');
  s=s.replace(signal,'<!-- STAGING: no unauthenticated legacy realtime subscription -->');
@@ -84,6 +84,7 @@ for(const page of ['child.html','parent.html']){
   assert.ok(s.includes('</body>'),'staging child page has no closing body');
   s=s.replace('</body>','<script src="kaixin-stage-child-actions.js?v=20261112-parent-view1"></script>\n</body>');
  }
+ s=s.replace('</body>','<script src="kaixin-stage-sync-ui.js?v=20261114-context-sync1"></script>\n</body>');
  write(page,s);
 }
 let demo=read('demo-core.js');
