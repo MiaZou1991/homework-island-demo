@@ -22,7 +22,7 @@ try{
     });
     assert.equal(skin.title,'家庭树');
     assert.equal(skin.tabCount,2);
-    assert.ok(skin.bg.includes('/assets/family-tree-v3/garden-hero.webp'),width+': approved flowerbed painting');
+    assert.ok(skin.bg.includes('/assets/family-tree-v3/entrance-scene.webp'),width+': approved full flowerbed painting in stage1');
     assert.equal(brokenImages.length,0,width+': all approved images load');
     const art=await page.request.get(base+'assets/family-tree-v3/garden-hero.webp');
     assert.equal(art.status(),200,'approved image available');

@@ -1,0 +1,404 @@
+/* 开心岛家庭树 Stage 1 · 390px approved reference composition
+ * Scoped final layer. Controls remain live DOM, scene uses an approved isolated artwork.
+ * 2026-11-10: the first-screen art is reviewed separately from functionality. */
+:root{--tree-paper:#fff7e7;--tree-brown:#704629;--tree-line:#d9b77e}
+html,body{overflow-x:hidden}
+.ft-app{width:min(520px,100%);min-height:100dvh;background:#fbefd5;overflow:hidden}
+.ft-hero{height:270px;min-height:270px;max-height:none;border-radius:0;box-shadow:none;overflow:hidden;background:#8bc8aa}
+.ft-hero-picture{
+ background-image:linear-gradient(180deg,#e2f3ff00 0%,#f3eac600 73%,#f2dfa277 100%),
+ url("assets/family-tree-v3/entrance-scene.webp")!important;
+ background-size:100% 100%,cover!important;
+ background-position:center,50% 52%!important;
+ background-repeat:no-repeat!important;filter:saturate(.91) brightness(1.035)!important;
+ transform:none!important
+}
+.ft-hero:after{background:linear-gradient(180deg,#ffffff16 0%,transparent 63%,#f8eac138 100%)!important;pointer-events:none;z-index:1}
+.ft-back{
+ top:10px;left:8px;z-index:6;min-height:33px;height:33px;
+ padding:5px 12px 7px;border:2px solid #fff3d3;border-radius:23px;
+ background:linear-gradient(180deg,#fffdf4,#f7ebd4)!important;
+ box-shadow:0 2px 0 #b59465,0 3px 9px #573e2d44;
+ font-size:11px;font-weight:850;color:#795335
+}
+.ft-hero-content{inset:1px 50% auto auto!important;top:1px!important;left:50%!important;transform:translateX(-50%);width:154px;z-index:5;pointer-events:none}
+.ft-hero-plaque{height:55px;width:154px;margin:auto;transform:rotate(-1deg);background:url("assets/family-tree-v3/wood-plaque.svg") center/100% 100% no-repeat!important;filter:drop-shadow(0 3px 2px #69502e4a)}
+.ft-hero-plaque h1{font-size:23px!important;letter-spacing:3px;line-height:1.15;color:#fff9e5!important;text-shadow:0 1px #8b552d,0 2px 2px #75492d!important;margin:0;padding-top:1px}
+.ft-hero-content p{display:none!important}
+.ft-tree-tags{top:47px!important;left:7px!important;bottom:auto;width:104px!important;max-width:104px;gap:1px!important;z-index:3}
+.ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){
+ min-height:67px!important;height:67px;max-height:67px;
+ padding:19px 9px 6px 11px!important;
+ border:0!important;border-radius:0!important;
+ background:url("assets/family-tree-hifi/hanging-note.svg") center/100% 100% no-repeat!important;
+ box-shadow:none!important;transform:rotate(-1deg)!important;
+ display:flex;flex-direction:column;justify-content:center;gap:0!important;
+ color:#67462f;font-size:10px!important;line-height:1.3;
+ overflow:hidden
+}
+.ft-tree-tag:nth-child(2){transform:rotate(1.5deg)!important;margin-left:3px}
+.ft-tree-tag:nth-child(3){transform:rotate(-1.8deg)!important;margin-left:1px}
+.ft-tree-tag:before,.ft-tree-tag:after{content:none!important}
+.ft-tree-tag b{display:block;color:#47753b;font-size:10px!important;line-height:1.25}
+.ft-tree-tag span{max-width:100%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal;overflow:hidden;font-size:10px!important;line-height:1.22!important}
+.ft-tree-tag:focus-visible{outline:2px solid #527a44;outline-offset:0}
+.ft-growth-summary{
+ top:66px!important;bottom:auto!important;right:6px!important;
+ width:130px!important;max-width:130px!important;min-width:0!important;
+ height:178px;min-height:178px;padding:13px 11px 12px!important;
+ background:url("assets/family-tree-hifi/growth-panel.svg") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;backdrop-filter:none!important;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;z-index:4
+}
+.ft-growth-summary:before{content:none!important}
+.ft-growth-caption{font-size:10.5px!important;line-height:1.2;font-weight:900!important;color:#64482e!important;white-space:nowrap}
+.ft-growth-count{margin:6px 0 0!important;display:flex;align-items:baseline;justify-content:center;gap:3px}
+.ft-growth-count strong{font-size:30px!important;line-height:1.05;font-weight:900;color:#bf5a56!important;text-shadow:0 1px #fff!important}
+.ft-growth-count span{font-size:10px!important;white-space:nowrap;color:#7b6448!important}
+.ft-growth-stage{font-size:10px!important;padding:3px 10px!important;margin:3px 0 0!important;line-height:1.2;background:#dcebc6!important;color:#4b7139!important;border:0!important;border-radius:16px;white-space:nowrap}
+.ft-tree-age{margin:5px 0 0!important;font-size:9.5px!important;color:#735a3a!important;white-space:nowrap}
+.ft-growth-progress{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;width:100%;margin:7px 0 0!important;padding:0 1px}
+.ft-growth-progress span{height:5px!important;min-width:0;border:1px solid #d1c3a1;border-radius:10px;background:#f0e8c9}
+.ft-growth-summary p{display:none!important}
+.ft-growth-link{
+ display:block!important;width:100%;height:32px;min-height:32px!important;
+ margin:8px 0 0!important;padding:5px 2px 7px!important;
+ border:0!important;outline:0!important;border-radius:0!important;
+ background:url("assets/family-tree-v3/button-primary.svg") center/100% 100% no-repeat!important;
+ box-shadow:none!important;color:#fffdf3!important;font-size:10px!important;font-weight:900!important;text-shadow:0 1px #306d29!important;white-space:nowrap;line-height:1.3
+}
+.ft-content{
+ position:relative;display:flex;flex-direction:column;gap:0;
+ z-index:6;margin:-20px 5px 0!important;padding:0 11px 27px!important;
+ border:3px solid #ead09c!important;border-top:4px solid #fff9e4!important;
+ border-radius:25px 25px 0 0!important;
+ background:linear-gradient(155deg,#fffaed 0%,#fff1d7 80%,#fbe7bd 100%)!important;
+ box-shadow:0 -4px 14px #664a253a,inset 0 3px #fff!important;min-height:0!important
+}
+.ft-tabs{order:0;z-index:1;position:relative;min-height:52px;height:52px;display:grid;grid-template-columns:1fr 1fr;
+ margin:-1px 0 6px!important;padding:3px!important;gap:3px;
+ background:linear-gradient(#fff5e3,#f6e7cf)!important;border:0!important;border-radius:24px!important;box-shadow:0 2px 4px #7b593321!important
+}
+.ft-tabs button{min-height:46px!important;height:46px;padding:5px!important;font-size:16px!important;letter-spacing:1px!important;background:none!important;color:#8c6546!important;text-shadow:none;box-shadow:none!important;border:0!important;border-radius:24px!important}
+.ft-tabs button[aria-current="page"]{
+ background:linear-gradient(#fffefa,#fff9e9)!important;
+ border:2px solid #93b968!important;color:#3d732e!important;
+ box-shadow:inset 0 2px #fff,0 2px 2px #7e965126!important
+}
+.ft-tabs button:before{content:"♧";font-size:18px;color:#4c8643;margin-right:7px}
+.ft-tabs button[data-section="hearts"]:before{content:"♡";font-size:22px;color:#d08b6e}
+.ft-feedback{order:1;font-size:11px;padding:0;margin:0}
+.ft-page{order:2}
+.ft-page[hidden]{display:none!important}
+.ft-section-head{display:flex;justify-content:space-between;align-items:center!important;min-height:45px;gap:6px;margin:0 3px 5px!important}
+.ft-section-head h2{font-size:19px!important;line-height:1.1!important;margin:0!important;letter-spacing:.5px!important;color:#754321!important;text-shadow:0 1px #fff}
+.ft-section-head p{margin:4px 0 0!important;line-height:1.3;font-size:10px!important;max-width:200px!important;color:#92745a!important}
+.ft-primary.ft-small.ft-write-button{
+ min-width:115px!important;max-width:128px!important;width:120px;height:41px;min-height:41px!important;
+ padding:9px 5px 10px!important;margin:0!important;flex:none;
+ background:url("assets/family-tree-v3/button-primary.svg") center/100% 100% no-repeat!important;
+ font-size:12px!important;color:#fff!important;text-shadow:0 1px #39752b!important;border:0!important;box-shadow:none!important;border-radius:0!important
+}
+.ft-story-filters{display:flex;gap:5px!important;margin:5px 2px 9px!important;padding:0;min-height:32px}
+.ft-story-filters button{min-height:30px!important;height:30px!important;padding:4px 12px!important;
+ border:1.5px solid #e3c99e!important;border-radius:18px!important;
+ background:linear-gradient(#fffef7,#fff5e7)!important;color:#865e3d!important;font-size:11px!important;
+ font-weight:850;box-shadow:0 2px 0 #e2cbad48!important}
+.ft-story-filters button[aria-pressed="true"]{border-color:#90b46a!important;background:linear-gradient(#e2f3c8,#c9e4a8)!important;color:#41772f!important}
+.ft-hanging-list{gap:9px!important;margin:0 0 4px!important;display:grid}
+.ft-story-item{
+ position:relative!important;min-width:0!important;min-height:114px!important;height:114px!important;
+ display:block!important;padding:10px 13px 10px!important;
+ background:url("assets/family-tree-hifi/story-card-frame.svg") center/100% 100% no-repeat!important;
+ border:0!important;border-radius:0!important;overflow:visible!important;box-shadow:none!important;transform:none!important
+}
+.ft-story-item:before,.ft-story-item:after{content:none!important}
+.ft-story-item .ft-paper-head{display:flex;justify-content:space-between;align-items:center;min-height:18px;
+ margin:1px 3px 3px 9px!important;gap:5px!important;padding:0!important;
+ color:#897056!important;font-size:9.5px!important;white-space:nowrap}
+.ft-story-item .ft-category{border:0!important;border-radius:12px!important;line-height:1!important;padding:4px 8px!important;flex:none;font-size:10px!important}
+.ft-story-item .ft-story-row{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:8px;align-items:center;min-height:44px;height:44px;margin:0!important}
+.ft-story-item .ft-paper-copy{
+ display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;
+ max-height:38px;margin:0 0 0 8px!important;padding:0!important;overflow:hidden;
+ font-size:12px!important;line-height:1.5!important;letter-spacing:0!important;
+ font-weight:800!important;color:#754a2d!important
+}
+.ft-story-item .ft-story-stamp{
+ width:96px!important;height:54px!important;margin:-4px 3px 0 0!important;display:block!important;align-self:center;
+ border:3px solid #fffdf6!important;border-radius:13px!important;
+ background-color:#e0eee7;background-position:center;background-size:cover;background-repeat:no-repeat;
+ box-shadow:0 2px 4px #8d683b59!important;transform:rotate(-2deg)!important;
+ color:transparent!important;font-size:0!important;text-shadow:none!important;overflow:hidden!important
+}
+.ft-story-item .ft-story-stamp:before{content:none!important}
+.ft-story-item[data-art] .ft-story-stamp{overflow:visible!important}
+.ft-story-item[data-art] .ft-story-stamp:before{
+ content:""!important;display:block!important;position:absolute;z-index:2;
+ left:34%;top:-7px;width:29px;height:10px;border:1px solid #e3b4a7;
+ border-radius:2px;background:#f4c9c7cc;transform:rotate(7deg);
+ box-shadow:0 1px 2px #9d694321;pointer-events:none
+}
+/* A real family record without an attached photo should not display
+ * a fake green picture. Its text receives the postcard's full width. */
+.ft-story-item:not([data-art]) .ft-story-row{grid-template-columns:minmax(0,1fr)!important}
+.ft-story-item:not([data-art]) .ft-story-stamp{display:none!important}
+.ft-story-item:not([data-art]) .ft-paper-copy{
+ max-width:100%!important;
+ margin-right:13px!important;
+ -webkit-line-clamp:2;
+}
+.ft-story-item[data-art="swimming"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-swimming-approved.webp")}
+.ft-story-item[data-art="seashell"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-seashell-approved.webp");transform:rotate(2deg)!important}
+.ft-story-item[data-art="basketball"] .ft-story-stamp{background-image:url("assets/family-tree-hifi/photo-basketball-approved.webp")}
+.ft-story-item .ft-record-controls{display:flex;align-items:center;gap:6px!important;margin:-3px 0 0 7px!important;padding:0!important;min-height:28px;height:28px}
+.ft-story-heart,.ft-story-item .ft-story-heart{height:28px!important;min-height:28px!important;padding:4px 9px!important;font-size:10px!important;font-weight:800!important;line-height:1!important;color:#bd6666!important;border:1.5px solid #e8b7b5!important;background:#fff2ef!important;border-radius:16px!important}
+.ft-story-item .ft-story-comments{height:28px!important;min-height:28px!important;padding:4px 10px!important;font-size:10px!important;line-height:1!important;font-weight:800;color:#6a7444!important;border:1px solid #deca9a!important;border-radius:16px!important;background:#fff9e9!important}
+.ft-story-item .ft-more{min-height:28px!important;height:28px!important;width:28px!important;min-width:28px!important;font-size:17px!important;border:1px solid #e0ccae!important;background:#fff8ea!important;color:#ac8463!important;margin-left:auto}
+.ft-story-item .ft-record-controls button:disabled{opacity:.65}
+.ft-preview{order:5;min-height:0;margin:12px 4px 2px!important;padding:2px 7px!important;font-size:10px!important;border-radius:9px!important;line-height:1.4}
+.ft-preview summary{min-height:20px!important}
+.ft-person-bar{order:4;display:flex!important;justify-content:flex-end!important;align-items:center;gap:8px;margin-top:10px;padding:3px 3px 2px!important}
+.ft-person-bar label{font-size:10px!important}.ft-person-bar select{min-height:32px!important;padding:4px 23px 4px 10px!important;font-size:12px}
+.ft-empty{padding:25px 12px}
+.ft-heart-tabs button{font-size:13px}
+@media(min-width:521px){
+ .ft-hero{height:330px;min-height:330px}
+ .ft-hero-plaque{width:210px;height:74px}
+ .ft-hero-content{width:210px}
+ .ft-hero-plaque h1{font-size:30px!important}
+ .ft-tree-tags{top:79px!important;left:10px!important;width:135px!important;max-width:135px}
+ .ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){height:80px!important;min-height:80px!important;max-height:80px!important;padding-top:29px!important}
+ .ft-growth-summary{top:86px!important;right:10px!important;width:157px!important;max-width:157px!important;height:205px;min-height:205px}
+ .ft-content{margin-top:-25px!important}
+}
+@media(max-width:365px){
+ .ft-hero{height:266px;min-height:266px}
+ .ft-hero-plaque{width:144px;height:52px}
+ .ft-hero-content{width:144px}
+ .ft-tree-tags{top:58px!important;width:98px!important;max-width:98px;left:4px!important}
+ .ft-growth-summary{top:64px!important;right:3px!important;width:117px!important;max-width:117px!important;height:174px;padding:12px 8px 8px!important}
+ .ft-content{padding-left:8px!important;padding-right:8px!important}
+ .ft-section-head p{font-size:9px!important;max-width:165px!important}
+ .ft-story-item .ft-story-row{grid-template-columns:minmax(0,1fr) 78px}
+ .ft-story-item .ft-story-stamp{width:78px!important}
+ .ft-story-item .ft-paper-copy{font-size:11.5px!important}
+ .ft-tabs button{font-size:14px!important}
+ .ft-primary.ft-small.ft-write-button{width:109px!important;min-width:109px!important;font-size:11px!important}
+}
+/* Preserve the lower story and active controls above the mobile browser UI. */
+@media(max-width:520px){
+ .ft-content{padding-bottom:calc(42px + env(safe-area-inset-bottom,0px))!important}
+}
+@media(prefers-reduced-motion:reduce){.ft-app *{animation:none!important;transition:none!important}}
+
+/* 390px screenshot review #1: third suspended note must clear the content overlap. */
+@media(min-width:366px) and (max-width:520px){
+ .ft-tree-tags{top:47px!important}
+ .ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){
+  height:67px!important;min-height:67px!important;max-height:67px!important;
+  padding-top:19px!important;padding-bottom:6px!important
+ }
+}
+@media(max-width:365px){
+ .ft-tree-tags{top:50px!important}
+ .ft-tree-tag,.ft-tree-tag:nth-child(2),.ft-tree-tag:nth-child(3){
+  height:60px!important;min-height:60px!important;max-height:60px!important;
+  padding-top:18px!important;padding-bottom:4px!important
+ }
+}
+
+/* 390px target-vs-browser comparison pass #2:
+ * reduce nav-to-first-card offset ~20px and card intervals ~12px each. */
+@media(min-width:366px) and (max-width:520px){
+ .ft-tabs{height:44px!important;min-height:44px!important;margin-bottom:2px!important;padding:2px!important}
+ .ft-tabs button{height:40px!important;min-height:40px!important}
+ .ft-section-head{min-height:40px!important;height:40px!important;margin-bottom:2px!important}
+ .ft-story-filters{margin:1px 2px 5px!important;min-height:28px!important}
+ .ft-story-filters button{height:28px!important;min-height:28px!important;padding:3px 11px!important}
+ .ft-story-item{min-height:114px!important;height:114px!important;padding:10px 13px 8px!important}
+ .ft-hanging-list{gap:9px!important}
+ .ft-story-item .ft-story-row{height:44px!important;min-height:44px!important}
+ .ft-story-item .ft-paper-copy{font-size:12px!important;max-height:38px!important}
+ .ft-story-item .ft-story-stamp{height:54px!important}
+ .ft-story-item .ft-record-controls{height:28px!important;min-height:28px!important}
+}
+.ft-story-item .ft-more{display:none!important}
+.ft-story-item:before{
+ content:""!important;display:block!important;position:absolute;z-index:2;pointer-events:none;
+ left:-3px!important;top:-6px!important;width:27px!important;height:27px!important;
+ background:url("assets/family-tree-v3/floral-corner.svg") center/contain no-repeat!important
+}
+.ft-story-item:after{
+ content:""!important;display:block!important;position:absolute;z-index:2;pointer-events:none;
+ right:-3px!important;bottom:-4px!important;width:24px!important;height:24px!important;
+ background:url("assets/family-tree-v3/floral-corner.svg") center/contain no-repeat!important;transform:rotate(180deg)
+}
+
+
+/* 2026-11-11 / 390px micro-polish: meaningful heart states rather than
+ * three different disabled buttons. Keep all text and hit areas live DOM. */
+.ft-story-item .ft-record-controls{
+ margin-top:-1px!important;
+ gap:6px!important;
+}
+.ft-story-item .ft-story-heart:not(.is-exhausted){
+ border-color:#e69e99!important;
+ color:#a9454c!important;
+ background:linear-gradient(180deg,#fff3ef,#ffe3dd)!important;
+ box-shadow:inset 0 1px #fffaf6,0 1px 1px #d6a7a044!important;
+ opacity:1!important;
+}
+.ft-story-item .ft-story-heart.is-exhausted{
+ border-color:#dbcfba!important;
+ color:#967d69!important;
+ background:#f7f1e5!important;
+ opacity:1!important;
+}
+.ft-story-item .ft-heart-status{
+ display:inline-flex;align-items:center;justify-content:center;
+ height:28px;min-height:28px;max-height:28px;
+ padding:4px 8px;white-space:nowrap;
+ border:1px solid #d9d7c6;border-radius:16px;
+ font-size:10px;font-weight:750;line-height:1;
+ background:#f4f3e8;color:#7d886e;
+}
+.ft-story-item .ft-heart-status.is-sent{
+ background:#fff2eb;color:#b66c69;border-color:#e9cbc1;
+}
+.ft-story-item .ft-react-count{
+ color:#c7857b;font-weight:800;font-size:10px;
+ white-space:nowrap;
+}
+.ft-story-item .ft-story-comments{
+ background:linear-gradient(180deg,#fffdf3,#fff6e4)!important;
+ border-color:#e0cba5!important;color:#65754b!important;
+}
+.ft-story-item .ft-story-heart:focus-visible,
+.ft-story-item .ft-story-comments:focus-visible{
+ outline:2px solid #548853!important;outline-offset:2px!important;
+}
+.ft-story-item .ft-paper-head{min-width:0}
+.ft-story-item .ft-paper-head>span:last-child{
+ overflow:hidden;text-overflow:ellipsis;min-width:0;
+}
+.ft-devtools{order:4!important;margin:14px 6px 0!important;padding:2px 7px!important;
+ background:#fff9e9!important;border:1px dashed #dfcfaa!important;border-radius:10px!important;
+ color:#8f846f!important;box-shadow:none!important}
+.ft-devtools summary{min-height:28px!important;display:list-item;cursor:pointer;line-height:28px;
+ padding:0 4px!important;font-size:10px!important;font-weight:650!important}
+.ft-devtools .ft-person-bar{margin:3px 1px 2px!important;padding:3px 2px!important;justify-content:flex-start!important}
+.ft-devtools .ft-person-bar select{background:#fffef5}
+.ft-devtools p{font-size:10px;line-height:1.5;margin:5px 2px 7px;color:#95856d}
+@media(max-width:365px){
+ .ft-story-item .ft-heart-status,.ft-story-item .ft-story-heart{padding-left:6px!important;padding-right:6px!important;font-size:9px!important}
+ .ft-story-item .ft-record-controls{gap:4px!important}
+ .ft-story-item .ft-react-count{font-size:9px}
+ .ft-story-item .ft-story-comments{padding-left:7px!important;padding-right:7px!important}
+}
+/* Decoration density: the tree stays the primary focus, not panel borders. */
+.ft-growth-summary{filter:saturate(.92)}
+
+
+/* Family Tree V4 - user-approved friendly green tree / pink heart icons.
+   Real buttons and tab state stay in HTML; illustration SVGs contain no text. */
+.ft-tabs{
+ min-height:60px!important;height:60px!important;
+ display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+ gap:5px!important;
+ margin:0 -4px 8px!important;padding:7px 12px!important;
+ border:0!important;border-radius:32px!important;
+ background:url("assets/family-tree-hifi/nav-rail.svg") center / 100% 100% no-repeat!important;
+ box-shadow:none!important;
+}
+.ft-tabs button{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ gap:7px!important;min-width:0!important;
+ min-height:46px!important;height:46px!important;
+ padding:6px 9px!important;margin:0!important;
+ border:2px solid transparent!important;border-radius:27px!important;
+ background:transparent!important;box-shadow:none!important;
+ font-size:17px!important;letter-spacing:.025em!important;line-height:1.15!important;
+ font-weight:850!important;white-space:nowrap!important;
+ color:#755137!important;text-shadow:0 1px #fff9ec!important;
+ transition:background-color .15s ease,box-shadow .15s ease!important
+}
+.ft-tabs button::before,.ft-tabs button::after{
+ content:none!important;display:none!important;
+}
+.ft-tabs button .ft-nav-icon{
+ display:block!important;flex:0 0 30px!important;
+ width:30px!important;height:30px!important;max-width:30px!important;
+ object-fit:contain!important;
+ filter:drop-shadow(0 1px 1px #886d3b2a);
+}
+.ft-tabs button[data-section="hearts"] .ft-nav-icon{width:31px!important;height:31px!important}
+.ft-tabs button span{display:inline-block;min-width:0!important}
+.ft-tabs button[aria-current="page"]{
+ border:2px solid #80b759!important;
+ background:linear-gradient(180deg,#fffff0 0%,#f5ffdf 52%,#e7f4c5 100%)!important;
+ box-shadow:inset 0 2px 0 #fffef8,0 3px 0 #6e9b47,0 4px 6px #66834440!important;
+ color:#2f762e!important;text-shadow:0 1px #fff!important;
+}
+.ft-tabs button[data-section="hearts"][aria-current="page"]{
+ border-color:#d8a0a0!important;
+ background:linear-gradient(180deg,#fffefa,#fff0ea 70%,#ffe1d9)!important;
+ box-shadow:inset 0 2px #fff,0 3px 0 #c98987,0 4px 6px #a8787640!important;
+ color:#995046!important
+}
+.ft-tabs button:focus-visible{
+ outline:3px solid #518243!important;outline-offset:2px!important
+}
+.ft-tabs button:active{transform:translateY(1px)}
+.ft-growth-summary .ft-growth-caption{
+ display:flex!important;justify-content:center!important;align-items:center!important;
+ gap:3px!important;line-height:1.15!important
+}
+.ft-growth-summary .ft-growth-caption img{
+ display:block;width:18px;height:18px;flex:none;
+}
+@media(min-width:366px) and (max-width:520px){
+ .ft-tabs{height:60px!important;min-height:60px!important;margin:0 -4px 7px!important;padding:7px 12px!important}
+ .ft-tabs button{min-height:46px!important;height:46px!important;font-size:17px!important}
+}
+@media(max-width:365px){
+ .ft-tabs{height:57px!important;min-height:57px!important;padding:7px 8px!important;gap:4px!important}
+ .ft-tabs button{font-size:14px!important;min-height:42px!important;height:42px!important;padding:5px 6px!important;gap:5px!important}
+ .ft-tabs button .ft-nav-icon{flex-basis:25px!important;width:25px!important;height:25px!important}
+ .ft-tabs button[data-section="hearts"] .ft-nav-icon{width:27px!important;height:27px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .ft-tabs button{transition:none!important;transform:none!important}
+}
+
+
+/* Tiny stamped glyphs in record cards match the approved tab illustrations. */
+.ft-story-item .ft-category-moment,
+.ft-story-item .ft-category-note{
+ display:inline-flex!important;align-items:center!important;gap:4px!important;
+ white-space:nowrap!important;min-height:23px!important;
+}
+.ft-story-item .ft-category-moment::before{
+ content:""!important;display:inline-block!important;flex:0 0 14px;
+ width:14px;height:14px;background:url("assets/family-tree-hifi/nav-tree.svg") center/contain no-repeat
+}
+.ft-story-item .ft-category-note::before{
+ content:""!important;display:inline-block!important;flex:0 0 14px;
+ width:14px;height:14px;background:url("assets/family-tree-hifi/note-icon.svg") center/contain no-repeat
+}
+.ft-story-item .ft-story-comments{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:3px!important;
+ white-space:nowrap!important;
+}
+.ft-story-item .ft-story-comments .ft-comment-icon{
+ width:14px;height:14px;display:block!important;flex:0 0 14px;object-fit:contain
+}
+@media(max-width:365px){
+ .ft-story-item .ft-category-moment::before,.ft-story-item .ft-category-note::before{
+ width:12px;height:12px;flex-basis:12px
+ }
+ .ft-story-item .ft-story-comments .ft-comment-icon{
+ width:12px;height:12px;flex-basis:12px
+ }
+}

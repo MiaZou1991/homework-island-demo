@@ -22,11 +22,12 @@ const meta='kaixin_family_tree_meta_preview_v21';
     floral:getComputedStyle(document.querySelector('.ft-story-item'),'::before').backgroundImage,
     button:bg('.ft-write-button')};
   });
-  assert.match(visual.hero,/family-tree-v3\/garden-hero\.webp/);
+  assert.match(visual.hero,/family-tree-v3\/entrance-scene\.webp/);
   assert.match(visual.plaque,/family-tree-v3\/wood-plaque\.svg/);
   assert.match(visual.floral,/family-tree-v3\/floral-corner\.svg/);
   assert.match(visual.button,/family-tree-v3\/button-primary\.svg/);
   assert.equal(await page.locator('.ft-tabs button').count(),2);
+  assert.equal(await page.locator('#previewNotice').evaluate(el=>el.open),false,'preview identity tools initially collapsed');
   await page.screenshot({path:'/tmp/family-tree-v3-state-00-home.png',fullPage:true});
 
   // 01: write story default; 02: growth memory; 03: shared note.
@@ -78,7 +79,8 @@ const meta='kaixin_family_tree_meta_preview_v21';
   // 08/09: received and sent inbox with per-recipient visibility.
   assert.equal(await page.locator('[data-heart-view="sent"]').getAttribute('aria-pressed'),'true');
   await page.screenshot({path:'/tmp/family-tree-v3-state-09-sent.png'});
-  await page.locator('#activeMember').selectOption('mom');
+  await page.locator('#previewNotice summary').click();
+await page.locator('#activeMember').selectOption('mom');
   assert.equal(await page.locator('[data-heart]').count(),1);
   assert.match(await page.locator('[data-heart]').first().innerText(),/谢谢妈妈/);
   await page.screenshot({path:'/tmp/family-tree-v3-state-08-received.png'});
@@ -92,9 +94,9 @@ const meta='kaixin_family_tree_meta_preview_v21';
   // 12/13: delete record/reply confirmation.
   await page.locator('[data-section="stories"]').click();
   await page.locator('#activeMember').selectOption('kid');
-  await page.locator('.ft-story-item [data-more="moment"]').first().click();
-  assert.match(await page.locator('#ftModalTitle').textContent(),/这条记录/);
-  await page.locator('#ftModalActions button').getByText('删除记录').click();
+  await page.locator('.ft-story-item [data-view="moment"]').first().click();
+  assert.equal(await page.locator('#storyDetail').evaluate(el=>el.open),true,'record details open');
+  await page.locator('#storyDetail [data-delete="moment"]').first().click();
   assert.match(await page.locator('#ftModalTitle').textContent(),/确认删除/);
   await page.screenshot({path:'/tmp/family-tree-v3-state-12-delete-record.png'});
   await page.locator('#ftModalActions button').first().click();

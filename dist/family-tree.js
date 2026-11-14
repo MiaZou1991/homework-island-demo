@@ -19,12 +19,16 @@ const localRead=(key,parse)=>{
 };
 const makeID=()=>("pv_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,11));
 function sample(){
- const day=nowDay();
+ // Illustrated preview only: order and story subjects match the approved
+ // three photo cards (swimming / seashell / basketball). Never writes to
+ // household production records or overwrites an existing preview key.
+ const day=nowDay(),yesterday=M.dateInZone(new Date(Date.now()-86400000).toISOString(),ZONE),
+ twoDaysAgo=M.dateInZone(new Date(Date.now()-2*86400000).toISOString(),ZONE);
  return {version:1,moments:[
  {id:"sample-growth",author:"kid",day,category:"growth",text:"今天我敢把头埋进水里啦！",createdAt:iso()},
- {id:"sample-together",author:"mom",day,category:"together",text:"我们一起做了美味的早餐，开心极了！",createdAt:new Date(Date.now()-86400000).toISOString()}
- ],notes:[{id:"sample-note",author:"kid",text:"周末一起去海边散步吧！看看有没有新贝壳 🐚",createdAt:iso()}],
- replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"周末教教我吧。",createdAt:iso()}]};
+ {id:"sample-basketball",author:"kid",day:twoDaysAgo,category:"growth",text:"我学会了新的篮球动作！",createdAt:new Date(Date.now()-2*86400000).toISOString()}
+ ],notes:[{id:"sample-note",author:"mom",text:"周末我们一起去海边散步吧！看看有没有新的小贝壳。",createdAt:new Date(Date.now()-86400000).toISOString()}],
+ replies:[{id:"sample-reply",noteId:"sample-note",author:"dad",text:"好呀，一起去！",createdAt:new Date(Date.now()-86400000).toISOString()}]};
 }
 function load(){
  const existing=localStorage.getItem(PUB);
@@ -122,13 +126,18 @@ function findEntry(type,id){
  return a.find(x=>x.id===id);
 }
 function storyHearts(item){
- const list=privateData.reactions||[];
- const mine=list.some(r=>r.from===actor&&r.recordType===item.recordType&&r.recordId===item.id);
- const count=list.filter(r=>r.recordType===item.recordType&&r.recordId===item.id).length;
- const self=item.author===actor,can=!self&&!mine&&remaining()>0;
- return '<button type="button" class="ft-story-heart" data-react="'+esc(item.recordType)+'" data-id="'+esc(item.id)+
- '" '+(can?"":"disabled")+' aria-label="送爱心给这条记录">'+
- (mine?"♥ 已送心":"♡ 送爱心")+(count?" · "+count:"")+'</button>';
+ const reactions=privateData.reactions||[];
+ const own=item.author===actor;
+ const mine=reactions.some(r=>r.from===actor&&r.recordType===item.recordType&&r.recordId===item.id);
+ const count=reactions.filter(r=>r.recordType===item.recordType&&r.recordId===item.id).length;
+ const total=count?'<span class="ft-react-count" aria-label="本记录累计'+count+'颗爱心">♥ '+count+'</span>':"";
+ if(own)return '<span class="ft-heart-status is-own" aria-label="自己的家庭记录不能送爱心">♡ 自己的记录</span>'+total;
+ if(mine)return '<span class="ft-heart-status is-sent" aria-label="已经给这条记录送过爱心">♥ 已送心</span>'+total;
+ const exhausted=remaining()===0;
+ return '<button type="button" class="ft-story-heart'+(exhausted?' is-exhausted':'')+
+ '" data-react="'+esc(item.recordType)+'" data-id="'+esc(item.id)+
+ '" aria-label="'+(exhausted?'今天的爱心已送完，查看额度说明':'送爱心给这条记录')+'">'+
+ (exhausted?'♡ 今日已送完':'♡ 送爱心')+'</button>'+total;
 }
 function actions(kind,item){
  if(item.author!==actor)return "";
@@ -154,8 +163,13 @@ function renderStories(){
  const shown=all.filter(x=>recordFilter==="all"||x.recordType===recordFilter);
  $("storiesList").innerHTML=shown.length?shown.map(x=>{
   const isMoment=x.recordType==="moment";
+  // Artwork is tied to the actual demo story, never the card's list position:
+  // filtering/reordering must not make a child's picture belong to another entry.
+  const previewArt={"sample-growth":"swimming","sample-note":"seashell","sample-basketball":"basketball"};
+  const art=previewArt[x.id]||"";
   return '<article class="ft-paper ft-story-item '+(isMoment?"is-moment":"is-note")+
-  '" data-'+(isMoment?"moment":"note")+'="'+esc(x.id)+'">'+
+  '" data-'+(isMoment?"moment":"note")+'="'+esc(x.id)+'"'+
+  (art?' data-art="'+art+'"':"")+'>'+
   '<div class="ft-paper-head"><span class="ft-category '+(isMoment?"ft-category-moment":"ft-category-note")+
   '">'+(isMoment?"成长回忆":"家庭便签")+'</span><span>'+esc(x.sortDay)+" · "+esc(names[x.author]||"家人")+
   '</span></div>'+
@@ -163,14 +177,23 @@ function renderStories(){
   '<div class="ft-story-stamp '+(isMoment?'ft-stamp-leaf':'ft-stamp-letter')+'" aria-hidden="true">'+
   (isMoment?'✿':'✉')+'</div></div>'+
   '<div class="ft-record-controls">'+storyHearts(x)+
-  '<button type="button" class="ft-text-button ft-story-comments" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'">✉ '+publicData.replies.filter(r=>r.targetId===x.id||r.noteId===x.id||r.momentId===x.id).length+' · 查看详情</button>'+
+  '<button type="button" class="ft-text-button ft-story-comments" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="查看记录详情与家人留言"><img class="ft-comment-icon" src="assets/family-tree-hifi/comment-icon.svg" alt="" aria-hidden="true" width="14" height="14">留言 '+publicData.replies.filter(r=>r.targetId===x.id||r.noteId===x.id||r.momentId===x.id).length+'</button>'+
   (x.author===actor?'<button type="button" class="ft-more" data-more="'+x.recordType+'" data-id="'+esc(x.id)+'" aria-label="管理这条记录">···</button>':'')+
   '</div></article>';
  }).join(""):'<div class="ft-empty"><b>树下还没有记录</b>写下成长的小事，或留句话给家人吧。</div>';
  const pinned=all.slice(0,3);
- $("treeTags").innerHTML=pinned.length?pinned.map((x,i)=>
-  '<button type="button" class="ft-tree-tag" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'">'+
-  '<b>'+esc(names[x.author]||"家人")+'：</b><span>'+esc(x.text.length>16?x.text.slice(0,16)+"…":x.text)+'</span></button>'
+ // Rope is part of the image, so leave its upper part empty and keep each
+ // two-line excerpt short enough for the handmade tag, even on 320px phones.
+ const pinnedExcerpt=value=>{
+  // Hanging paper labels are not full text cards. Prefer a short first phrase
+  // without a dangling ellipsis; the full content is available on tap/ARIA.
+  const first=String(value??"").trim().split(/[。！？!?\n]/u)[0].trim();
+  return Array.from(first).slice(0,11).join("");
+ };
+ $("treeTags").innerHTML=pinned.length?pinned.map(x=>
+  '<button type="button" class="ft-tree-tag" data-view="'+x.recordType+'" data-id="'+esc(x.id)+'"'+
+  ' aria-label="'+esc((names[x.author]||"家人")+"："+x.text)+'">'+
+  '<b>'+esc(names[x.author]||"家人")+'：</b><span>'+esc(pinnedExcerpt(x.text))+'</span></button>'
  ).join(""):'<button type="button" class="ft-tree-tag" data-open="story">写第一条家庭记录 ✎</button>';
 }
 function renderHearts(){

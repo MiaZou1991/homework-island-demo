@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="家庭记录小树">
+<defs>
+ <linearGradient id="leaf" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#e4f89b"/><stop offset=".34" stop-color="#8bcf40"/><stop offset=".82" stop-color="#459d30"/><stop offset="1" stop-color="#267c28"/></linearGradient>
+ <radialGradient id="light" cx=".3" cy=".13" r=".87"><stop stop-color="#d8f589"/><stop offset=".6" stop-color="#8bd63e"/><stop offset="1" stop-color="#4da92d"/></radialGradient>
+ <linearGradient id="wood" x1="0" y1="0" x2=".9" y2="1"><stop stop-color="#f5b66e"/><stop offset=".6" stop-color="#bc7340"/><stop offset="1" stop-color="#88522d"/></linearGradient>
+ <filter id="drop" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#416d20" flood-opacity=".28"/></filter>
+</defs>
+<g filter="url(#drop)">
+ <path d="M42 61C43 69 42 74 41 82L33 84 32 88H63L61 84 53 82C52 74 53 67 56 59Z" fill="url(#wood)" stroke="#82542c" stroke-width="2.7" stroke-linejoin="round"/>
+ <path d="M46 78c3-8 3-15 1-25" stroke="#f1c08b" stroke-width="3.3" stroke-linecap="round" fill="none" opacity=".73"/>
+ <path d="M27 69C15 71 9 62 12 52 3 44 10 30 22 29 18 16 30 7 42 13 53 0 71 8 70 22 83 20 91 34 83 44 94 58 82 72 69 69 55 79 41 78 27 69Z" fill="url(#leaf)" stroke="#3b8028" stroke-width="3.3" stroke-linejoin="round"/>
+ <circle cx="29" cy="44" r="16" fill="url(#light)"/><circle cx="48" cy="29" r="19" fill="url(#light)"/><circle cx="68" cy="45" r="15" fill="url(#light)"/><circle cx="45" cy="55" r="16" fill="url(#light)"/>
+ <path d="M24 35q6-6 11-4M37 21q10-6 15-4M61 35q8-4 12 1M38 49q8-6 13-4" stroke="#edffb2" stroke-width="3.2" stroke-linecap="round" fill="none" opacity=".66"/>
+ <g fill="#f8fff3"><ellipse cx="64" cy="29" rx="3" ry="5" transform="rotate(-20 64 29)"/><ellipse cx="64" cy="29" rx="3" ry="5" transform="rotate(55 64 29)"/><ellipse cx="64" cy="29" rx="3" ry="5" transform="rotate(128 64 29)"/><ellipse cx="64" cy="29" rx="3" ry="5" transform="rotate(200 64 29)"/><ellipse cx="64" cy="29" rx="3" ry="5" transform="rotate(275 64 29)"/></g>
+ <circle cx="64" cy="29" r="2.8" fill="#f9cb59"/>
+</g></svg>

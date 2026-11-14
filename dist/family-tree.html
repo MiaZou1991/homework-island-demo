@@ -7,6 +7,7 @@
   <title>家庭树 · 开心岛</title>
   <link rel="stylesheet" href="family-tree.css?v=20261110-family-fullstate-v3">
   <link rel="stylesheet" href="family-tree-skin-v3.css?v=20261110-approved-v3b">
+  <link rel="stylesheet" href="family-tree-hifi-390.css?v=20261114-nav-v4">
 </head>
 <body>
 <main class="ft-app">
@@ -18,7 +19,7 @@
     </div>
     <a class="ft-back" href="our-island.html" id="backIsland">‹ 回到小岛</a>
     <aside class="ft-growth-summary" aria-label="小树成长状态">
-      <div class="ft-growth-caption">♡ 我们的小树</div>
+      <div class="ft-growth-caption"><img src="assets/family-tree-hifi/nav-heart.svg" alt="" aria-hidden="true" width="19" height="19" />我们的小树</div>
       <div class="ft-growth-count"><strong id="treeHeartCount">0</strong><span>份爱心</span></div>
       <div class="ft-growth-stage" id="treeStage">初芽树</div><div class="ft-tree-age" id="treeAge">已陪伴 0年0个月</div>
       <div class="ft-growth-progress" id="treeGrowthProgress" role="progressbar" aria-label="小树成长进度" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0">
@@ -30,23 +31,26 @@
   </header>
 
   <section class="ft-content" aria-label="家庭记录与爱心">
-    <details id="previewNotice" class="ft-preview" hidden><summary>体验模式 · 本机测试数据，不影响正式家庭记录</summary><p>成员切换仅用于演示，不能代替身份验证。私密爱心和家庭照片仍待安全服务端接入，本页面不写入家庭正式数据库。</p></details>
-    <div class="ft-person-bar">
-      <label for="activeMember">此刻是谁在树下？</label>
-      <select id="activeMember" aria-label="体验成员身份">
-        <option value="kid">开心</option><option value="mom">妈妈</option><option value="dad">爸爸</option>
-      </select>
-    </div>
+    <details id="previewNotice" class="ft-preview ft-devtools" hidden>
+      <summary>体验设置 · 本机数据，不影响正式家庭记录</summary>
+      <div class="ft-person-bar">
+        <label for="activeMember">体验成员</label>
+        <select id="activeMember" aria-label="体验成员身份">
+          <option value="kid">开心</option><option value="mom">妈妈</option><option value="dad">爸爸</option>
+        </select>
+      </div>
+      <p>成员切换仅用于演示，不是身份验证；私密爱心和家庭照片仍待安全后端接入。</p>
+    </details>
 
     <nav class="ft-tabs" aria-label="家庭树栏目">
-      <button type="button" data-section="stories" aria-current="page">家庭记录</button>
-      <button type="button" data-section="hearts" aria-current="false">♡ 送爱心</button>
+      <button type="button" data-section="stories" aria-current="page"><img class="ft-nav-icon" src="assets/family-tree-hifi/nav-tree.svg" alt="" aria-hidden="true" width="30" height="30" /><span>家庭记录</span></button>
+      <button type="button" data-section="hearts" aria-current="false"><img class="ft-nav-icon" src="assets/family-tree-hifi/nav-heart.svg" alt="" aria-hidden="true" width="31" height="31" /><span>送爱心</span></button>
     </nav>
     <div id="feedback" class="ft-feedback" role="status" aria-live="polite"></div>
 
     <section class="ft-page" data-page="stories" aria-labelledby="storiesTitle">
       <div class="ft-section-head">
-        <div><h2 id="storiesTitle">家庭记录</h2><p>成长回忆、家人便签与温暖回复，都留在这里。</p></div>
+        <div><h2 id="storiesTitle">家庭记录</h2><p>留下成长回忆，收藏全家的暖心话。</p></div>
         <button type="button" class="ft-primary ft-small ft-write-button" data-open="story">＋ 写一条记录</button>
       </div>
       <div class="ft-story-filters" role="group" aria-label="筛选家庭记录">
@@ -140,6 +144,6 @@
   </dialog>
 </main>
 <script src="family-tree-model.js?v=20261110-family-fullstate-v3"></script>
-<script src="family-tree.js?v=20261110-approved-v3b"></script>
+<script src="family-tree.js?v=20261111-visual3"></script>
 </body>
 </html>
