@@ -370,3 +370,35 @@ html,body{overflow-x:hidden}
 @media(prefers-reduced-motion:reduce){
  .ft-tabs button{transition:none!important;transform:none!important}
 }
+
+
+/* Tiny stamped glyphs in record cards match the approved tab illustrations. */
+.ft-story-item .ft-category-moment,
+.ft-story-item .ft-category-note{
+ display:inline-flex!important;align-items:center!important;gap:4px!important;
+ white-space:nowrap!important;min-height:23px!important;
+}
+.ft-story-item .ft-category-moment::before{
+ content:""!important;display:inline-block!important;flex:0 0 14px;
+ width:14px;height:14px;background:url("assets/family-tree-hifi/nav-tree.svg") center/contain no-repeat
+}
+.ft-story-item .ft-category-note::before{
+ content:""!important;display:inline-block!important;flex:0 0 14px;
+ width:14px;height:14px;background:url("assets/family-tree-hifi/note-icon.svg") center/contain no-repeat
+}
+.ft-story-item .ft-story-comments{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ gap:3px!important;
+ white-space:nowrap!important;
+}
+.ft-story-item .ft-story-comments .ft-comment-icon{
+ width:14px;height:14px;display:block!important;flex:0 0 14px;object-fit:contain
+}
+@media(max-width:365px){
+ .ft-story-item .ft-category-moment::before,.ft-story-item .ft-category-note::before{
+ width:12px;height:12px;flex-basis:12px
+ }
+ .ft-story-item .ft-story-comments .ft-comment-icon{
+ width:12px;height:12px;flex-basis:12px
+ }
+}
