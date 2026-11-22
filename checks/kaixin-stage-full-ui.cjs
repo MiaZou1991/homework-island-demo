@@ -24,7 +24,7 @@ const sdkMock=`(()=>{
    if(['family_load_v2','family_save_v2','kaixin_child_set_homework_done','kaixin_homework_last_change_v2'].includes(name)
       &&body.p_family_id!=='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
      return{data:{ok:false,error:'wrong_family_binding'},error:null};
-    if(name==='kaixin_identity')return{data:['parent','child'].includes(state.role)?{ok:true,family:'KAIXIN',family_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',role:state.role}:{ok:false,error:'unauthorized'},error:null};
+    if(name==='kaixin_identity')return{data:['parent','child'].includes(state.role)?{ok:true,family:'KAIXIN',family_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',role:state.role}:{ok:false,error:state.role==='unbound'?'ambiguous_or_unbound':'unauthorized'},error:null};
     if(name==='kaixin_list_child_devices')return{data:{ok:true,family:'KAIXIN',devices:[
       {id:'33333333-3333-4333-8333-333333333333'},
       {id:'b71b98fd-51ee-479c-a029-410a62a317bd'}]},error:null};
