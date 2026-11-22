@@ -6,6 +6,7 @@
  const url='https://tgnznizqhheiwgdhvwdc.supabase.co';
  const key='sb_publishable_4XmteXknXrrpVlUAmjCWrQ_luXuRkUV';
  let instance=null;
+ let verifiedFamilyId=null;
  const isStagingOrigin=()=>
    (location.protocol==='https:' && location.hostname==='miazou1991.github.io' &&
      /^\/kaixin-island-staging(?:\/|$)/.test(location.pathname)) ||
@@ -55,6 +56,7 @@
  }
  async function verifiedRole(requiredRole) {
    assertStage();
+   verifiedFamilyId=null;
    // Security gate remains visible until SDK, Auth and server-role checks finish.
    showGate('正在验证测试身份与连接状态…',requiredRole);
    try{
@@ -75,14 +77,21 @@
    // A verified parent can preview child UI, but is never granted the child
    // write capability. Child RPCs continue to require an actual child member.
    if(error||data?.ok!==true||data?.family!=='KAIXIN'
-      ||data?.role!==requiredRole){
+      ||data?.role!==requiredRole
+      ||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data?.family_id||'')){
      showGate(requiredRole==='parent'
        ?'这个账号尚未获授权为 KAIXIN 测试家长。请先验证邮箱并等待授权。'
        :'这台设备尚未绑定 KAIXIN 测试家庭，或授权已撤销。',requiredRole);
      return false;
    }
+   verifiedFamilyId=data.family_id;
    hideGate();
    return true;
  }
- window.KaixinStageAuth=Object.freeze({client,verifiedRole,showGate,hideGate});
+ function familyId(){
+   if(!verifiedFamilyId)throw new Error('staging_family_not_verified');
+   return verifiedFamilyId;
+ }
+ function familyIdOptional(){return verifiedFamilyId;}
+ window.KaixinStageAuth=Object.freeze({client,verifiedRole,familyId,familyIdOptional,showGate,hideGate});
 })();

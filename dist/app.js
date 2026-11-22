@@ -31,6 +31,10 @@ const BUILD_VERSION = '20261018-demo-integrated';
 
 const STORAGE_KEY = 'homework_island_integrated_demo_v2';
 function activeStorageKey() {
+    if (window.__KAIXIN_STAGE_BUILD__ === true) {
+        const familyId = window.KaixinStageAuth?.familyIdOptional?.();
+        return familyId ? 'kaixin_stage_data_' + familyId : 'kaixin_stage_unverified_v1';
+    }
     try { return typeof DEMO_KEY !== 'undefined' && DEMO_KEY ? DEMO_KEY : STORAGE_KEY; }
     catch (_) { return STORAGE_KEY; }
 }

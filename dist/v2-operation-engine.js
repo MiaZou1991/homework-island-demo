@@ -6,6 +6,7 @@
 (() => {
   'use strict';
   const ENTITIES = Object.freeze(['homework', 'events', 'classes', 'recurringTasks']);
+  const SAFE_ROOT_FIELDS = new Set(['kidName','kidAvatar','kidMood','todayMate','mateDate','journalEntries']);
   const ACTIONS = Object.freeze(['add', 'patch', 'remove']);
   const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
   const clone = value => JSON.parse(JSON.stringify(value));
@@ -53,6 +54,19 @@
     return { ...envelope, action: 'patch', changes };
   }
   function apply(payload, operation) {
+    if(operation?.entity === '$root') {
+      if(operation.action !== 'patch' || operation.id !== '$root'
+        || Object.keys(operation.changes || {}).some(k => !SAFE_ROOT_FIELDS.has(k)))
+        throw invalid('invalid_root_patch');
+      const result = apply({homework:[{...payload,id:'$root'}]},
+        {...operation,entity:'homework'});
+      if(result.outcome !== 'changed') return result;
+      const next = result.payload.homework[0];
+      delete next.id;
+      if(own(payload,'id')) next.id=clone(payload.id);
+      return {outcome:'changed',payload:next};
+    }
+
     if (!payload || typeof payload !== 'object' || Array.isArray(payload)
       || !operation || operation.schema !== 1 || !ENTITIES.includes(operation.entity)
       || !ACTIONS.includes(operation.action) || typeof operation.id !== 'string') {
@@ -139,7 +153,7 @@
     const unsupported = [];
     const rootKeys = new Set([...Object.keys(beforePayload), ...Object.keys(afterPayload)]);
     for (const key of rootKeys) {
-      if (!ENTITIES.includes(key) && !same(beforePayload[key], afterPayload[key])) unsupported.push(key);
+      if (!ENTITIES.includes(key) && !same(beforePayload[key], afterPayload[key]) && !SAFE_ROOT_FIELDS.has(key)) unsupported.push(key);
     }
     for (const entity of ENTITIES) {
       const previous = beforePayload[entity], next = afterPayload[entity];
@@ -176,6 +190,14 @@
         }
       }
     }
+    const rootBefore={id:'$root'}, rootAfter={id:'$root'};
+    for(const key of rootKeys) {
+      if(ENTITIES.includes(key)||!SAFE_ROOT_FIELDS.has(key))continue;
+      if(own(beforePayload,key))rootBefore[key]=clone(beforePayload[key]);
+      if(own(afterPayload,key))rootAfter[key]=clone(afterPayload[key]);
+    }
+    if(!same(rootBefore,rootAfter)) operations.push({...make({entity:'homework',
+      before:rootBefore,after:rootAfter,operationId:operationIdFactory()}),entity:'$root'});
     const ids = operations.map(op => op.operationId);
     if (new Set(ids).size !== ids.length) throw invalid('duplicate_operation_id');
     return { safe: unsupported.length === 0, operations, unsupportedTopLevelKeys: unsupported };
@@ -184,3 +206,4 @@
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.KaixinV2Operations = api;
 })();
+

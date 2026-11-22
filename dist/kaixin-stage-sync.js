@@ -5,11 +5,16 @@
  */
 (() => {
  'use strict';
- const FAMILY='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ const familyId=()=>window.KaixinStageAuth.familyId();
  const DIRTY='kaixin_stage_v2_unpersisted_v1';
  const BLOCK='kaixin_stage_v2_blocked_v1';
  const BACKUP='kaixin_stage_legacy_local_backup_v1';
  const DB='kaixin_stage_v2_queue_v1',STORE='ops';
+ const scope=()=>window.KaixinStageAuth?.familyIdOptional?.()||'unverified';
+ const dirtyKey=()=>DIRTY+'_'+scope();
+ const blockKey=()=>BLOCK+'_'+scope();
+ const backupKey=()=>BACKUP+'_'+scope();
+ const dbName=()=>DB+'_'+scope();
  const Ops=window.KaixinV2Operations;
  if(!Ops)throw new Error('staging_operation_engine_missing');
  let started=false,authorized=false,role='',baseline=null,revision=null,refresh=null;
@@ -24,6 +29,28 @@
  );
  const localKey=()=>typeof activeStorageKey==='function'?activeStorageKey():'kaixin_stage_local_v1';
  const safeClone=x=>JSON.parse(JSON.stringify(x));
+ async function hasLegacyPending(){
+   try{
+     if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK))return true;
+     if(typeof indexedDB.databases==='function'){
+       const names=(await indexedDB.databases()).map(item=>item.name);
+       if(!names.includes(DB))return false;
+     }
+     return await new Promise((resolve,reject)=>{
+       const req=indexedDB.open(DB,1);
+       req.onerror=()=>reject(req.error||Error('legacy_queue_unavailable'));
+       req.onupgradeneeded=()=>{req.transaction.abort();resolve(false);};
+       req.onsuccess=()=>{
+         const db=req.result;
+         if(!db.objectStoreNames.contains(STORE)){db.close();resolve(false);return;}
+         const tx=db.transaction(STORE,'readonly');
+         const count=tx.objectStore(STORE).count();
+         count.onsuccess=()=>{db.close();resolve(count.result>0);};
+         count.onerror=()=>{db.close();reject(count.error||Error('legacy_queue_unavailable'));};
+       };
+     });
+   }catch(_){return true;}
+ }
  // The isolated QA database contains old minimal technical fixtures. The UI needs
  // domain defaults, but these defaults must NEVER be uploaded as independent edits.
  function viewPayload(remote){
@@ -39,30 +66,97 @@
  function emit(change){
    state={...state,...change};
    window.dispatchEvent(new CustomEvent('island-sync-state',{detail:{...state}}));
+   if(authorized&&role==='parent'&&document.body){
+     let entry=document.getElementById('kaixin-v2-recovery-entry');
+     if(state.current==='pending'&&hasPendingLocal()){
+       if(!entry){entry=document.createElement('button');entry.id='kaixin-v2-recovery-entry';
+         entry.textContent='处理未同步修改';entry.onclick=openRecovery;document.body.append(entry);}
+     }else if(entry)entry.remove();
+   }
+ }
+ let blockedInMemory=false;
+ function hasPendingLocal(){
+   try{return blockedInMemory||!!localStorage.getItem(dirtyKey())||!!localStorage.getItem(blockKey());}
+   catch(_){return true;}
  }
  function block(reason) {
+   blockedInMemory=true;
+   try{localStorage.setItem(blockKey(),reason);}catch(_){}
+   try{if(baseline)localStorage.setItem(blockKey()+'_base',JSON.stringify(baseline));}catch(_){}
    preserveLocal('unsupported');
    emit({current:'pending',message:reason+'；本机修改已备份，云端仍可访问'});
  }
  function preserveLocal(reason) {
    try {
      const raw=localStorage.getItem(localKey());
-     if(raw)localStorage.setItem(BACKUP+'_'+crypto.randomUUID(),
+     if(raw)localStorage.setItem(backupKey()+'_'+crypto.randomUUID(),
        JSON.stringify({reason,at:new Date().toISOString(),snapshot:JSON.parse(raw)}));
    }catch(_){}
  }
- function clearLegacyLock(){
-   if(localStorage.getItem(DIRTY)||localStorage.getItem(BLOCK)){
-     preserveLocal('legacy_lock');
-     localStorage.removeItem(DIRTY);
-     localStorage.removeItem(BLOCK);
-   }
+ // Recovery is explicit and never uploads a whole local snapshot.
+ function exportPending(){
+   return {schema:1,reason:localStorage.getItem(blockKey()),
+     snapshot:JSON.parse(localStorage.getItem(localKey())||'null')};
  }
+ async function recoverPending({confirm=false,choice='retry'}={}){
+   if(!authorized||role!=='parent'||!confirm)throw Error('recovery_confirmation_required');
+   await writing;
+   const store=await openOutbox();
+   if((await store.all()).length)throw Error('queued_operations_require_resolution');
+   const snapshot=exportPending().snapshot;
+   if(!snapshot)throw Error('missing_local_snapshot');
+   if(choice==='retry'){
+     const base=JSON.parse(localStorage.getItem(blockKey()+'_base')||'null');
+     if(!base)throw Error('missing_recovery_base_export_required');
+     const plan=Ops.planTransition(base,snapshot,()=>crypto.randomUUID());
+     if(!plan.safe)throw Error('unsupported_recovery_changes');
+     const remote=await load();
+     if(Ops.applyBatch(remote.payload,plan.operations).outcome==='conflict')
+       throw Error('recovery_conflict_requires_review');
+     for(const op of plan.operations)await store.put(op);
+     baseline=safeClone(snapshot);
+     localStorage.removeItem(dirtyKey());localStorage.removeItem(blockKey());blockedInMemory=false;
+     localStorage.removeItem(blockKey()+'_base');
+     return flush();
+   }
+   if(choice!=='cloud')throw Error('invalid_recovery_choice');
+   // Unknown base after restart must not be treated as a safe merge.
+   // Export remains available; only an explicit cloud choice releases the guard.
+   preserveLocal('explicit_cloud_recovery');
+   const recoveryKey=backupKey()+'_recovery_'+crypto.randomUUID();
+   localStorage.setItem(recoveryKey,JSON.stringify({snapshot,at:new Date().toISOString()}));
+   if(!localStorage.getItem(recoveryKey))throw Error('recovery_backup_failed');
+   const remote=await load();
+   localStorage.removeItem(dirtyKey());localStorage.removeItem(blockKey());blockedInMemory=false;
+   localApply(remote.payload);revision=remote.revision;
+   return {ok:true,backupKey:recoveryKey,revision};
+ }
+ function openRecovery(){
+   if(!authorized||role!=='parent'||!hasPendingLocal())return false;
+   const prior=document.getElementById('kaixin-v2-recovery');if(prior)prior.remove();
+   const box=document.createElement('dialog');box.id='kaixin-v2-recovery';
+   const title=document.createElement('h2');title.textContent='本机有未同步修改';
+   const note=document.createElement('p');note.textContent='先下载本机副本，再选择重试提交或采用云端。冲突和缺少原始版本时会停止。';
+   const download=document.createElement('button');download.textContent='下载本机副本';
+   download.onclick=()=>{
+     const blob=new Blob([JSON.stringify(exportPending())],{type:'application/json'});
+     const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+     a.download='kaixin-pending-local.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+   };
+   const run=choice=>async()=>{try{const result=await recoverPending({confirm:true,choice});
+     if(result.ok)box.close();else note.textContent='仍未同步，请保留本机副本。';
+   }catch(error){note.textContent='未处理：'+error.message+'。本机修改仍保留。';}};
+   const retry=document.createElement('button');retry.textContent='重试提交';retry.onclick=run('retry');
+   const cloud=document.createElement('button');cloud.textContent='采用云端';cloud.onclick=run('cloud');
+   const close=document.createElement('button');close.textContent='稍后处理';close.onclick=()=>box.close();
+   box.append(title,note,download,retry,cloud,close);document.body.append(box);box.showModal();return true;
+ }
+ function clearLegacyLock(){ /* Pending markers require explicit reconciliation. */ }
  function openOutbox(){
    if(outboxPromise)return outboxPromise;
    outboxPromise=new Promise((resolve,reject)=>{
      if(!window.indexedDB){reject(Error('indexeddb_required'));return;}
-     const req=indexedDB.open(DB,1);
+     const req=indexedDB.open(dbName(),1);
      req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(STORE))req.result.createObjectStore(STORE,{keyPath:'operationId'});};
      req.onerror=()=>reject(Error('indexeddb_open_failed'));
      req.onblocked=()=>reject(Error('indexeddb_blocked'));
@@ -96,20 +190,21 @@
    return data;
  }
  async function load(){
-   const out=await call('family_load_v2',{p_family_id:FAMILY});
+   const out=await call('family_load_v2',{p_family_id:familyId()});
    if(!Number.isSafeInteger(out.revision)||!Array.isArray(out.payload?.homework))
       throw Error('invalid_remote_payload');
    return {payload:out.payload,revision:out.revision};
  }
  function localApply(payload){
    if(!allowed())throw Error('production_origin_blocked');
+   if(hasPendingLocal())throw Error('unreconciled_local_changes');
    const uiData=viewPayload(payload);
    localStorage.setItem(localKey(),JSON.stringify(uiData));
    baseline=safeClone(uiData);
    if(refresh)refresh(uiData);
  }
  async function clean(){
-   return (await (await openOutbox()).all()).length===0;
+   return !hasPendingLocal()&&(await (await openOutbox()).all()).length===0;
  }
  async function checkRemote(){
    if(!authorized||!allowed())return {ok:false};
@@ -165,7 +260,7 @@
    return edits[0];
  }
  function conflictMessage(op,remote){
-   const item=(remote.payload.homework||[]).find(h=>h.id===(op.homeworkId||op.id));
+   const item=op.entity==='$root'?remote.payload:(remote.payload[op.entity||'homework']||[]).find(h=>h.id===(op.homeworkId||op.id));
    const fields=op.kind==='child_homework_done'?['done']:
      op.action==='patch'?Object.keys(op.changes||{}):[op.action];
    const details=fields.map(k=>{
@@ -182,7 +277,7 @@
    let actor='操作设备未记录',action='修改作业';
    try{
      const result=await call('kaixin_homework_last_change_v2',{
-       p_family_id:FAMILY,p_homework_id:op.homeworkId||op.id
+       p_family_id:familyId(),p_homework_id:op.homeworkId||op.id
      });
      if(result.exists){
        const at=new Date(result.at);
@@ -209,6 +304,13 @@
    });
  }
  function rebaseParent(op,remote){
+   if(op.entity==='$root'){
+     const after=safeClone(remote.payload);
+     for(const [key,delta] of Object.entries(op.changes)){
+       if(delta.nextHas)after[key]=safeClone(delta.next);else delete after[key];
+     }
+     return Ops.planTransition(remote.payload,after,()=>crypto.randomUUID()).operations[0]||null;
+   }
    const items=remote.payload[op.entity]||[];
    const current=items.find(x=>x.id===op.id)||null;
    if(op.action==='add')return null; // Never replace an unknown object via id collision.
@@ -228,7 +330,7 @@
      return {ok:false,blocked:true};
    }
    const result=await window.KaixinStageAuth.client().rpc('kaixin_child_set_homework_done',{
-     p_homework_id:op.homeworkId,p_done:op.done,
+     p_family_id:familyId(),p_homework_id:op.homeworkId,p_done:op.done,
      p_expected_done:op.expectedDone,p_operation_id:op.operationId
    });
    if(result.error)throw Error('child_rpc_unavailable');
@@ -301,7 +403,7 @@
            await store.remove(activeOp.operationId);completed=true;break;
          }
          const result=await window.KaixinStageAuth.client().rpc('family_save_v2',{
-           p_family_id:FAMILY,p_payload:proposed.payload,
+           p_family_id:familyId(),p_payload:proposed.payload,
            p_expected_revision:remote.revision,p_operation_id:activeOp.operationId
          });
          if(result.error)throw Error('rpc_save_unavailable');
@@ -340,11 +442,11 @@
      let op;
      try{op=childToggleTransition(next);}
      catch(_){block('孩子设备当前只支持作业完成／撤销完成同步，其余本机改动已保留');return;}
-     try{localStorage.setItem(DIRTY,'1');}catch(_){block('不能保存断电保护标记');return;}
+     try{localStorage.setItem(dirtyKey(),'1');}catch(_){block('不能保存断电保护标记');return;}
      baseline=safeClone(next);
      writing=writing.then(async()=>{
        await (await openOutbox()).put(op);
-       localStorage.removeItem(DIRTY);
+       localStorage.removeItem(dirtyKey());
        emit({current:'pending',message:'孩子操作已保存在本机，待云端确认'});
      }).catch(()=>block('孩子操作队列持久化失败'));
      writing.then(()=>flush());
@@ -357,12 +459,12 @@
    if(!planned.safe){block('本次保存涉及 '+planned.unsupportedTopLevelKeys.slice(0,4).join('、')+' 等联动字段，必须先实现无损合并');return;}
    if(!planned.operations.length)return;
    // Marker is synchronous: crash before IndexedDB commit cannot silently drop data.
-   try{localStorage.setItem(DIRTY,'1');}catch(_){block('无法写入断电保护标记');return;}
+   try{localStorage.setItem(dirtyKey(),'1');}catch(_){block('无法写入断电保护标记');return;}
    baseline=safeClone(next);
    writing=writing.then(async()=>{
      const store=await openOutbox();
      for(const op of planned.operations) await store.put(op);
-     localStorage.removeItem(DIRTY);
+     localStorage.removeItem(dirtyKey());
      emit({current:'pending',message:'本机修改已安全排队，等待云端确认'});
    }).catch(()=>block('本机操作队列持久化失败'));
    writing.then(()=>flush());
@@ -395,10 +497,16 @@
      const verified=await window.KaixinStageAuth.verifiedRole(role==='parent-preview'?'parent':role);
      if(!verified){emit({current:'unauthorized',message:'请先完成 KAIXIN 测试身份验证'});return;}
      authorized=true;
+     if(await hasLegacyPending()){
+       window.KaixinStageAuth.showGate('发现旧测试版本尚未核对的本机修改。原数据已保留，请先联系家长处理，不能自动切换家庭。',role);
+       emit({current:'pending',message:'旧版本本机修改待核对；已暂停云端覆盖'});
+       return;
+     }
      if(role==='parent-preview'){
        // Keep the parent preview independent of the child device outbox and
        // stale local flags. The server-authorized snapshot is always canonical.
-       const loaded=await load();
+       if(hasPendingLocal()){emit({current:'pending',message:'本机修改尚未核对，已暂停云端覆盖'});return;}
+     const loaded=await load();
        revision=loaded.revision;
        localApply(loaded.payload);
        emit({cloudRecord:'yes',current:'synced',message:'家长只读预览 · 云端版本 '+revision});
@@ -410,6 +518,7 @@
        await flush();
        return;
      }
+     if(hasPendingLocal()){emit({current:'pending',message:'本机修改尚未核对，已暂停云端覆盖'});return;}
      const loaded=await load();
      revision=loaded.revision;
      localApply(loaded.payload);
@@ -431,7 +540,7 @@
    }
  }
  window.IslandSync=Object.freeze({
-   start,schedulePush,checkRemote,flush,manualSync,getStatus:()=>({...state}),
+   exportPending,recoverPending,openRecovery,start,schedulePush,checkRemote,flush,manualSync,getStatus:()=>({...state}),
    getCode:()=> 'KAIXIN',getFamily:()=> 'KAIXIN',
  });
  window.KaixinStageSyncDiagnostics=Object.freeze({
@@ -439,3 +548,4 @@
    pending:async()=>(await openOutbox()).all()
  });
 })();
+

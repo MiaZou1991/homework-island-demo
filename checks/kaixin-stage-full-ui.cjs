@@ -21,7 +21,10 @@ const sdkMock=`(()=>{
    },
    rpc:async(name,body={})=>{
     state.calls.push(name);
-    if(name==='kaixin_identity')return{data:['parent','child'].includes(state.role)?{ok:true,family:'KAIXIN',role:state.role}:{ok:false,error:'unauthorized'},error:null};
+   if(['family_load_v2','family_save_v2','kaixin_child_set_homework_done','kaixin_homework_last_change_v2'].includes(name)
+      &&body.p_family_id!=='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
+     return{data:{ok:false,error:'wrong_family_binding'},error:null};
+    if(name==='kaixin_identity')return{data:['parent','child'].includes(state.role)?{ok:true,family:'KAIXIN',family_id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',role:state.role}:{ok:false,error:'unauthorized'},error:null};
     if(name==='kaixin_list_child_devices')return{data:{ok:true,family:'KAIXIN',devices:[
       {id:'33333333-3333-4333-8333-333333333333'},
       {id:'b71b98fd-51ee-479c-a029-410a62a317bd'}]},error:null};
@@ -109,6 +112,15 @@ async function boot(browser,role,route='child.html',sparse=false){
   assert.equal(await anon.page.locator('.phone').isVisible(),false);
   assert.equal((await anon.page.evaluate(()=>window.__qaRemote.calls)).includes('family_load_v2'),false);
   await anon.page.close();
+
+  // A pending flag from the old shared storage must stop a new family load.
+  const legacy=await boot(browser,'parent','parent.html');
+  await legacy.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:10000});
+  await legacy.page.evaluate(()=>localStorage.setItem('kaixin_stage_v2_unpersisted_v1','1'));
+  await legacy.page.reload({waitUntil:'domcontentloaded'});
+  await legacy.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='pending',{timeout:10000});
+  assert.equal((await legacy.page.evaluate(()=>window.__qaRemote.calls)).includes('family_load_v2'),false);
+  await legacy.page.close();
 
   // Fresh iPhone Safari: getUser() without a session would raise
   // AuthSessionMissingError. The child must still be able to create a guest.
@@ -320,32 +332,15 @@ async function boot(browser,role,route='child.html',sparse=false){
 
   await parent.page.evaluate(()=>sessionStorage.setItem('__qaFixedCloud',
     JSON.stringify(window.__qaRemote.payload)));
-  // Crash/reload recovery: a stale marker must clear ONLY when the local
-  // snapshot and cloud projection are identical, with no queued operations.
-  await parent.page.evaluate(()=>localStorage.setItem('kaixin_stage_v2_blocked_v1','1'));
+  // A pending marker survives refresh until a parent explicitly resolves it.
+  await parent.page.evaluate(()=>localStorage.setItem('kaixin_stage_v2_blocked_v1_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','1'));
   await parent.page.reload({waitUntil:'domcontentloaded'});
-  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
-  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),null,
-    'exact equality + empty outbox safely recovers stale marker');
-
-  // Old Safari global locks no longer disable cloud access. The divergent
-  // local snapshot is preserved as a backup before cloud state becomes visible.
-  await parent.page.evaluate(()=>{
-    const key=DEMO_KEY,local=JSON.parse(localStorage.getItem(key));
-    local.kidName='只存在于本机的安全测试';
-    localStorage.setItem(key,JSON.stringify(local));
-    localStorage.setItem('kaixin_stage_v2_blocked_v1','1');
-  });
-  await parent.page.reload({waitUntil:'domcontentloaded'});
-  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='synced',{timeout:15000});
-  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1')),null);
-  const backup=await parent.page.evaluate(()=>{
-    const keys=Object.keys(localStorage).filter(k=>k.startsWith('kaixin_stage_legacy_local_backup_v1_'));
-    return keys.map(k=>JSON.parse(localStorage.getItem(k)).snapshot.kidName);
-  });
-  assert.ok(backup.includes('只存在于本机的安全测试'),'legacy local edits are backed up');
-  assert.notEqual(await parent.page.evaluate(()=>getData().kidName),'只存在于本机的安全测试',
-    'cloud is the one visible state after backup');
+  await parent.page.waitForFunction(()=>window.IslandSync?.getStatus?.().current==='pending',{timeout:15000});
+  assert.equal(await parent.page.evaluate(()=>localStorage.getItem('kaixin_stage_v2_blocked_v1_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')),'1');
+  await parent.page.getByText('处理未同步修改').click();
+  await parent.page.locator('#kaixin-v2-recovery').waitFor({state:'visible'});
+  await parent.page.getByRole('button',{name:'采用云端'}).click();
+  await parent.page.waitForFunction(()=>!localStorage.getItem('kaixin_stage_v2_blocked_v1_aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'),{timeout:15000});
   assert.deepEqual(parent.errors,[],'parent staging UI must not produce JS errors');
   await parent.page.close();
 
