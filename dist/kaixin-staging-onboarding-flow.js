@@ -18,7 +18,7 @@
     async function call(name,args) {
       const {data,error}=await client.rpc(name,args||{});
       if(error)throw fail('server_unavailable');
-      if(!data||data.ok!==true)throw fail(['unauthorized','invalid_invite','already_bound'].includes(data?.error)?data.error:'server_rejected');
+      if(!data||data.ok!==true)throw fail(['unauthorized','ambiguous_or_unbound','invalid_invite','already_bound'].includes(data?.error)?data.error:'server_rejected');
       return data;
     }
     async function current() {
@@ -36,7 +36,7 @@
         if(result.family!=='KAIXIN'||!['parent','child'].includes(result.role))throw fail('invalid_family_identity');
         return {kind:result.role,userId:user.id,anonymous:!!user.is_anonymous};
       }catch(error) {
-        if(error.code==='unauthorized')return {kind:'unbound',userId:user.id,
+        if(error.code==='unauthorized'||error.code==='ambiguous_or_unbound')return {kind:'unbound',userId:user.id,
           anonymous:!!user.is_anonymous};
         throw error;
       }
