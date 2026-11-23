@@ -167,6 +167,17 @@
     const form = gate.querySelector('form');
     const message = form.querySelector('[role="status"]');
     form.querySelector('button[type="button"]').onclick = () => location.reload();
+    if (!window.supabase?.createClient) {
+      try {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.append(script);
+        });
+      } catch (_) { /* The reconnect action remains available. */ }
+    }
     if (!window.supabase?.createClient) { message.textContent = '登录服务加载失败，请重新连接'; return; }
     client = window.supabase.createClient('https://syqcpfjudjniripzcjdq.supabase.co', 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax', {
       auth: { storageKey: 'kaixin-production-session-' + mode, persistSession: true, detectSessionInUrl: false }
