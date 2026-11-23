@@ -84,7 +84,16 @@
   }
 
   function openPanel() {
-    if (!pending || !blocked) { showToast(status.message); return; }
+    if (!pending || !blocked) {
+      if (mode === 'parent' && user) {
+        if (confirm('为孩子的新设备生成一次性授权码？授权码十分钟内有效。')) {
+          rpc('create_device_invite').then(({ token }) => {
+            prompt('请把这串授权码粘贴到孩子设备的开心岛页面', token);
+          }).catch(() => showToast('暂时无法生成授权码，请稍后重试'));
+        }
+      } else showToast(status.message);
+      return;
+    }
     const backup = new Blob([JSON.stringify(pending, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(backup);
     const link = Object.assign(document.createElement('a'), { href: url, download: '开心岛待同步修改.json' });
@@ -158,8 +167,9 @@
     gate = document.createElement('dialog');
     gate.style.cssText = 'max-width:360px;width:90%;padding:24px;border:0;border-radius:20px;background:#fffaf0;color:#50442c';
     gate.innerHTML = '<form><h2>开心岛</h2><p role="status">正在验证设备…</p>'
-      + '<label>授权邮箱 <input type="email" name="email" autocomplete="username" required></label><br><br>'
-      + '<label>密码 <input type="password" name="password" autocomplete="current-password" required></label><br><br>'
+      + (mode === 'child' ? '<label>家长授权码 <input name="token" autocomplete="off" autocapitalize="off" required></label><br><br>'
+      : '<label>授权邮箱 <input type="email" name="email" autocomplete="username" required></label><br><br>'
+      + '<label>密码 <input type="password" name="password" autocomplete="current-password" required></label><br><br>')
       + '<button type="submit">进入开心岛</button> <button type="button">重新连接</button></form>';
     gate.addEventListener('cancel', event => event.preventDefault());
     document.body.append(gate);
@@ -187,19 +197,31 @@
       const button = form.querySelector('button[type="submit"]');
       button.disabled = true;
       try {
-        const { error } = await client.auth.signInWithPassword({
-          email: form.elements.email.value.trim(), password: form.elements.password.value
-        });
-        form.elements.password.value = '';
-        if (error) throw error;
+        if (mode === 'child') {
+          const token = form.elements.token.value.trim().toLowerCase();
+          if (!/^[0-9a-f]{64}$/.test(token)) throw new Error('invalid_invite');
+          const { data: session } = await client.auth.getSession();
+          if (!session?.session) {
+            const { error } = await client.auth.signInAnonymously();
+            if (error) throw error;
+          }
+          await rpc('redeem_device_invite', { p_token: token });
+          form.elements.token.value = '';
+        } else {
+          const { error } = await client.auth.signInWithPassword({
+            email: form.elements.email.value.trim(), password: form.elements.password.value
+          });
+          form.elements.password.value = '';
+          if (error) throw error;
+        }
         await enter();
-      } catch (_) { message.textContent = '登录失败，或这个账号尚未获本页面授权'; }
+      } catch (_) { message.textContent = mode === 'child' ? '授权未完成，请核对授权码或请家长重新生成' : '登录失败，或这个账号尚未获授权'; }
       finally { button.disabled = false; }
     };
     const submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
     try { await enter(); }
-    catch (_) { message.textContent = mode === 'parent' ? '请使用已授权的家长账号登录' : '在新设备上首次登录孩子账号'; }
+    catch (_) { message.textContent = mode === 'parent' ? '请使用已授权的家长账号登录' : '请家长为这台设备完成一次授权'; }
     finally { submit.disabled = false; }
   }
 
