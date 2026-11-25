@@ -169,7 +169,7 @@
     gate.innerHTML = '<form><h2>开心岛</h2><p role="status">正在验证设备…</p>'
       + (mode === 'child' ? '<label>家长授权码 <input name="token" autocomplete="off" autocapitalize="off" required></label><br><br>'
       : '<label>授权邮箱 <input type="email" name="email" autocomplete="username" required></label><br><br>'
-      + '<label>密码 <input type="password" name="password" autocomplete="current-password" required></label><br><br>')
+      + '<label>密码 <input type="password" name="password" autocomplete="current-password" required></label><br><a href="./parent-password.html">忘记密码</a><br><br>')
       + '<button type="submit">进入开心岛</button> <button type="button">重新连接</button></form>';
     gate.addEventListener('cancel', event => event.preventDefault());
     document.body.append(gate);
