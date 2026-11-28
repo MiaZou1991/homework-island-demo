@@ -6,7 +6,7 @@
   const originalSave = saveData;
   const originalGet = getData;
   let memorySnapshot, cacheAvailable = true;
-  getData = () => memorySnapshot ? JSON.parse(JSON.stringify(memorySnapshot)) : originalGet();
+  getData = () => memorySnapshot ? { ...createDefaultData(), ...JSON.parse(JSON.stringify(memorySnapshot)) } : originalGet();
   let client, user, revision, pending, running = false, blocked = false, gate;
   let storageKey = 'kaixin_production_locked';
   let status = { current: 'unknown', message: '正在核对云端记录' };
@@ -55,7 +55,10 @@
       cacheAvailable = false;
     }
     revision = remote.revision;
-    if (changed) refreshCurrentView();
+    if (changed) {
+      refreshCurrentView();
+      if (mode === 'parent') window.dispatchEvent(new Event('island-family-data-updated'));
+    }
   }
 
   async function sync() {
@@ -77,7 +80,7 @@
       const remote = await readCloud();
       if (!pending) {
         apply(remote);
-        report('synced', cacheAvailable ? '手机和电脑共用这份云端记录' : '已读取云端记录，本机存储不可用');
+        report('synced', cacheAvailable ? '云端数据已同步' : '云端数据已读取，本机存储不可用');
       }
     } catch (error) {
       if (['conflict', 'review_required', 'not_found_or_duplicate'].includes(error.code)) {
@@ -94,15 +97,19 @@
     }
   }
 
+  async function inviteChild() {
+    if (mode !== 'parent' || !user) return;
+    try {
+      const { token } = await rpc('create_device_invite');
+      prompt('请把授权码粘贴到孩子设备的开心岛页面，10 分钟内有效。', token);
+    } catch (_) {
+      showToast('暂时无法生成授权码，请稍后重试');
+    }
+  }
+
   function openPanel() {
     if (!pending || !blocked) {
-      if (mode === 'parent' && user) {
-        if (confirm('为孩子的新设备生成一次性授权码？授权码十分钟内有效。')) {
-          rpc('create_device_invite').then(({ token }) => {
-            prompt('请把这串授权码粘贴到孩子设备的开心岛页面', token);
-          }).catch(() => showToast('暂时无法生成授权码，请稍后重试'));
-        }
-      } else showToast(status.message);
+      showToast(status.message);
       return;
     }
     const backup = new Blob([JSON.stringify(pending, null, 2)], { type: 'application/json' });
@@ -120,16 +127,21 @@
   saveData = data => {
     if (!user || mode !== 'parent' || !Number.isSafeInteger(revision)) return false;
     if (!cacheAvailable) { showToast('本机存储不可用，当前只能查看云端记录'); return false; }
+    const payload = JSON.parse(JSON.stringify(data));
     try {
-      remember({ base: pending?.base ?? revision, payload: JSON.parse(JSON.stringify(data)) });
-      originalSave(data);
-      report('pending', blocked ? '本机修改已保留，请处理同步冲突' : '本机已保存，等待同步');
-      sync();
-      return true;
+      remember({ base: pending?.base ?? revision, payload });
     } catch (_) {
-      showToast('设备存储空间不足，请保留当前页面并导出记录');
+      showToast('无法保存待同步修改，请保留当前页面');
       return false;
     }
+    try { originalSave(data); }
+    catch (_) {
+      memorySnapshot = payload;
+      cacheAvailable = false;
+    }
+    report('pending', blocked ? '本机修改已保留，请处理同步冲突' : '本机已保存，等待同步');
+    sync();
+    return true;
   };
 
   function toggle(id, done) {
@@ -158,12 +170,18 @@
     }
     if (!pending) apply(remote);
     else {
-      if (pending.payload) localStorage.setItem(storageKey, JSON.stringify(pending.payload));
-      else apply(remote);
+      if (pending.payload) {
+        try { localStorage.setItem(storageKey, JSON.stringify(pending.payload)); }
+        catch (_) {
+          memorySnapshot = pending.payload;
+          cacheAvailable = false;
+        }
+      } else apply(remote);
       revision = remote.revision;
       refreshCurrentView();
       report('pending', '正在核对本机待同步修改');
     }
+    if (!pending) report('synced', cacheAvailable ? '云端数据已同步' : '云端数据已读取，本机存储不可用');
     user = data.user;
     gate.close();
     gate.remove();
@@ -181,6 +199,7 @@
     if (code === 'email_not_confirmed') return '邮箱尚未验证，请先完成邮箱验证。';
     if (code === 'login_required' || error?.name === 'AuthSessionMissingError')
       return mode === 'parent' ? '请用家长邮箱和密码登录。' : '请家长为这台设备完成一次授权。';
+    if (code === 'anonymous_provider_disabled') return '儿童设备授权服务尚未启用，请联系家长。';
     if (['invalid_invite', 'already_bound'].includes(code)) return '授权码无效或已使用，请家长重新生成。';
     if (['unauthorized', 'unavailable_or_unauthorized'].includes(code))
       return mode === 'parent' ? '这个账号未绑定家长权限，请核对登录邮箱。' : '这台设备尚未获得家长授权。';
@@ -257,6 +276,6 @@
   }
 
   window.IslandSync = {
-    start, pull: sync, schedulePush() {}, getStatus: () => ({ ...status }), getCode: () => '', openPanel
+    isProduction: true, start, pull: sync, schedulePush() {}, getStatus: () => ({ ...status }), getCode: () => '', openPanel, inviteChild
   };
 })();

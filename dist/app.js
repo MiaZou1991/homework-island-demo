@@ -1724,6 +1724,7 @@ async function addManualHomework() {
 
         // 成功保存本机之后，立即退出编辑弹窗；后续 UI 更新故障不应造成误点重发。
         syncQueued = saveData(data);
+        if (!syncQueued && window.IslandSync?.isProduction) return;
         saved = true;
         closePublishSheet();
         try {
