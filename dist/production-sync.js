@@ -7,14 +7,26 @@
   const originalGet = getData;
   let memorySnapshot, cacheAvailable = true;
   getData = () => memorySnapshot ? { ...createDefaultData(), ...JSON.parse(JSON.stringify(memorySnapshot)) } : originalGet();
-  let client, user, role = mode, revision, pending, running = false, blocked = false, gate;
+  let client, user, role = mode, revision, pending, activeSync, blocked = false, gate;
   let storageKey = 'kaixin_production_locked';
   let status = { current: 'unknown', message: '正在核对云端记录' };
   activeStorageKey = () => storageKey;
 
+  function getStatus() {
+    return { ...status, offline: navigator.onLine === false, blocked, hasPending: Boolean(pending) };
+  }
+
+  function notifyStatus() {
+    window.dispatchEvent(new CustomEvent('island-sync-state', { detail: getStatus() }));
+  }
+
   function report(current, message) {
-    status = { current, message, cloudRecord: Number.isSafeInteger(revision) ? 'yes' : 'unknown' };
-    window.dispatchEvent(new CustomEvent('island-sync-state', { detail: status }));
+    status = {
+      current, message,
+      cloudRecord: Number.isSafeInteger(revision) ? 'yes' : 'unknown',
+      lastCheckedAt: current === 'synced' ? Date.now() : status.lastCheckedAt
+    };
+    notifyStatus();
   }
 
   async function rpc(name, args = {}, connection = client) {
@@ -78,9 +90,14 @@
     });
   }
 
-  async function sync() {
-    if (!user || running || blocked || document.hidden || navigator.onLine === false) return;
-    running = true;
+  function sync() {
+    if (activeSync) return activeSync;
+    if (!user || blocked || document.hidden || navigator.onLine === false) return Promise.resolve();
+    activeSync = performSync().finally(() => { activeSync = undefined; });
+    return activeSync;
+  }
+
+  async function performSync() {
     try {
       const operation = pending;
       if (operation) {
@@ -110,19 +127,22 @@
       } else {
         report(pending ? 'pending' : 'unknown', pending ? '本机修改待上传，联网后重试' : '暂时无法核对云端记录');
       }
-    } finally {
-      running = false;
     }
   }
 
   async function inviteChild() {
+    if (mode !== 'parent' || !user) throw new Error('login_required');
+    const issuedAt = Date.now();
+    const { token } = await rpc('create_device_invite');
+    return { token, expiresAt: issuedAt + 10 * 60 * 1000 };
+  }
+
+  async function signOutParent() {
     if (mode !== 'parent' || !user) return;
-    try {
-      const { token } = await rpc('create_device_invite');
-      prompt('请把授权码粘贴到孩子设备的开心岛页面，10 分钟内有效。', token);
-    } catch (_) {
-      showToast('暂时无法生成授权码，请稍后重试');
-    }
+    if (pending || localStorage.getItem(storageKey + ':child-view:pending'))
+      throw new Error('pending_changes');
+    const { error } = await client.auth.signOut({ scope: 'local' });
+    if (error) throw error;
   }
 
   function openPanel() {
@@ -209,7 +229,11 @@
     window.dispatchEvent(new Event('island-ready'));
     sync();
     setInterval(sync, 30000);
-    window.addEventListener('online', sync);
+    connection.auth.onAuthStateChange(event => {
+      if (event === 'SIGNED_OUT') setTimeout(() => location.reload(), 0);
+    });
+    window.addEventListener('offline', notifyStatus);
+    window.addEventListener('online', () => { notifyStatus(); sync(); });
     window.addEventListener('focus', sync);
     document.addEventListener('visibilitychange', sync);
   }
@@ -307,6 +331,6 @@
   }
 
   window.IslandSync = {
-    isProduction: true, start, pull: sync, schedulePush() {}, getStatus: () => ({ ...status }), getCode: () => '', openPanel, inviteChild
+    isProduction: true, start, pull: sync, schedulePush() {}, getStatus, getCode: () => '', openPanel, inviteChild, signOutParent
   };
 })();

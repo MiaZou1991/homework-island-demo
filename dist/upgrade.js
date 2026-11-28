@@ -170,7 +170,85 @@ function materialArt(id){const art={wood:'nature-wood-piece',branch:'nature-tree
 
 function room(d){const g=d.demoGrowth,unlocked=DemoCore.homeworkProgress(d).complete;if(!unlocked)ui.roomEdit=false;const zone=ui.roomZone||'shelf',action=ui.roomAction||'place',visible=roomSlots.filter(s=>s.zone===zone),allUsed=Object.keys(g.room).length;return `<div class="up-eyebrow">用房间摆件，布置自己的家</div><div class="up-heading"><h1>我的房间</h1>${button(unlocked?(ui.roomEdit?'完成布置':'布置房间'):'完成作业后再布置',unlocked?'room-edit':'continue-homework','up-chip')}</div>${islandTabs('room')}<div class="up-room-scene"><img class="up-room-bg" src="assets/hd/room.jpg" alt="有三层展示架、书桌与窗边的温暖小屋" decoding="async" fetchpriority="high">${sceneBuddy(d,'room')}${roomSlots.map(s=>{const id=g.room[s.id],editing=ui.roomEdit&&s.zone===zone;return `<button class="up-room-slot ${id?'occupied':''} ${editing?'editing':''} ${ui.roomFrom===s.id?'moving':''}" style="--slot-x:${s.x}%;--slot-y:${s.y}%" data-up="room-slot" data-slot="${s.id}" aria-label="${s.name}，${id?(MATERIALS.find(m=>m.id===id)?.name||id):'空位'}" ${editing?'':'disabled'}>${id?materialArt(id):editing?'<span>＋</span>':''}</button>`;}).join('')}</div>${ui.roomEdit?`<div class="up-room-zones" aria-label="布置区域">${[['shelf','展示架',12],['desk','书桌',2],['window','窗边',1]].map(([id,name,total])=>button(name+' '+roomSlots.filter(s=>s.zone===id&&g.room[s.id]).length+'/'+total,'room-zone','up-filter',`data-zone="${id}" aria-pressed="${zone===id}"`)).join('')}</div><div class="up-room-tools">${[['place','摆放收藏'],['move','移动摆件'],['remove','收回摆件']].map(([id,name])=>button(name,'room-action','up-filter',`data-action="${id}" aria-pressed="${action===id}"`)).join('')}</div><p class="up-note">${action==='move'?(ui.roomFrom?'再点一个位置，移过去；已有物品时会交换位置。':'先点一件已摆好的收藏，再选新位置。'):action==='remove'?'点一下已摆放的物品，就能收回收藏。':'先选下方收藏，再点位置；替换后，原物品会自动收回。'}</p><div class="up-room-grid">${visible.map(s=>{const id=g.room[s.id];return button(`${id?materialArt(id):'<span class="up-position-plus">＋</span>'}<small>${s.zone==='shelf'?s.name.replace('展示架第 ','').replace(' 层 · ','层 · '):s.name}</small>`,'room-slot','up-room-place',`data-slot="${s.id}" aria-label="布置${s.name}，${id?(MATERIALS.find(m=>m.id===id)?.name||id):'空位'}" aria-pressed="${ui.roomFrom===s.id}"`);}).join('')}</div>${section('我的收藏')}<div class="up-inventory">${Object.entries(d.materials||{}).filter(([,n])=>n>0).map(([id,n])=>{const used=DemoCore.roomUsage(d,id);return `<button data-up="item" data-item="${attr(id)}" class="up-inventory-item" aria-pressed="${ui.selectedItem===id&&action==='place'}">${materialArt(id)}<span>${e(MATERIALS.find(m=>m.id===id)?.name||id)}</span><small>拥有 ${n} · 已摆 ${used}</small><small>可摆 ${Math.max(0,n-used)} 件</small></button>`;}).join('')||'<p class="up-muted">完成作业后，房间摆件会出现在这里。</p>'}</div>`:`<p class="up-scene-caption">${e(companion(d).name)}陪你，让这里一点一点变成自己的样子。</p><div class="up-project"><h2>小小收藏，也能摆满一面墙。</h2><p>展示架 3 层、12 个位置，另有 2 处书桌和 1 处窗边。已摆 ${allUsed} / 15 件；摆放不消耗收藏，已有摆件都保留。</p>${button(unlocked?'开始布置我的房间':'先完成今日作业，再布置',unlocked?'room-edit':'continue-homework','up-primary')}</div>`}`;}
 function openKidNameEditor(d){modal(`<div class="up-eyebrow">家庭资料</div><h1>编辑孩子姓名</h1><p class="up-muted">这个名字会显示在家庭页和进度提示中。</p><label class="up-field"><span>儿童名字</span><input id="up-kid-name" type="text" maxlength="12" autocomplete="off" value="${attr(d.kidName||'')}" placeholder="输入孩子名字"></label>${button('保存姓名','save-kid-name','up-primary')}`);}
-function family(d){return `<div class="up-eyebrow">陪伴，也有自己的节奏</div><h1>${child?'我的资料':'我们的家庭'}</h1><div class="up-profile">${buddy(d)}<div><div class="up-profile-name"><h2>${e(d.kidName||'小岛主')}</h2>${button('编辑','profile','up-link','aria-label="编辑孩子姓名"')}</div><p>${e(d.kidMood||'一起把每一天，过成喜欢的样子。')}</p></div></div>${[['report','学习回顾','近期学习记录与日周月统计'],['reward','奖励与积分管理','自定义家庭奖励、兑现和加扣分'],['cloud','家庭云端数据',window.IslandSync?.getStatus?.()?.message||'同步状态尚未确认']].map(([a,n,s])=>`<button class="up-row" data-up="${a}"><span class="up-row-main"><b>${n}</b><small>${s}</small></span><span class="up-chevron">›</span></button>`).join('')}${child||ISLAND_PREVIEW?'':`<button class="up-row" data-up="child-device"><span class="up-row-main"><b>授权孩子设备</b><small>首次使用时生成一次性授权码</small></span><span class="up-chevron" aria-hidden="true">›</span></button><a class="up-row" href="./parent-password.html"><span class="up-row-main"><b>设置／重置家长密码</b><small>通过已验证的家长邮箱设置密码</small></span><span class="up-chevron" aria-hidden="true">›</span></a>`}`; }
+function familyRow(title, description, action){
+ return `<button class="up-row" data-up="${action}"><span class="up-row-main"><b>${title}</b><small>${description}</small></span><span class="up-chevron" aria-hidden="true">›</span></button>`;
+}
+function familySyncSummary(s){
+ const key=s.blocked?'conflict':s.offline?'offline':s.current||'unknown';
+ const label={synced:'已与云端核对',pending:'有修改待上传',offline:'当前离线',conflict:'需要处理同步冲突',unknown:'同步状态待确认'}[key];
+ const last=s.lastCheckedAt?new Intl.DateTimeFormat('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(s.lastCheckedAt):'';
+ const message=key==='conflict'?'本机修改已保留。':key==='offline'?(s.hasPending?'有本机修改待上传。':'联网后会自动重新检查。'):key==='pending'?'正在等待云端确认。':key==='unknown'?'请重新检查同步。':s.message?.includes('本机存储不可用')?s.message:'';
+ const source=key==='synced'?'基于最近一次核对的记录':'本机副本，可能包含尚未上传的修改';
+ return {key,label,last,message,source};
+}
+function familySyncMarkup(state){
+ return `<strong data-tone="${state.key}">${state.label}</strong>${state.last?`<span>最近核对 ${e(state.last)}</span>`:''}${state.message?`<span>${e(state.message)}</span>`:''}`;
+}
+function parentFamilySettings(d){
+ const state=familySyncSummary(window.IslandSync?.getStatus?.()||{});
+ const preview=ISLAND_PREVIEW?'?preview=1':'';
+ return `<h1>家庭</h1>
+ <div class="up-profile">${buddy(d)}<div class="up-family-profile"><h2>${e(d.kidName||'小岛主')}</h2><small>孩子资料</small></div>${button('编辑','profile','up-link','aria-label="编辑孩子姓名"')}</div>
+ <section class="up-family-card"><h2>儿童端与设备</h2>
+ <div class="up-family-actions"><a class="up-primary" href="./child.html${preview}">在这台设备打开儿童端</a>${button('授权另一台设备','child-device','up-secondary',ISLAND_PREVIEW?'disabled':'')}</div>
+ <p>孩子第一次在另一台设备上使用时，需要授权一次。</p></section>
+ <section class="up-family-card"><h2>数据同步与备份</h2><div class="up-family-status" data-family-sync aria-live="polite">${familySyncMarkup(state)}</div>
+ <div class="up-family-actions">${button('重新检查','sync-now','up-secondary')}${button('处理同步冲突','sync-details','up-secondary',state.key==='conflict'?'':'hidden')}${button('导出备份','export','up-secondary')}</div>
+ <p data-family-backup>${state.source}</p></section>
+ <section class="up-family-card up-family-links"><h2>家长账号</h2>
+ <div class="up-family-actions"><a class="up-secondary" href="./parent-password.html">更改密码</a>${button('退出家长账号','parent-signout','up-link',ISLAND_PREVIEW?'disabled':'')}</div></section>
+ <section class="up-family-card up-family-links"><h2>学习与奖励</h2>
+ ${familyRow('学习回顾','近期学习记录与日周月统计','report')}${familyRow('奖励与积分管理','家庭奖励、兑现和积分记录','reward')}</section>`;
+}
+function updateFamilySync(){
+ const summary=root?.querySelector('[data-family-sync]');
+ if(!summary)return;
+ const state=familySyncSummary(window.IslandSync?.getStatus?.()||{});
+ const next=familySyncMarkup(state);
+ if(summary.innerHTML!==next)summary.innerHTML=next;
+ root.querySelector('[data-up="sync-details"]').hidden=state.key!=='conflict';
+ root.querySelector('[data-family-backup]').textContent=state.source;
+}
+function inviteMarkup(code, expiresAt){
+ const time=new Intl.DateTimeFormat('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false}).format(expiresAt);
+ return `<h1>授权另一台设备</h1><p class="up-muted">在孩子的设备打开儿童端，粘贴授权码。此码 ${e(time)} 前有效，仅可使用一次。</p>
+ <label class="up-family-token">一次性授权码 <input data-family-token readonly value="${attr(code)}"></label>
+ ${button('复制授权码','copy-device','up-primary')}`;
+}
+async function openDeviceInvite(buttonElement){
+ if(!window.IslandSync?.inviteChild)return;
+ buttonElement.disabled=true;
+ try{
+  const {token,expiresAt}=await window.IslandSync.inviteChild();
+  if(ui.route!=='family'||ui.legacy)return;
+  const dialog=modal(inviteMarkup(token,expiresAt));
+  const copy=dialog.querySelector('[data-up="copy-device"]');
+  copy.dataset.expires=String(expiresAt);
+ }catch(_){showToast('暂时无法生成授权码，请稍后重试');}
+ finally{buttonElement.disabled=false;}
+}
+async function copyDeviceInvite(buttonElement){
+ if(Date.now()>=Number(buttonElement.dataset.expires)){showToast('授权码已过期，请重新生成');return;}
+ const input=buttonElement.closest('dialog').querySelector('[data-family-token]');
+ try{await navigator.clipboard.writeText(input.value);showToast('授权码已复制');}
+ catch(_){input.focus();input.select();showToast('请复制已选中的授权码');}
+}
+async function exitParent(buttonElement){
+ if(!window.IslandSync?.signOutParent||!confirm('退出这台设备上的家长账号？'))return;
+ buttonElement.disabled=true;
+ try{await window.IslandSync.signOutParent();}
+ catch(error){showToast(error.message==='pending_changes'?'这台设备还有待同步的修改，请先处理再退出。':'暂时无法退出，请稍后重试');}
+ finally{buttonElement.disabled=false;}
+}
+async function checkFamilySync(buttonElement){
+ if(!window.IslandSync?.pull)return;
+ buttonElement.disabled=true;
+ buttonElement.textContent='正在检查…';
+ try{await window.IslandSync.pull();showToast(familySyncSummary(window.IslandSync.getStatus()).label);}
+ catch(_){showToast('暂时无法核对云端记录');}
+ finally{buttonElement.disabled=false;buttonElement.textContent='重新检查';}
+}
+function family(d){if(!child)return parentFamilySettings(d);return `<div class="up-eyebrow">陪伴，也有自己的节奏</div><h1>${child?'我的资料':'我们的家庭'}</h1><div class="up-profile">${buddy(d)}<div><div class="up-profile-name"><h2>${e(d.kidName||'小岛主')}</h2>${button('编辑','profile','up-link','aria-label="编辑孩子姓名"')}</div><p>${e(d.kidMood||'一起把每一天，过成喜欢的样子。')}</p></div></div>${[['report','学习回顾','近期学习记录与日周月统计'],['reward','奖励与积分管理','自定义家庭奖励、兑现和加扣分'],['cloud','家庭云端数据',window.IslandSync?.getStatus?.()?.message||'同步状态尚未确认']].map(([a,n,s])=>`<button class="up-row" data-up="${a}"><span class="up-row-main"><b>${n}</b><small>${s}</small></span><span class="up-chevron">›</span></button>`).join('')}${child||ISLAND_PREVIEW?'':`<button class="up-row" data-up="child-device"><span class="up-row-main"><b>授权孩子设备</b><small>首次使用时生成一次性授权码</small></span><span class="up-chevron" aria-hidden="true">›</span></button><a class="up-row" href="./parent-password.html"><span class="up-row-main"><b>设置／重置家长密码</b><small>通过已验证的家长邮箱设置密码</small></span><span class="up-chevron" aria-hidden="true">›</span></a>`}`; }
 function cloudPage(){
  const s=window.IslandSync?.getStatus?.()||{cloudRecord:'unknown',current:'unknown',message:'同步状态尚未确认'};
  const record=s.cloudRecord==='yes'?'有有效记录':s.cloudRecord==='no'?'暂无记录':'尚未确认';
@@ -270,7 +348,9 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if
  if(a==='class'){const c=d.classes.find(x=>x.id===id);if(c){modal(`<div class="up-eyebrow">课程与准备</div><h1>${e(c.name)}</h1><div id="up-course-content"></div>${!child?button('编辑课程','edit-class','up-secondary',`data-id="${attr(id)}"`):''}`);const it=dayItems(d).find(x=>x.kind==='class'&&x.id===id)||{cls:c,date:ui.date,checkin:classCheckin(d,id,ui.date),done:!!classCheckin(d,id,ui.date)?.done};document.getElementById('up-course-content').innerHTML=renderTlClass({...it,date:ui.date},mode);}return;}
  if(a==='event'){const v=d.events.find(x=>x.id===id);if(v){modal(`<div class="up-eyebrow">${v.owner==='child'?'自己安排的':'家长安排'}</div><h1>${e(v.title)}</h1><div id="up-event-content"></div>${(!child||v.owner==='child'?button('编辑日程','edit-event','up-secondary',`data-id="${attr(id)}"`):'')}`);document.getElementById('up-event-content').innerHTML=renderTlEvent({ev:v,date:ui.date,done:v.done},mode);}return;}
  if(a==='family-code'){window.openFamilyCodeDialog?.();return;}
- if(a==='child-device'){window.IslandSync?.inviteChild?.();return;}
+ if(a==='child-device'){openDeviceInvite(b);return;}
+ if(a==='copy-device'){copyDeviceInvite(b);return;}
+ if(a==='parent-signout'){exitParent(b);return;}
  if(a==='sync-details'){window.IslandSync?.openPanel?.();return;}
  if(a==='sync-now'){window.IslandSync?.pull?.().catch(()=>showToast('云端暂时不可用，请稍后重试'));return;}
  if(a==='save-kid-name'){const name=(document.getElementById('up-kid-name')?.value||'').trim();if(!name){showToast('请填写孩子姓名');return;}d.kidName=name.slice(0,12);saveData(d);document.getElementById('up-dialog')?.close();after();showToast('孩子姓名已更新');return;}if(['publish','ocr','edit-task','delete-task','edit-class','edit-event','profile'].includes(a)){document.getElementById('up-dialog')?.close();if(a==='publish'||a==='ocr')openPublishSheet(a==='ocr'?'ocr':'manual');if(a==='edit-task')openHomeworkEditor(id);if(a==='delete-task')deleteHomework(id);if(a==='edit-class')openClassEditor(id);if(a==='edit-event')openEventEditor(id);if(a==='profile'){if(child)openMeEditor();else openKidNameEditor(d);return;}return;}
@@ -312,7 +392,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest('[data-up]');if
 
 });
 document.addEventListener('input',ev=>{if(ev.target.id==='up-journal-text'){ui.journalDraft.text=ev.target.value;document.getElementById('up-journal-count').textContent=ev.target.value.length;document.getElementById('up-journal-error').textContent='';}});
-window.addEventListener('island-sync-state',()=>{if(!ready)return;if(['cloud','family'].includes(ui.route)&&!ui.legacy)render();if(ui.legacy==='settings'&&!child)renderParentSettings(data());});
+window.addEventListener('island-sync-state',()=>{if(!ready)return;if(ui.route==='family'&&!ui.legacy){if(child)render();else updateFamilySync();}if(ui.route==='cloud'&&!ui.legacy)render();if(ui.legacy==='settings'&&!child)renderParentSettings(data());});
 window.addEventListener('island-family-data-updated',()=>{if(!ready)return;if(ui.legacy)legacy(ui.legacy,true);else render();});
 document.addEventListener('change',ev=>{if(ev.target.id==='up-review-toggle'){const d=data(),h=d.homework.find(x=>x.id===ev.target.dataset.id);if(h){h.requireReview=ev.target.checked;saveData(d);}}});
 document.addEventListener('DOMContentLoaded',()=>{
