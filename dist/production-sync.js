@@ -7,7 +7,7 @@
   const originalGet = getData;
   let memorySnapshot, cacheAvailable = true;
   getData = () => memorySnapshot ? { ...createDefaultData(), ...JSON.parse(JSON.stringify(memorySnapshot)) } : originalGet();
-  let client, user, revision, pending, running = false, blocked = false, gate;
+  let client, user, role = mode, revision, pending, running = false, blocked = false, gate;
   let storageKey = 'kaixin_production_locked';
   let status = { current: 'unknown', message: '正在核对云端记录' };
   activeStorageKey = () => storageKey;
@@ -17,8 +17,8 @@
     window.dispatchEvent(new CustomEvent('island-sync-state', { detail: status }));
   }
 
-  async function rpc(name, args = {}) {
-    const { data, error } = await client.rpc('kaixin_production_' + name, args);
+  async function rpc(name, args = {}, connection = client) {
+    const { data, error } = await connection.rpc('kaixin_production_' + name, args);
     if (error) throw error;
     if (!data?.ok) throw Object.assign(new Error(data?.error || 'server_error'), { code: data?.error });
     return data;
@@ -35,9 +35,9 @@
     return JSON.parse(localStorage.getItem(storageKey + ':pending') || 'null');
   }
 
-  async function readCloud() {
-    const remote = await rpc('load');
-    if (remote.role !== mode || !Number.isSafeInteger(remote.revision) || !Array.isArray(remote.payload?.homework))
+  async function readCloud(connection = client, expectedRole = role) {
+    const remote = await rpc('load', {}, connection);
+    if (remote.role !== expectedRole || !Number.isSafeInteger(remote.revision) || !Array.isArray(remote.payload?.homework))
       throw new Error('role_or_data_invalid');
     return remote;
   }
@@ -61,6 +61,23 @@
     }
   }
 
+  async function saveTaskAsParent(operation) {
+    const remote = await readCloud();
+    const { id, done, expected } = operation.task;
+    const matches = remote.payload.homework.filter(task => task.id === id);
+    if (matches.length !== 1) throw Object.assign(new Error('not_found_or_duplicate'), { code: 'not_found_or_duplicate' });
+    const [task] = matches;
+    if (task.requireReview) throw Object.assign(new Error('review_required'), { code: 'review_required' });
+    if (Boolean(task.done) === done) return remote;
+    if (remote.revision !== operation.base || Boolean(task.done) !== expected)
+      throw Object.assign(new Error('conflict'), { code: 'conflict' });
+    return rpc('save', {
+      p_expected_revision: remote.revision,
+      p_payload: { ...remote.payload, homework: remote.payload.homework.map(entry =>
+        entry === task ? { ...entry, done, completedAt: done ? new Date().toISOString() : null } : entry) }
+    });
+  }
+
   async function sync() {
     if (!user || running || blocked || document.hidden || navigator.onLine === false) return;
     running = true;
@@ -68,10 +85,11 @@
       const operation = pending;
       if (operation) {
         const args = { p_expected_revision: operation.base };
-        const result = operation.task
-          ? await rpc('set_homework_done', { ...args, p_homework_id: operation.task.id,
-              p_done: operation.task.done, p_expected_done: operation.task.expected })
-          : await rpc('save', { ...args, p_payload: operation.payload });
+        let result;
+        if (!operation.task) result = await rpc('save', { ...args, p_payload: operation.payload });
+        else if (role === 'parent') result = await saveTaskAsParent(operation);
+        else result = await rpc('set_homework_done', { ...args, p_homework_id: operation.task.id,
+          p_done: operation.task.done, p_expected_done: operation.task.expected });
         if (!Number.isSafeInteger(result.revision)) throw new Error('invalid_revision');
         revision = result.revision;
         if (pending === operation) remember(null);
@@ -157,12 +175,13 @@
     } catch (_) { showToast('设备空间不足，本次操作未保存'); }
   }
 
-  async function enter() {
-    const { data, error } = await client.auth.getUser();
+  async function enter(connection = client, expectedRole = mode) {
+    const { data, error } = await connection.auth.getUser();
     if (error) throw error;
     if (!data?.user) throw new Error('login_required');
-    const remote = await readCloud();
+    const remote = await readCloud(connection, expectedRole);
     storageKey = 'kaixin_production:' + data.user.id;
+    if (mode === 'child' && expectedRole === 'parent') storageKey += ':child-view';
     try { pending = readPending(); }
     catch (error) {
       if (error instanceof SyntaxError) throw new Error('pending_cache_invalid');
@@ -182,6 +201,8 @@
       report('pending', '正在核对本机待同步修改');
     }
     if (!pending) report('synced', cacheAvailable ? '云端数据已同步' : '云端数据已读取，本机存储不可用');
+    client = connection;
+    role = expectedRole;
     user = data.user;
     gate.close();
     gate.remove();
@@ -217,7 +238,7 @@
     gate = document.createElement('dialog');
     gate.style.cssText = 'max-width:360px;width:90%;padding:24px;border:0;border-radius:20px;background:#fffaf0;color:#50442c';
     gate.innerHTML = '<form><h2>开心岛</h2><p role="status">正在验证设备…</p>'
-      + (mode === 'child' ? '<label>家长授权码 <input name="token" autocomplete="off" autocapitalize="off" required></label><br><br>'
+      + (mode === 'child' ? '<label>家长授权码 <input name="token" autocomplete="off" autocapitalize="off" required></label><br><a href="./parent.html">家长登录</a><br><br>'
       : '<label>授权邮箱 <input type="email" name="email" autocomplete="username" required></label><br><br>'
       + '<label>密码 <input type="password" name="password" autocomplete="current-password" required></label><br><a href="./parent-password.html">忘记密码</a><br><br>')
       + '<button type="submit">进入开心岛</button> <button type="button">重新连接</button></form>';
@@ -239,9 +260,10 @@
       } catch (_) { /* The reconnect action remains available. */ }
     }
     if (!window.supabase?.createClient) { message.textContent = '登录服务加载失败，请重新连接'; return; }
-    client = window.supabase.createClient('https://syqcpfjudjniripzcjdq.supabase.co', 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax', {
-      auth: { storageKey: 'kaixin-production-session-' + mode, persistSession: true, detectSessionInUrl: false }
+    const clientFor = kind => window.supabase.createClient('https://syqcpfjudjniripzcjdq.supabase.co', 'sb_publishable_01AzYHAiAZYmahNkiYWeog_Y5y6Emax', {
+      auth: { storageKey: 'kaixin-production-session-' + kind, persistSession: true, detectSessionInUrl: false }
     });
+    client = clientFor(mode);
     form.onsubmit = async event => {
       event.preventDefault();
       const button = form.querySelector('button[type="submit"]');
@@ -271,8 +293,17 @@
     const submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
     try { await enter(); }
-    catch (error) { message.textContent = explainEntry(error); }
-    finally { submit.disabled = false; }
+    catch (error) {
+      if (mode === 'child' && ['AuthSessionMissingError', 'login_required', 'unavailable_or_unauthorized', 'unauthorized'].some(
+        code => [error.name, error.message, error.code].includes(code)
+      )) {
+        try { await enter(clientFor('parent'), 'parent'); return; }
+        catch (parentError) {
+          if (parentError.message === 'pending_cache_invalid') error = parentError;
+        }
+      }
+      message.textContent = explainEntry(error);
+    } finally { submit.disabled = false; }
   }
 
   window.IslandSync = {
