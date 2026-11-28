@@ -4,6 +4,9 @@
   if (typeof ISLAND_PREVIEW !== 'undefined' && ISLAND_PREVIEW) return;
   const mode = document.body.dataset.mode;
   const originalSave = saveData;
+  const originalGet = getData;
+  let memorySnapshot, cacheAvailable = true;
+  getData = () => memorySnapshot ? JSON.parse(JSON.stringify(memorySnapshot)) : originalGet();
   let client, user, revision, pending, running = false, blocked = false, gate;
   let storageKey = 'kaixin_production_locked';
   let status = { current: 'unknown', message: '正在核对云端记录' };
@@ -41,8 +44,16 @@
 
   function apply(remote) {
     const serialized = JSON.stringify(remote.payload);
-    const changed = localStorage.getItem(storageKey) !== serialized;
-    if (changed) localStorage.setItem(storageKey, serialized);
+    let changed = true;
+    try {
+      changed = localStorage.getItem(storageKey) !== serialized || Boolean(memorySnapshot);
+      if (changed) localStorage.setItem(storageKey, serialized);
+      memorySnapshot = undefined;
+      cacheAvailable = true;
+    } catch (_) {
+      memorySnapshot = remote.payload;
+      cacheAvailable = false;
+    }
     revision = remote.revision;
     if (changed) refreshCurrentView();
   }
@@ -66,7 +77,7 @@
       const remote = await readCloud();
       if (!pending) {
         apply(remote);
-        report('synced', '手机和电脑共用这份云端记录');
+        report('synced', cacheAvailable ? '手机和电脑共用这份云端记录' : '已读取云端记录，本机存储不可用');
       }
     } catch (error) {
       if (['conflict', 'review_required', 'not_found_or_duplicate'].includes(error.code)) {
@@ -108,6 +119,7 @@
 
   saveData = data => {
     if (!user || mode !== 'parent' || !Number.isSafeInteger(revision)) return false;
+    if (!cacheAvailable) { showToast('本机存储不可用，当前只能查看云端记录'); return false; }
     try {
       remember({ base: pending?.base ?? revision, payload: JSON.parse(JSON.stringify(data)) });
       originalSave(data);
@@ -135,10 +147,15 @@
 
   async function enter() {
     const { data, error } = await client.auth.getUser();
-    if (error || !data?.user) throw new Error('login_required');
+    if (error) throw error;
+    if (!data?.user) throw new Error('login_required');
     const remote = await readCloud();
     storageKey = 'kaixin_production:' + data.user.id;
-    pending = readPending();
+    try { pending = readPending(); }
+    catch (error) {
+      if (error instanceof SyntaxError) throw new Error('pending_cache_invalid');
+      cacheAvailable = false;
+    }
     if (!pending) apply(remote);
     else {
       if (pending.payload) localStorage.setItem(storageKey, JSON.stringify(pending.payload));
@@ -156,6 +173,20 @@
     window.addEventListener('online', sync);
     window.addEventListener('focus', sync);
     document.addEventListener('visibilitychange', sync);
+  }
+
+  function explainEntry(error) {
+    const code = error?.code || error?.message;
+    if (code === 'invalid_credentials') return '邮箱或密码不正确，可点「忘记密码」重新设置。';
+    if (code === 'email_not_confirmed') return '邮箱尚未验证，请先完成邮箱验证。';
+    if (code === 'login_required' || error?.name === 'AuthSessionMissingError')
+      return mode === 'parent' ? '请用家长邮箱和密码登录。' : '请家长为这台设备完成一次授权。';
+    if (['invalid_invite', 'already_bound'].includes(code)) return '授权码无效或已使用，请家长重新生成。';
+    if (['unauthorized', 'unavailable_or_unauthorized'].includes(code))
+      return mode === 'parent' ? '这个账号未绑定家长权限，请核对登录邮箱。' : '这台设备尚未获得家长授权。';
+    if (code === 'pending_cache_invalid') return '本机待同步记录无法读取。原记录已保留，请联系协助处理。';
+    if (code === 'role_or_data_invalid') return '身份已验证，但此入口或云端数据格式不匹配。';
+    return '暂时无法读取家庭记录，请点「重新连接」重试。';
   }
 
   async function start() {
@@ -215,13 +246,13 @@
           if (error) throw error;
         }
         await enter();
-      } catch (_) { message.textContent = mode === 'child' ? '授权未完成，请核对授权码或请家长重新生成' : '登录失败，或这个账号尚未获授权'; }
+      } catch (error) { message.textContent = explainEntry(error); }
       finally { button.disabled = false; }
     };
     const submit = form.querySelector('button[type="submit"]');
     submit.disabled = true;
     try { await enter(); }
-    catch (_) { message.textContent = mode === 'parent' ? '请使用已授权的家长账号登录' : '请家长为这台设备完成一次授权'; }
+    catch (error) { message.textContent = explainEntry(error); }
     finally { submit.disabled = false; }
   }
 
